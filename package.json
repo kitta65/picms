@@ -28,6 +28,7 @@
 		"@types/bun": "latest",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
+		"lefthook": "^2.1.6",
 		"tailwindcss": "^4.1.11"
 	}
 }
