@@ -1,0 +1,13 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		// https://marketplace.visualstudio.com/items?itemName=oven.bun-vscode
+		{
+			"type": "bun",
+			"request": "attach",
+			"name": "Attach to Bun",
+			// see https://github.com/oven-sh/bun/issues/7225
+			"url": "ws://localhost:6499/scripts-dev"
+		}
+	]
+}

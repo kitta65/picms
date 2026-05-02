@@ -1,0 +1,38 @@
+// https://containers.dev/implementors/json_reference/
+{
+	"name": "${localWorkspaceFolderBasename}",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"containerEnv": {
+		// https://code.claude.com/docs/en/env-vars
+		"CLAUDE_CONFIG_DIR": "${containerWorkspaceFolder}/.claude-config"
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"anthropic.claude-code",
+				"biomejs.biome",
+				"bradlc.vscode-tailwindcss",
+				"oven.bun-vscode"
+			],
+			"settings": {
+				"editor.defaultFormatter": "biomejs.biome",
+				// recommended by tailwind https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
+				"editor.quickSuggestions": {
+					"strings": "on"
+				},
+				"files.associations": {
+					"*.css": "tailwindcss"
+				},
+				"json.schemaDownload.trustedDomains": {
+					"https://ui.shadcn.com/": true
+				}
+			}
+		}
+	}
+}
