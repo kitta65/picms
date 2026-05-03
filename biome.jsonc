@@ -1,5 +1,8 @@
 {
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"files": {
+		"includes": ["**", "!.devcontainer/devcontainer-lock.json"]
+	},
 	"css": {
 		"parser": {
 			"tailwindDirectives": true
