@@ -1,9 +1,16 @@
 {
-	"name": "main",
+	"name": "picms-main",
 	"version": "0.1.0",
 	"module": "index.ts",
 	"type": "module",
 	"private": true,
+	"scripts": {
+		"build": "bun build index.ts --compile --outfile=dist/picms",
+		"dev": "bun --inspect=0.0.0.0:6499/scripts-dev --hot index.ts"
+	},
+	"dependencies": {
+		"picms-web": "workspace:*"
+	},
 	"devDependencies": {
 		"@types/bun": "latest"
 	},

@@ -7,9 +7,9 @@
 		"packages/*"
 	],
 	"scripts": {
-		"dev": "bun --inspect=0.0.0.0:6499/scripts-dev --hot src/index.ts",
+		"dev": "bun run --filter '*' dev",
 		"start": "NODE_ENV=production bun src/index.ts",
-		"build": "bun run build.ts",
+		"build": "bun run --filter '*' build",
 		"lint": "biome check",
 		"fix": "biome check --write"
 	},
