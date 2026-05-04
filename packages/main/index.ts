@@ -1,11 +1,14 @@
 import { serve } from "bun";
+import { PACKAGE, PORT } from "picms-common/constants";
 import index from "picms-web/dist/index.html";
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 const server = serve({
 	routes: {
-		"/*": IS_PRODUCTION ? index : Response.redirect("http://localhost:5173"),
+		"/*": IS_PRODUCTION
+			? index
+			: Response.redirect(`http://localhost:${PORT[PACKAGE.WEB]}`),
 
 		"/api/hello": {
 			async GET(_req) {
@@ -29,7 +32,7 @@ const server = serve({
 			});
 		},
 	},
-	port: 3000,
+	port: PORT[PACKAGE.MAIN],
 });
 
 console.log(`🚀 Server running at ${server.url}`);

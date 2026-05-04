@@ -9,10 +9,20 @@
         "lefthook": "^2.1.6",
       },
     },
+    "packages/common": {
+      "name": "picms-common",
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
+    },
     "packages/main": {
       "name": "picms-main",
       "version": "0.1.0",
       "dependencies": {
+        "picms-common": "workspace:*",
         "picms-web": "workspace:*",
       },
       "devDependencies": {
@@ -33,6 +43,7 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "lucide-react": "^1",
+        "picms-common": "workspace:*",
         "react": "^19",
         "react-dom": "^19",
         "tailwind-merge": "^3.3.1",
@@ -200,6 +211,8 @@
     "lefthook-windows-x64": ["lefthook-windows-x64@2.1.6", "", { "os": "win32", "cpu": "x64" }, "sha512-q4z2n3xucLscoWiyMwFViEj3N8MDSkPulMwcJYuCYFHoPhP1h+icqNu7QRLGYj6AnVrCQweiUJY3Tb2X+GbD/A=="],
 
     "lucide-react": ["lucide-react@1.14.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-+1mdWcfSJVUsaTIjN9zoezmUhfXo5l0vP7ekBMPo3jcS/aIkxHnXqAPsByszMZx/Y8oQBRJxJx5xg+RH3urzxA=="],
+
+    "picms-common": ["picms-common@workspace:packages/common"],
 
     "picms-main": ["picms-main@workspace:packages/main"],
 

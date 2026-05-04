@@ -1,4 +1,5 @@
 import { serve } from "bun";
+import { PACKAGE, PORT } from "picms-common/constants";
 import index from "./index.html";
 
 const server = serve({
@@ -7,7 +8,10 @@ const server = serve({
 		"/": index,
 		"/*": async (req) => {
 			const url = new URL(req.url);
-			return fetch(`http://localhost:3000${url.pathname}?${url.search}`, req);
+			return fetch(
+				`http://localhost:${PORT[PACKAGE.MAIN]}${url.pathname}?${url.search}`,
+				req,
+			);
 		},
 	},
 
@@ -18,7 +22,7 @@ const server = serve({
 		// Echo console logs from the browser to the server
 		console: true,
 	},
-	port: 5173,
+	port: PORT[PACKAGE.WEB],
 });
 
 console.log(`🚀 Server running at ${server.url}`);

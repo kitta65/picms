@@ -1,0 +1,13 @@
+{
+	"name": "picms-common",
+	"exports": {
+		"./*": "./src/*.ts"
+	},
+	"type": "module",
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
+}

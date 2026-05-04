@@ -9,6 +9,7 @@
 		"dev": "bun --inspect=0.0.0.0:6499/scripts-dev --hot index.ts"
 	},
 	"dependencies": {
+		"picms-common": "workspace:*",
 		"picms-web": "workspace:*"
 	},
 	"devDependencies": {
