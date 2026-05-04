@@ -1,4 +1,5 @@
 {
+	"extends": "../../tsconfig.json",
 	"compilerOptions": {
 		// Environment setup & latest features
 		"lib": ["ESNext", "DOM"],
@@ -6,7 +7,6 @@
 		"module": "Preserve",
 		"moduleDetection": "force",
 		"jsx": "react-jsx",
-		"allowJs": true,
 		"types": ["bun", "react"],
 
 		// Bundler mode
@@ -15,21 +15,9 @@
 		"verbatimModuleSyntax": true,
 		"noEmit": true,
 
-		// Best practices
-		"strict": true,
-		"skipLibCheck": true,
-		"noFallthroughCasesInSwitch": true,
-		"noUncheckedIndexedAccess": true,
-		"noImplicitOverride": true,
-
 		"paths": {
 			"@/*": ["./src/*"]
-		},
-
-		// Some stricter flags (disabled by default)
-		"noUnusedLocals": false,
-		"noUnusedParameters": false,
-		"noPropertyAccessFromIndexSignature": false
+		}
 	},
 
 	"exclude": ["dist", "node_modules"]
