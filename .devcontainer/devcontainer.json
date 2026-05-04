@@ -18,6 +18,7 @@
 				"anthropic.claude-code",
 				"biomejs.biome",
 				"bradlc.vscode-tailwindcss",
+				"GitHub.vscode-github-actions",
 				"oven.bun-vscode",
 				"tamasfe.even-better-toml"
 			],
@@ -35,6 +36,9 @@
 				},
 				"[toml]": {
 					"editor.defaultFormatter": "tamasfe.even-better-toml"
+				},
+				"[yaml]": {
+					"editor.tabSize": 2
 				}
 			}
 		}
