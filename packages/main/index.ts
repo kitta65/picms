@@ -1,9 +1,11 @@
 import { serve } from "bun";
+import index from "picms-web/dist/index.html";
+
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 const server = serve({
 	routes: {
-		// Serve index.html for all unmatched routes.
-		// "/*": index,
+		"/*": IS_PRODUCTION ? index : Response.redirect("http://localhost:5173"),
 
 		"/api/hello": {
 			async GET(_req) {
@@ -26,14 +28,6 @@ const server = serve({
 				message: `Hello, ${name}!`,
 			});
 		},
-	},
-
-	development: process.env.NODE_ENV !== "production" && {
-		// Enable browser hot reloading in development
-		hmr: true,
-
-		// Echo console logs from the browser to the server
-		console: true,
 	},
 	port: 3000,
 });

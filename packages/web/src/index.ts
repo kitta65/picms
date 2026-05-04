@@ -2,30 +2,12 @@ import { serve } from "bun";
 import index from "./index.html";
 
 const server = serve({
+	// delegate everything except for index.html
 	routes: {
-		// Serve index.html for all unmatched routes.
-		"/*": index,
-
-		"/api/hello": {
-			async GET(_req) {
-				return Response.json({
-					message: "Hello, world!",
-					method: "GET",
-				});
-			},
-			async PUT(_req) {
-				return Response.json({
-					message: "Hello, world!",
-					method: "PUT",
-				});
-			},
-		},
-
-		"/api/hello/:name": async (req) => {
-			const name = req.params.name;
-			return Response.json({
-				message: `Hello, ${name}!`,
-			});
+		"/": index,
+		"/*": async (req) => {
+			const url = new URL(req.url);
+			return fetch(`http://localhost:3000${url.pathname}?${url.search}`, req);
 		},
 	},
 

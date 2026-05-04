@@ -5,7 +5,7 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"build": "bun build index.ts --compile --outfile=dist/picms",
+		"build": "bun build --production --outfile=dist/picms --compile index.ts",
 		"dev": "bun --inspect=0.0.0.0:6499/scripts-dev --hot index.ts"
 	},
 	"dependencies": {

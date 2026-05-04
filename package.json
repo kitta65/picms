@@ -7,8 +7,8 @@
 		"packages/*"
 	],
 	"scripts": {
-		"dev": "bun run --filter '*' dev",
-		"start": "NODE_ENV=production bun src/index.ts",
+		"dev": "bun run --filter '*' --parallel dev",
+		"start": "./packages/main/dist/picms",
 		"build": "bun run --filter '*' build",
 		"lint": "biome check",
 		"fix": "biome check --write"
