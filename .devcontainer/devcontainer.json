@@ -18,7 +18,8 @@
 				"anthropic.claude-code",
 				"biomejs.biome",
 				"bradlc.vscode-tailwindcss",
-				"oven.bun-vscode"
+				"oven.bun-vscode",
+				"tamasfe.even-better-toml"
 			],
 			"settings": {
 				"editor.defaultFormatter": "biomejs.biome",
@@ -31,6 +32,9 @@
 				},
 				"json.schemaDownload.trustedDomains": {
 					"https://ui.shadcn.com/": true
+				},
+				"[toml]": {
+					"editor.defaultFormatter": "tamasfe.even-better-toml"
 				}
 			}
 		}

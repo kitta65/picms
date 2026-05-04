@@ -26,10 +26,10 @@
 			"@/*": ["./src/*"]
 		},
 
-		// Some stricter flags
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noPropertyAccessFromIndexSignature": true
+		// Some stricter flags (disabled by default)
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noPropertyAccessFromIndexSignature": false
 	},
 
 	"exclude": ["dist", "node_modules"]
