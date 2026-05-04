@@ -7,11 +7,13 @@
 	},
 	"containerEnv": {
 		// https://code.claude.com/docs/en/env-vars
-		"CLAUDE_CONFIG_DIR": "${containerWorkspaceFolder}/.claude-config"
+		"CLAUDE_CONFIG_DIR": "${containerWorkspaceFolder}/.claude-config",
+		"BUN_INSTALL_CACHE_DIR": "${containerWorkspaceFolder}/.bun-cache"
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
+	"postCreateCommand": "bun run setup",
 	"customizations": {
 		"vscode": {
 			"extensions": [
