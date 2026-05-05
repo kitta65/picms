@@ -10,6 +10,7 @@
 	},
 	"dependencies": {
 		"picms-common": "workspace:*",
+		"picms-server": "workspace:*",
 		"picms-web": "workspace:*"
 	},
 	"devDependencies": {

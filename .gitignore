@@ -1,4 +1,7 @@
 dist/
 node_modules/
-.claude-config/
 .bun-cache/
+
+# claude
+.claude-config/
+.claude/settings.local.json

@@ -30,17 +30,12 @@
 				"editor.quickSuggestions": {
 					"strings": "on"
 				},
+				"editor.tabSize": 2,
 				"files.associations": {
 					"*.css": "tailwindcss"
 				},
 				"json.schemaDownload.trustedDomains": {
 					"https://ui.shadcn.com/": true
-				},
-				"[toml]": {
-					"editor.defaultFormatter": "tamasfe.even-better-toml"
-				},
-				"[yaml]": {
-					"editor.tabSize": 2
 				}
 			}
 		}

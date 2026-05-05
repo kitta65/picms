@@ -1,35 +1,17 @@
-import { serve } from "bun";
-import { PACKAGE, PORT } from "picms-common/constants";
+import { PACKAGE, PORT, ROUTE } from "picms-common/constants";
+import { app } from "picms-server";
 import index from "picms-web/dist/index.html";
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
-const server = serve({
+const server = Bun.serve({
 	routes: {
 		"/*": IS_PRODUCTION
 			? index
 			: Response.redirect(`http://localhost:${PORT[PACKAGE.WEB]}`),
 
-		"/api/hello": {
-			async GET(_req) {
-				return Response.json({
-					message: "Hello, world!",
-					method: "GET",
-				});
-			},
-			async PUT(_req) {
-				return Response.json({
-					message: "Hello, world!",
-					method: "PUT",
-				});
-			},
-		},
-
-		"/api/hello/:name": async (req) => {
-			const name = req.params.name;
-			return Response.json({
-				message: `Hello, ${name}!`,
-			});
+		[ROUTE[PACKAGE.SERVER]]: async (req) => {
+			return app.fetch(req);
 		},
 	},
 	port: PORT[PACKAGE.MAIN],
