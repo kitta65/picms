@@ -11,8 +11,8 @@
 		"dev": "bun run --filter '*' --parallel dev",
 		"start": "./packages/main/dist/picms",
 		"build": "bun run --filter '*' build",
-		"lint": "biome check",
-		"fix": "biome check --write"
+		"lint": "knip && biome check",
+		"fix": "knip --fix && biome check --write --unsafe"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.14",
