@@ -11,11 +11,14 @@
 		"dev": "bun run --filter '*' --parallel dev",
 		"start": "./packages/main/dist/picms",
 		"build": "bun run --filter '*' build",
-		"lint": "biome check",
-		"fix": "biome check --write"
+		"lint": "knip && biome check",
+		"fix": "knip --fix && biome check --write --unsafe"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.14",
-		"lefthook": "^2.1.6"
+		"@types/node": "^25.6.0",
+		"knip": "^6.11.0",
+		"lefthook": "^2.1.6",
+		"typescript": "^6.0.3"
 	}
 }

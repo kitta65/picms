@@ -35,7 +35,8 @@
 					"*.css": "tailwindcss"
 				},
 				"json.schemaDownload.trustedDomains": {
-					"https://ui.shadcn.com/": true
+					"https://ui.shadcn.com/": true,
+					"https://unpkg.com": true
 				}
 			}
 		}
