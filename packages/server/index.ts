@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import { PACKAGE, ROUTE } from "picms-common/constants";
 
-export const app = new Hono();
+export const API_BASE_PATH = "/api";
+export const API: Hono = new Hono();
 
-app.get(ROUTE[PACKAGE.SERVER], (c) => {
-	return c.text("hello from server");
+API.get("/", (c) => {
+  return c.text("hello from server");
 });

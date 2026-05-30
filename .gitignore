@@ -1,6 +1,5 @@
-dist/
-node_modules/
-.bun-cache/
+# deno
+.deno-cache
 
 # claude
 .claude-config/

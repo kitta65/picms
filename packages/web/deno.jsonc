@@ -1,0 +1,4 @@
+{
+  "name": "@picms/web",
+  "exports": "./dist/index.html"
+}

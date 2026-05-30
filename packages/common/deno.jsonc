@@ -1,0 +1,6 @@
+{
+  "name": "@picms/common",
+  "exports": {
+    "./constants": "./src/constants.ts"
+  }
+}

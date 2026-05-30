@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    // NOTE: since it causes infinit loop, do not define recursive tasks here!
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1"
+  },
+  "workspace": ["./packages/*"]
+}

@@ -1,13 +1,15 @@
 {
-	"version": "0.2.0",
-	"configurations": [
-		// https://marketplace.visualstudio.com/items?itemName=oven.bun-vscode
-		{
-			"type": "bun",
-			"request": "attach",
-			"name": "Attach to Bun",
-			// see https://github.com/oven-sh/bun/issues/7225
-			"url": "ws://localhost:6499/scripts-dev"
-		}
-	]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach",
+      "port": 9229,
+      "request": "attach",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      // that's ok. https://docs.deno.com/runtime/reference/vscode/#using-the-debugger
+      "type": "node"
+    }
+  ]
 }

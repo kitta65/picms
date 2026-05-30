@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    // --inspect is required for debugging
+    "dev": "deno run --allow-net --inspect --watch index.ts",
+    "build": "deno compile --allow-net --output dist/picms index.ts"
+  }
+}

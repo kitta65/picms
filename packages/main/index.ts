@@ -1,20 +1,20 @@
-import { PACKAGE, PORT, ROUTE } from "picms-common/constants";
-import { app } from "picms-server";
-import index from "picms-web/dist/index.html";
+import { PACKAGE, PORT } from "@picms/common/constants";
+import { API, API_BASE_PATH } from "@picms/server";
+import index from "@picms/web" with { type: "text" };
 
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
+export const BASE_URL = `http://localhost:${PORT[PACKAGE.MAIN]}`;
+export const API_ROUTE = new URLPattern(`${API_BASE_PATH}/*`, BASE_URL);
 
-const server = Bun.serve({
-	routes: {
-		"/*": IS_PRODUCTION
-			? index
-			: Response.redirect(`http://localhost:${PORT[PACKAGE.WEB]}`),
+export async function handler(req: Request): Promise<Response> {
+  if (API_ROUTE.test(req.url)) {
+    return await API.fetch(req);
+  }
 
-		[ROUTE[PACKAGE.SERVER]]: async (req) => {
-			return app.fetch(req);
-		},
-	},
-	port: PORT[PACKAGE.MAIN],
-});
+  return new Response(index, {
+    headers: { "content-type": "text/html" },
+  });
+}
 
-console.log(`🚀 Server running at ${server.url}`);
+if (import.meta.main) {
+  Deno.serve({ port: PORT[PACKAGE.MAIN] }, handler);
+}

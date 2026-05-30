@@ -1,44 +1,44 @@
 // https://containers.dev/implementors/json_reference/
 {
-	"name": "${localWorkspaceFolderBasename}",
-	"build": {
-		"dockerfile": "Dockerfile",
-		"context": ".."
-	},
-	"containerEnv": {
-		// https://code.claude.com/docs/en/env-vars
-		"CLAUDE_CONFIG_DIR": "${containerWorkspaceFolder}/.claude-config",
-		"BUN_INSTALL_CACHE_DIR": "${containerWorkspaceFolder}/.bun-cache"
-	},
-	"features": {
-		"ghcr.io/devcontainers/features/github-cli:1": {}
-	},
-	"postCreateCommand": "bun run setup",
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"anthropic.claude-code",
-				"biomejs.biome",
-				"bradlc.vscode-tailwindcss",
-				"GitHub.vscode-github-actions",
-				"oven.bun-vscode",
-				"tamasfe.even-better-toml"
-			],
-			"settings": {
-				"editor.defaultFormatter": "biomejs.biome",
-				// recommended by tailwind https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
-				"editor.quickSuggestions": {
-					"strings": "on"
-				},
-				"editor.tabSize": 2,
-				"files.associations": {
-					"*.css": "tailwindcss"
-				},
-				"json.schemaDownload.trustedDomains": {
-					"https://ui.shadcn.com/": true,
-					"https://unpkg.com": true
-				}
-			}
-		}
-	}
+  "name": "${localWorkspaceFolderBasename}",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "containerEnv": {
+    // https://code.claude.com/docs/en/env-vars
+    "CLAUDE_CONFIG_DIR": "${containerWorkspaceFolder}/.claude-config",
+    // https://docs.deno.com/runtime/getting_started/installation/#cache-location
+    "DENO_DIR": "${containerWorkspaceFolder}/.deno-cache"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "bradlc.vscode-tailwindcss",
+        "denoland.vscode-deno",
+        "GitHub.vscode-github-actions"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "denoland.vscode-deno",
+        // recommended by tailwind https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
+        "editor.quickSuggestions": {
+          "strings": "on"
+        },
+        "editor.tabSize": 2,
+        "files.associations": {
+          "*.css": "tailwindcss"
+        },
+        "json.schemaDownload.trustedDomains": {
+          // required for deno.jsonc but be careful!
+          "https://raw.githubusercontent.com": true,
+
+          "https://ui.shadcn.com/": true,
+          "https://unpkg.com": true
+        }
+      }
+    }
+  }
 }
