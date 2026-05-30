@@ -12,7 +12,8 @@
 		"start": "./packages/main/dist/picms",
 		"build": "bun run --filter '*' build",
 		"lint": "knip && biome check",
-		"fix": "knip --fix && biome check --write --unsafe"
+		"fix": "knip --fix && biome check --write",
+		"fix:unsafe": "knip --fix && biome check --write --unsafe"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.14",
