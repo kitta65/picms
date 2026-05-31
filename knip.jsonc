@@ -3,6 +3,7 @@
 	"tags": ["-lintignore"],
 	"workspaces": {
 		".": {},
+		"packages/main": {},
 		"packages/web": {
 			"entry": ["src/frontend.tsx"]
 		}
