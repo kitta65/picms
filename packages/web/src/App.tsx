@@ -1,3 +1,4 @@
+import type { ColumnDef } from "@tanstack/react-table";
 import { BookOpen } from "lucide-react";
 import {
 	Breadcrumb,
@@ -25,9 +26,44 @@ import {
 } from "@/components/ui/tooltip";
 import "./index.css";
 
-import { columns, type Payment } from "./components/columns";
-import { DataTable } from "./components/data-table";
+import { DataTable } from "./components/ui/data-table";
 import logo from "./logo.svg";
+
+type Work = {
+	id: string;
+	thumbnail: string;
+	title: string;
+	tags: string[];
+	createdAt: Date;
+	updatedAt: Date;
+};
+
+const columns: ColumnDef<Work>[] = [
+	{
+		accessorKey: "id",
+		header: "Id",
+	},
+	{
+		accessorKey: "thumbnail",
+		header: "Thumbnail",
+	},
+	{
+		accessorKey: "title",
+		header: "Title",
+	},
+	{
+		accessorKey: "tags",
+		header: "Tags",
+	},
+	{
+		accessorKey: "createdAt",
+		header: "CreatedAt",
+	},
+	{
+		accessorKey: "updatedAt",
+		header: "UpdatedAt",
+	},
+];
 
 export function App() {
 	return (
@@ -51,7 +87,7 @@ export function App() {
 							</NavigationMenuItem>
 							<NavigationMenuItem>
 								<NavigationMenuLink className={navigationMenuTriggerStyle()}>
-									Config
+									Settings
 								</NavigationMenuLink>
 							</NavigationMenuItem>
 						</NavigationMenuList>
@@ -94,12 +130,15 @@ export function App() {
 							[
 								{
 									id: "728ed52f",
-									amount: 100,
-									status: "pending",
-									email: "m@example.com",
+									thumbnail:
+										"https://raw.githubusercontent.com/kitta65/picms/refs/heads/main/packages/web/src/logo.svg",
+									title: "sample",
+									tags: ["foo", "bar"],
+									createdAt: new Date(),
+									updatedAt: new Date(),
 								},
 								// ...
-							] satisfies Payment[]
+							] satisfies Work[]
 						}
 					/>
 				</div>
