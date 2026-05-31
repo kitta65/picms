@@ -37,6 +37,9 @@
 				"json.schemaDownload.trustedDomains": {
 					"https://ui.shadcn.com/": true,
 					"https://unpkg.com": true
+				},
+				"[dockerfile]": {
+					"editor.tabSize": 4
 				}
 			}
 		}
