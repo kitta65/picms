@@ -13,9 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2
-      - uses: oven-sh/setup-bun@v2.2.0
-        with:
-          bun-version-file: ".bun-version"
-      - run: bun run setup
-      - run: bun run lint
-      - run: bun run build
+      - run: npm install -g @devcontainers/cli@0.87.0
+      - run: devcontainer up
+      - run: devcontainer exec bun run lint
+      - run: devcontainer exec bun run test
+      - run: devcontainer exec bun run build
