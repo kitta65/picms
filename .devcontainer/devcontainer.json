@@ -2,8 +2,7 @@
 {
 	"name": "${localWorkspaceFolderBasename}",
 	"build": {
-		"dockerfile": "Dockerfile",
-		"context": ".."
+		"dockerfile": "Dockerfile"
 	},
 	"containerEnv": {
 		// https://code.claude.com/docs/en/env-vars
