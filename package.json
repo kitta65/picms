@@ -14,7 +14,8 @@
 		"lint": "knip && biome check",
 		"fix": "knip --fix && biome check --write",
 		"fix:unsafe": "knip --fix && biome check --write --unsafe",
-		"prepare": "husky"
+		"prepare": "husky",
+		"test": "bun test"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.14",
