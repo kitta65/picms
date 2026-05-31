@@ -12,7 +12,7 @@
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
-	"postCreateCommand": "bun run setup",
+	"postCreateCommand": "bun run setup && bun run build",
 	"customizations": {
 		"vscode": {
 			"extensions": [
