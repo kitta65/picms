@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Clock } from "lucide-react";
-import { Link } from "wouter";
+import { useEffect } from "react";
+import { Link, useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -64,7 +65,21 @@ const columns: (ColumnDef<Work> & { accessorKey?: keyof Work })[] = [
 	},
 ];
 
+function useWorkId() {
+	const params = useParams();
+	const [location, setLocation] = useLocation();
+	useEffect(() => {
+		const mayBeId = params[0];
+		if (!mayBeId) return;
+
+		console.warn(`TODO: filter by workId: ${mayBeId}`);
+		setLocation(location.slice(0, -(mayBeId.length + 1)), { replace: true });
+	});
+}
+
 export function Works() {
+	useWorkId();
+
 	return (
 		<DataTable
 			columns={columns}

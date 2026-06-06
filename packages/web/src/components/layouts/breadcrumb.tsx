@@ -13,7 +13,11 @@ import { ROUTE } from "@/lib/constants";
 const BASE_URL = window.location.origin;
 
 export function Breadcrumb({ className }: React.ComponentProps<"nav">) {
-	const [location] = useLocation();
+	let [location] = useLocation();
+	if (location.endsWith("/")) {
+		// trailing slash does not matter in this application
+		location = location.slice(0, -1);
+	}
 	const items = location.split("/");
 
 	if (
