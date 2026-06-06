@@ -13,7 +13,10 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ROUTE } from "@/lib/constants";
 import logo from "@/logo.svg";
+
+const LINKS = [ROUTE.WORKS, ROUTE.SERIES, ROUTE.SETTINGS];
 
 export function Header() {
 	return (
@@ -23,24 +26,16 @@ export function Header() {
 			</a>
 			<NavigationMenu>
 				<NavigationMenuList>
-					<NavigationMenuItem>
-						<NavigationMenuLink
-							className={navigationMenuTriggerStyle()}
-							asChild
-						>
-							<Link to="/works"> works </Link>
-						</NavigationMenuLink>
-					</NavigationMenuItem>
-					<NavigationMenuItem>
-						<NavigationMenuLink className={navigationMenuTriggerStyle()}>
-							Series
-						</NavigationMenuLink>
-					</NavigationMenuItem>
-					<NavigationMenuItem>
-						<NavigationMenuLink className={navigationMenuTriggerStyle()}>
-							Settings
-						</NavigationMenuLink>
-					</NavigationMenuItem>
+					{LINKS.map((link) => (
+						<NavigationMenuItem key={link.pattern}>
+							<NavigationMenuLink
+								className={navigationMenuTriggerStyle()}
+								asChild
+							>
+								<Link to={link.pattern}> {link.label} </Link>
+							</NavigationMenuLink>
+						</NavigationMenuItem>
+					))}
 				</NavigationMenuList>
 			</NavigationMenu>
 			<div className="ml-auto">

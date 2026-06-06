@@ -1,15 +1,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Header } from "@/components/layouts/header";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Clock } from "lucide-react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
-import { Separator } from "@/components/ui/separator";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Work = {
 	id: string;
@@ -20,14 +18,16 @@ type Work = {
 	updatedAt: Date;
 };
 
-const columns: ColumnDef<Work>[] = [
+const columns: (ColumnDef<Work> & { accessorKey?: keyof Work })[] = [
+	{
+		accessorKey: "thumbnail",
+		cell: ({ row }) => (
+			<img className="size-12" src={row.original.thumbnail} alt="" />
+		),
+	},
 	{
 		accessorKey: "id",
 		header: "Id",
-	},
-	{
-		accessorKey: "thumbnail",
-		header: "Thumbnail",
 	},
 	{
 		accessorKey: "title",
@@ -45,51 +45,61 @@ const columns: ColumnDef<Work>[] = [
 		accessorKey: "updatedAt",
 		header: "UpdatedAt",
 	},
+	{
+		id: "action",
+		cell: ({ row }) => (
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button asChild variant="ghost" size="icon">
+						<Link to={`/works/${row.original.id}/versions`}>
+							<Clock />
+						</Link>
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>View versions</p>
+				</TooltipContent>
+			</Tooltip>
+		),
+	},
 ];
 
 export function Works() {
 	return (
-		<div className="mx-6 my-2">
-			<Header />
-			<Separator className="my-2" />
-			<div className="container mx-auto">
-				<Breadcrumb className="mb-2">
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink href="/">Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbLink href="/components">Components</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>Breadcrumb</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-				<DataTable
-					columns={columns}
-					data={
-						[
-							{
-								id: "728ed52f",
-								thumbnail:
-									"https://raw.githubusercontent.com/kitta65/picms/refs/heads/main/packages/web/src/logo.svg",
-								title: "sample",
-								tags: ["foo", "bar"],
-								createdAt: new Date(),
-								updatedAt: new Date(),
-							},
-							// ...
-						] satisfies Work[]
-					}
-				/>
-			</div>
-			<Separator className="my-2" />
-			<footer className="mt-auto text-right text-muted-foreground">
-				Copyright © 2026 kitta65
-			</footer>
-		</div>
+		<DataTable
+			columns={columns}
+			data={
+				[
+					{
+						id: "728ed52f",
+						thumbnail:
+							"https://raw.githubusercontent.com/kitta65/picms/refs/heads/main/packages/web/src/logo.svg",
+						title: "sample",
+						tags: ["foo", "bar"],
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					},
+					{
+						id: "728ed52g",
+						thumbnail:
+							"https://raw.githubusercontent.com/kitta65/picms/refs/heads/main/packages/web/src/logo.svg",
+						title: "sample",
+						tags: ["foo", "bar"],
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					},
+					{
+						id: "728ed52h",
+						thumbnail:
+							"https://raw.githubusercontent.com/kitta65/picms/refs/heads/main/packages/web/src/logo.svg",
+						title: "sample",
+						tags: ["foo", "bar"],
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					},
+					// ...
+				] satisfies Work[]
+			}
+		/>
 	);
 }
