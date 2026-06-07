@@ -65,18 +65,18 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 					<ButtonGroup
 						className={cn("fixed right-0 top-0", Z, MERGIN, ANIMATION)}
 					>
-						<Button>
+						<Button size="icon">
 							<EyeClosed />
 						</Button>
-						<Button>
+						<Button size="icon">
 							<ExternalLink />
 						</Button>
-						<Button>
+						<Button size="icon">
 							<Download />
 						</Button>
 						<ButtonGroupSeparator className={cn("bg-transparent")} />
 						<Dialog.Close asChild>
-							<Button>
+							<Button size="icon">
 								<X />
 							</Button>
 						</Dialog.Close>
@@ -91,7 +91,11 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 							ANIMATION,
 						)}
 					>
-						<Button disabled={idx <= 0} onClick={() => setIdx(idx - 1)}>
+						<Button
+							size="icon"
+							disabled={idx <= 0}
+							onClick={() => setIdx(idx - 1)}
+						>
 							<MoveLeft />
 						</Button>
 					</div>
@@ -104,6 +108,7 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 						)}
 					>
 						<Button
+							size="icon"
 							disabled={data.length - 1 <= idx}
 							onClick={() => setIdx(idx + 1)}
 						>

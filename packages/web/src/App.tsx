@@ -1,6 +1,8 @@
 import "./index.css";
+
 import { StrictMode } from "react";
 import { Redirect, Route, Switch } from "wouter";
+
 import { Breadcrumb } from "@/components/layouts/breadcrumb";
 import { Footer } from "@/components/layouts/footer";
 import { Header } from "@/components/layouts/header";
@@ -9,6 +11,8 @@ import { Series } from "@/components/routes/series";
 import { Settings } from "@/components/routes/settings";
 import { Versions } from "@/components/routes/versions";
 import { Works } from "@/components/routes/works";
+import { WorksEdit } from "@/components/routes/works-edit";
+import { WorksNew } from "@/components/routes/works-new";
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { isRoute, ROUTE, type Route as RouteType } from "@/lib/constants";
@@ -26,6 +30,8 @@ const ROUTE_TO_COMPONENT: { [k in RouteType]: React.ComponentType } = {
 	HOME: Home,
 	WORKS: Works,
 	WORKS_WITH_ID: Works,
+	WORKS_NEW: WorksNew,
+	WORKS_EDIT: WorksEdit,
 	VERSIONS: Versions,
 	SERIES: Series,
 	SETTINGS: Settings,
