@@ -2,8 +2,8 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Clock } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useLocation, useParams } from "wouter";
+import { DataTable } from "@/components/layouts/data-table";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
 import {
 	Tooltip,
 	TooltipContent,
