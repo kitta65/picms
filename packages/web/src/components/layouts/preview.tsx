@@ -7,11 +7,13 @@ import {
 	X,
 } from "lucide-react";
 import { Dialog } from "radix-ui";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	ButtonGroup,
 	ButtonGroupSeparator,
 } from "@/components/ui/button-group";
+import type { Version } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const Z = cn("z-50");
@@ -22,11 +24,12 @@ const ANIMATION = cn(
 );
 
 type PreviewProps = {
-	trigger?: React.ReactNode;
-	srcs: string[];
-	titles: string[];
+	trigger: React.ReactNode;
+	data: Version[];
+	baseIdx: number;
 };
-export function Preview({ trigger, srcs: _srcs }: PreviewProps) {
+export function Preview({ trigger, data, baseIdx }: PreviewProps) {
+	const [idx, setIdx] = useState(baseIdx);
 	return (
 		<Dialog.Root>
 			<Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
@@ -36,7 +39,7 @@ export function Preview({ trigger, srcs: _srcs }: PreviewProps) {
 				/>
 				<Dialog.Content className="dark group">
 					<img
-						src="https://raw.githubusercontent.com/kitta65/picms/refs/heads/main/packages/web/src/logo.svg"
+						src={data[idx]?.thumbnail}
 						alt=""
 						className={cn(
 							"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
@@ -78,7 +81,9 @@ export function Preview({ trigger, srcs: _srcs }: PreviewProps) {
 							</Button>
 						</Dialog.Close>
 					</ButtonGroup>
-					<Button
+
+					{/* this div is required to prevent the dialog from closing when disabled button is clicked */}
+					<div
 						className={cn(
 							"fixed top-1/2 left-0 -translate-y-1/2",
 							Z,
@@ -86,9 +91,11 @@ export function Preview({ trigger, srcs: _srcs }: PreviewProps) {
 							ANIMATION,
 						)}
 					>
-						<MoveLeft />
-					</Button>
-					<Button
+						<Button disabled={idx <= 0} onClick={() => setIdx(idx - 1)}>
+							<MoveLeft />
+						</Button>
+					</div>
+					<div
 						className={cn(
 							"fixed top-1/2 right-0 -translate-y-1/2",
 							Z,
@@ -96,8 +103,24 @@ export function Preview({ trigger, srcs: _srcs }: PreviewProps) {
 							ANIMATION,
 						)}
 					>
-						<MoveRight />
-					</Button>
+						<Button
+							disabled={data.length - 1 <= idx}
+							onClick={() => setIdx(idx + 1)}
+						>
+							<MoveRight />
+						</Button>
+					</div>
+
+					<span
+						className={cn(
+							"fixed bottom-0 left-1/2 -translate-x-1/2 h-9 text-foreground text-sm",
+							Z,
+							MERGIN,
+							ANIMATION,
+						)}
+					>
+						{`${idx + 1} / ${data.length}`}
+					</span>
 				</Dialog.Content>
 			</Dialog.Portal>
 		</Dialog.Root>
