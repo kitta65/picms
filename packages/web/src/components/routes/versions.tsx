@@ -1,12 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Expand } from "lucide-react";
 import { DataTable } from "@/components/layouts/data-table";
+import { Preview } from "@/components/layouts/preview";
 import { Button } from "@/components/ui/button";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 type Version = {
 	id: string;
@@ -32,20 +28,18 @@ const columns: (ColumnDef<Version> & { accessorKey?: keyof Version })[] = [
 	{
 		id: "action",
 		cell: ({ row: _row }) => (
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => console.warn("TODO: expand image")}
-					>
+			<Preview
+				trigger={
+					<Button variant="ghost" size="icon">
 						<Expand />
 					</Button>
-				</TooltipTrigger>
-				<TooltipContent>
-					<p>Expand</p>
-				</TooltipContent>
-			</Tooltip>
+				}
+				srcs={[
+					"https://raw.githubusercontent.com/kitta65/picms/refs/heads/main/packages/web/src/logo.svg",
+					"https://raw.githubusercontent.com/kitta65/picms/refs/heads/main/packages/web/src/logo-icon.svg",
+				]}
+				titles={["foo", "bar"]}
+			/>
 		),
 	},
 ];

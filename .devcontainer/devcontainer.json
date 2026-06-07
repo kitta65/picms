@@ -37,6 +37,7 @@
 					"https://ui.shadcn.com/": true,
 					"https://unpkg.com": true
 				},
+				"tailwindCSS.classFunctions": ["cn"],
 				"[dockerfile]": {
 					"editor.tabSize": 4
 				}
