@@ -3,9 +3,14 @@
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
-	"workspaces": [
-		"packages/*"
-	],
+	"workspaces": {
+		"packages": [
+			"packages/*"
+		],
+		"catalog": {
+			"zod": "^4.4.3"
+		}
+	},
 	"scripts": {
 		"setup": "bun install",
 		"dev": "bun run --filter '*' --parallel dev",
