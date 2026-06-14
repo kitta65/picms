@@ -8,6 +8,7 @@
 			"packages/*"
 		],
 		"catalog": {
+			"hono": "^4.2.16",
 			"zod": "^4.4.3"
 		}
 	},

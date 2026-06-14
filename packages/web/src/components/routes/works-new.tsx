@@ -1,5 +1,8 @@
 import { useForm } from "@tanstack/react-form";
-import * as z from "zod";
+import { hc } from "hono/client";
+
+import type { PrivateApi } from "picms-server/api";
+import { workInputSchema } from "picms-server/models/work";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -14,11 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 
-const schema = z.object({
-	title: z.string().min(1, "Title is required."),
-	description: z.string(),
-	public: z.boolean(),
-});
+const CLIENT = hc<PrivateApi>(window.location.origin);
 
 export function WorksNew() {
 	const form = useForm({
@@ -28,10 +27,10 @@ export function WorksNew() {
 			public: false,
 		},
 		validators: {
-			onSubmit: schema,
+			onSubmit: workInputSchema,
 		},
 		onSubmit: ({ value }) => {
-			console.warn(`TODO: implement this feature. data: ${value}`);
+			CLIENT.api.private.work.$post({ json: value });
 		},
 	});
 	return (
@@ -42,7 +41,6 @@ export function WorksNew() {
 			}}
 		>
 			<FieldSet>
-				{/* you can add FieldLegend and FieldDescription here. */}
 				<FieldGroup>
 					<form.Field name="title">
 						{(field) => {

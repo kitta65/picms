@@ -1,5 +1,10 @@
-import { PACKAGE, PORT, ROUTE } from "picms-common/constants";
-import { app } from "picms-server";
+import { PACKAGE, PORT } from "picms-common/constants";
+import {
+	PRIVATE_API,
+	PRIVATE_API_BASE_PATH,
+	PUBLIC_API,
+	PUBLIC_API_BASE_PATH,
+} from "picms-server/api";
 import index from "picms-web/dist/index.html";
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
@@ -10,9 +15,8 @@ const server = Bun.serve({
 			? index
 			: Response.redirect(`http://localhost:${PORT[PACKAGE.WEB]}`),
 
-		[ROUTE[PACKAGE.SERVER]]: async (req) => {
-			return app.fetch(req);
-		},
+		[`${PRIVATE_API_BASE_PATH}/*`]: async (req) => PRIVATE_API.fetch(req),
+		[`${PUBLIC_API_BASE_PATH}/*`]: async (req) => PUBLIC_API.fetch(req),
 	},
 	port: PORT[PACKAGE.MAIN],
 });

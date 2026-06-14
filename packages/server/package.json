@@ -1,6 +1,8 @@
 {
 	"name": "picms-server",
-	"module": "index.ts",
+	"exports": {
+		"./*": "./src/*.ts"
+	},
 	"type": "module",
 	"private": true,
 	"devDependencies": {
@@ -10,7 +12,7 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
-		"hono": "^4.12.16",
-		"picms-common": "workspace:*"
+		"hono": "catalog:",
+		"zod": "catalog:"
 	}
 }
