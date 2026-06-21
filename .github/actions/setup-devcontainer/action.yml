@@ -25,7 +25,6 @@ runs:
       run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
     - name: build and push devcontainer
-      if: inputs.push == true
       shell: bash
       run: |
         devcontainer build \
