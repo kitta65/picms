@@ -16,4 +16,9 @@ runs:
 
     - name: build devcontainer
       shell: bash
-      run: devcontainer build
+      run: |
+        devcontainer build \
+        --cache-from ghcr.io/kitta65/picms/picms-devcontainer:latest \
+        --image-name ghcr.io/kitta65/picms/picms-devcontainer:latest \
+        --push true
+
