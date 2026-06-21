@@ -1,12 +1,11 @@
 name: setup-devcontainer
-description:
+description: install devcontainer cli, then build (and optionally push) the devcontainer image
 inputs:
   token:
     required: true
-    type: string
   push:
     required: true
-    type: boolean
+    description: true/false
 
 runs:
   using: "composite"
@@ -22,7 +21,7 @@ runs:
 
     - name: login to registry
       shell: bash
-      run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      run: echo "${{ inputs.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
     - name: build and push devcontainer
       shell: bash
