@@ -3,8 +3,10 @@ description:
 inputs:
   token:
     required: true
+    type: string
   push:
     required: true
+    type: boolean
 
 runs:
   using: "composite"
@@ -23,17 +25,10 @@ runs:
       run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
     - name: build and push devcontainer
-      if: inputs.push == 'true'
+      if: inputs.push == true
       shell: bash
       run: |
         devcontainer build \
-        --cache-from ghcr.io/kitta65/picms/picms-devcontainer:latest \
-        --image-name ghcr.io/kitta65/picms/picms-devcontainer:latest \
-        --push true
-
-    - name: build devcontainer
-      if: inputs.push != 'true'
-      shell: bash
-      run: |
-        devcontainer build \
-        --cache-from ghcr.io/kitta65/picms/picms-devcontainer:latest
+        --cache-from ghcr.io/kitta65/picms/devcontainer:latest \
+        --image-name ghcr.io/kitta65/picms/devcontainer:latest \
+        --push ${{ inputs.push }}
