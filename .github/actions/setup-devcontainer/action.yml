@@ -1,0 +1,19 @@
+name: setup-devcontainer
+description:
+inputs: {}
+
+runs:
+  using: "composite"
+  steps:
+    # NOTE: you may remove this step, after npm >=v11.10 is widely used
+    - name: check --min-release-age option is available
+      shell: bash
+      run: npm install --help | grep min-release-age
+
+    - name: install devcontainer cli 
+      shell: bash
+      run: npm install --min-release-age=7 -g @devcontainers/cli@0.87.0
+
+    - name: build devcontainer
+      shell: bash
+      run: devcontainer build

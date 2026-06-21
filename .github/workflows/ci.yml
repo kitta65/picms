@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - run: npm install --min-release-age=7 -g @devcontainers/cli@0.87.0
+      - uses: ./.github/actions/setup-devcontainer
       - run: devcontainer up
       - run: devcontainer exec bun run lint
       - run: devcontainer exec bun run test
