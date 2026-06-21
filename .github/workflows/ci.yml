@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca # v0.3.1900000450
-        with:
-          runCmd: |
-            bun run lint
-            bun run test
+      - run: npm install -g @devcontainers/cli@0.87.0
+      - run: devcontainer up
+      - run: devcontainer exec bun run lint
+      - run: devcontainer exec bun run test
+      - run: devcontainer exec bun run build
