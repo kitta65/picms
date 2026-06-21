@@ -28,6 +28,6 @@ runs:
       shell: bash
       run: |
         devcontainer build \
-        --cache-from ghcr.io/kitta65/picms/devcontainer:latest \
-        --image-name ghcr.io/kitta65/picms/devcontainer:latest \
+        --cache-from ghcr.io/kitta65/picms/picms-devcontainer:latest \
+        --image-name ghcr.io/kitta65/picms/picms-devcontainer:latest \
         --push ${{ inputs.push }}
