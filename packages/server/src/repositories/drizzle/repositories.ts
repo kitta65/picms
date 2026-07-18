@@ -7,8 +7,10 @@ import { configTable } from "./schema";
 const DB = drizzle({
 	connection: {
 		hostname: "postgres",
-		password: "pass",
-		username: "picms",
+		// biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature is specified in tsconfig.json
+		password: Bun.env["PG_PASS"],
+		// biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature is specified in tsconfig.json
+		username: Bun.env["PG_USER"],
 		port: 5432,
 	},
 });
