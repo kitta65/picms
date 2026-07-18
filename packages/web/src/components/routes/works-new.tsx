@@ -2,7 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { hc } from "hono/client";
 
 import type { PrivateApi } from "picms-server/api";
-import { workInputSchema } from "picms-server/models/work";
+import { workInputSchema } from "picms-server/domain/work/entity";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -35,6 +35,7 @@ export function WorksNew() {
 	});
 	return (
 		<form
+			className="w-full max-w-200"
 			onSubmit={(e) => {
 				e.preventDefault();
 				form.handleSubmit();

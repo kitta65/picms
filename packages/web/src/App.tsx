@@ -43,8 +43,8 @@ export function App() {
 			<div className="mx-6 my-2">
 				<Header />
 				<Separator className="my-2" />
-				<Breadcrumb className="mb-2 container mx-auto" />
-				<main className="container mx-auto">
+				<Breadcrumb className="mb-2 mx-auto" />
+				<main className="container mx-auto flex flex-col items-center justify-center">
 					<Switch>
 						{Object.entries(ROUTE).map(([k, v]) => {
 							if (!isRoute(k)) return null; // can't be!

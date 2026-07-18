@@ -13,7 +13,7 @@
 		}
 	},
 	"scripts": {
-		"setup": "bun install",
+		"setup": "bun install && bun run --filter '*' setup",
 		"dev": "bun run --filter '*' --parallel dev",
 		"start": "./packages/main/dist/picms",
 		"build": "bun run --filter '*' build",

@@ -1,0 +1,35 @@
+# TODO: share common config
+
+services:
+  picms:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sleep infinity
+    volumes:
+      - "..:/workspaces/picms"
+
+  # https://hub.docker.com/_/postgres#-via-docker-compose
+  postgres:
+    image: postgres:18.4 # TODO: specify hash
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: picms
+
+  # https://hub.docker.com/r/dbgate/dbgate
+  dbgate:
+    image: dbgate/dbgate:7.2.1 # TODO: specify hash
+    restart: always
+    environment:
+      CONNECTIONS: postgres
+      LABEL_postgres: Postgres
+      SERVER_postgres: postgres
+      USER_postgres: picms
+      PASSWORD_postgres: pass
+      PORT_postgres: 5432
+      ENGINE_postgres: postgres@dbgate-plugin-postgres
+    # TODO: user
+    volumes:
+      - "../.cache/dbgate:/root/.dbgate"

@@ -98,7 +98,7 @@ export function Works() {
 
 	return (
 		<>
-			<div className="flex justify-center items-center my-2">
+			<div className="flex justify-center items-center my-2 w-full">
 				<Button size="sm" className="ml-auto" asChild>
 					<Link to={`/works/new`}>New</Link>
 				</Button>
