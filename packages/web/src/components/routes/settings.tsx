@@ -76,7 +76,16 @@ export function Settings() {
 		if (!data) return;
 
 		const config = data.json();
-		config.then((c) => form.reset(c));
+
+		config.then((c) => {
+			// supported values may change in the future
+			if (!(c.timezone in Intl.supportedValuesOf("timeZone"))) {
+				form.reset({ ...c, timezone: "" });
+				return;
+			}
+
+			form.reset(c);
+		});
 	}, [data, form]);
 
 	return (
