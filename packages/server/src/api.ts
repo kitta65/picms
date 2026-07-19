@@ -25,6 +25,11 @@ export const PRIVATE_API = new Hono()
 			return c.json(body);
 		},
 	)
+	.get("/config", async (c) => {
+		const repo = drizzleConfigRepository;
+		const res = await configService.findFirst(repo);
+		return c.json(res);
+	})
 	.post(
 		"/config",
 		validator("json", (value, c) => {

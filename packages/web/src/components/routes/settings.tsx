@@ -1,8 +1,12 @@
 import { useForm } from "@tanstack/react-form";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { hc } from "hono/client";
-
 import type { PrivateApi } from "picms-server/api";
-import { configInputSchema } from "picms-server/domain/config/entity";
+import {
+	type Config,
+	configInputSchema,
+} from "picms-server/domain/config/entity";
+import { useEffect } from "react";
 import {
 	Combobox,
 	ComboboxContent,
@@ -24,7 +28,37 @@ import { Button } from "../ui/button";
 
 const CLIENT = hc<PrivateApi>(window.location.origin);
 
+function useConfigQuery() {
+	return useQuery({
+		// TODO: refactor
+		queryKey: ["config", "get"],
+		queryFn: () => CLIENT.api.private.config.$get(),
+	});
+}
+
+function useConfigMutation(onSuccess?: () => void) {
+	return useMutation({
+		mutationFn: (config: Config) =>
+			CLIENT.api.private.config.$post({ json: config }),
+		onSuccess,
+	});
+}
+
+function useConfigOperation() {
+	const { data, isLoading, refetch } = useConfigQuery();
+	const { mutate } = useConfigMutation(() => refetch());
+
+	return {
+		data,
+		isLoading,
+		refetch,
+		mutate,
+	};
+}
+
 export function Settings() {
+	// TODO: handle isError
+	const { data, isLoading, mutate } = useConfigOperation();
 	const form = useForm({
 		defaultValues: {
 			timezone: "",
@@ -33,9 +67,18 @@ export function Settings() {
 			onSubmit: configInputSchema,
 		},
 		onSubmit: ({ value }) => {
-			CLIENT.api.private.config.$post({ json: value });
+			mutate(value);
 		},
 	});
+
+	useEffect(() => {
+		// do nothing if current config does not exist
+		if (!data) return;
+
+		const config = data.json();
+		config.then((c) => form.reset(c));
+	}, [data, form]);
+
 	return (
 		<form
 			className="w-full max-w-200"
@@ -81,10 +124,17 @@ export function Settings() {
 				</form.Field>
 
 				<div className="flex items-center justify-center gap-x-4">
-					<Button variant="outline" type="button" onClick={() => form.reset()}>
+					<Button
+						variant="outline"
+						type="button"
+						onClick={() => form.reset()}
+						disabled={isLoading}
+					>
 						Reset
 					</Button>
-					<Button type="submit">Submit</Button>
+					<Button type="submit" disabled={isLoading}>
+						Submit
+					</Button>
 				</div>
 			</FieldGroup>
 		</form>
