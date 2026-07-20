@@ -48,6 +48,7 @@ export function App() {
 			<div className="mx-6 my-2">
 				<Header />
 				<Separator className="my-2" />
+				{/* TODO: Breadcrumb should be in the main tag? */}
 				<Breadcrumb className="mb-2 mx-auto" />
 				<main className="container mx-auto flex flex-col items-center justify-center">
 					<Switch>

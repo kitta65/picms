@@ -1,10 +1,19 @@
 import { useForm } from "@tanstack/react-form";
+import { useSelector } from "@tanstack/react-store";
 import { hc } from "hono/client";
-
+import { ImageIcon } from "lucide-react";
 import type { PrivateApi } from "picms-server/api";
-import { workInputSchema } from "picms-server/domain/work/entity";
+import { useEffect, useState } from "react";
+// import { workInputSchema } from "picms-server/domain/work/entity";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+	Empty,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle,
+} from "@/components/ui/empty";
 import {
 	Field,
 	FieldDescription,
@@ -22,17 +31,44 @@ const CLIENT = hc<PrivateApi>(window.location.origin);
 export function WorksNew() {
 	const form = useForm({
 		defaultValues: {
+			file: null as File | null,
 			title: "",
 			description: "",
 			public: false,
 		},
 		validators: {
-			onSubmit: workInputSchema,
+			// onSubmit: workInputSchema,
 		},
-		onSubmit: ({ value }) => {
-			CLIENT.api.private.work.$post({ json: value });
+		onSubmit: async ({ value }) => {
+			if (value.file) {
+				const revisionRes = await CLIENT.api.private["work-revisions"].$post();
+				const revision = await revisionRes.json();
+
+				const signedUrlRes = await CLIENT.api.private["work-revisions"][":id"][
+					"signed-url"
+				].$get({
+					param: {
+						id: revision.id.toString(),
+					},
+				});
+				const signedUrl = await signedUrlRes.text();
+				await fetch(signedUrl, { method: "PUT", body: value.file });
+			}
+
+			CLIENT.api.private.works.$post({ json: value });
 		},
 	});
+	const file = useSelector(form.store, (state) => state.values.file);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+	useEffect(() => {
+		if (!file) {
+			setPreviewUrl(null);
+			return;
+		}
+		const url = URL.createObjectURL(file);
+		setPreviewUrl(url);
+		return () => URL.revokeObjectURL(url);
+	}, [file]);
 	return (
 		<form
 			className="w-full max-w-200"
@@ -41,8 +77,31 @@ export function WorksNew() {
 				form.handleSubmit();
 			}}
 		>
-			<FieldSet>
+			<Preview source={previewUrl} />
+			<FieldSet className="grow">
 				<FieldGroup>
+					<form.Field name="file">
+						{(field) => {
+							const isInvalid =
+								field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field>
+									<FieldLabel htmlFor={field.name}>File</FieldLabel>
+									<Input
+										id={field.name}
+										name={field.name}
+										onBlur={field.handleBlur}
+										onChange={(e) => {
+											const file = e.target.files?.[0] ?? null;
+											field.handleChange(file);
+										}}
+										aria-invalid={isInvalid}
+										type="file"
+									/>
+								</Field>
+							);
+						}}
+					</form.Field>
 					<form.Field name="title">
 						{(field) => {
 							const isInvalid =
@@ -128,5 +187,28 @@ export function WorksNew() {
 				</div>
 			</FieldSet>
 		</form>
+	);
+}
+
+type PreviewProps = {
+	source: string | null;
+};
+function Preview({ source }: PreviewProps) {
+	return (
+		<div className="flex item-center justify-center h-60">
+			{source ? (
+				<img src={source} alt={source} />
+			) : (
+				<Empty>
+					<EmptyHeader>
+						<EmptyMedia variant="icon">
+							<ImageIcon />
+						</EmptyMedia>
+						<EmptyTitle>No File</EmptyTitle>
+						<EmptyDescription>No file is selected</EmptyDescription>
+					</EmptyHeader>
+				</Empty>
+			)}
+		</div>
 	);
 }

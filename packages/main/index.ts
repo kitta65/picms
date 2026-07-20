@@ -4,6 +4,8 @@ import {
 	PRIVATE_API_BASE_PATH,
 	PUBLIC_API,
 	PUBLIC_API_BASE_PATH,
+	STORAGE_API,
+	STORAGE_API_BASE_PATH,
 } from "picms-server/api";
 import index from "picms-web/dist/index.html";
 
@@ -17,6 +19,7 @@ const server = Bun.serve({
 
 		[`${PRIVATE_API_BASE_PATH}/*`]: async (req) => PRIVATE_API.fetch(req),
 		[`${PUBLIC_API_BASE_PATH}/*`]: async (req) => PUBLIC_API.fetch(req),
+		[`${STORAGE_API_BASE_PATH}/*`]: async (req) => STORAGE_API.fetch(req),
 	},
 	port: PORT[PACKAGE.MAIN],
 });

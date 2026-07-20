@@ -11,7 +11,7 @@ const server = serve({
 		[`${COMMON_API_BASE_PATH}/*`]: async (req) => {
 			const url = new URL(req.url);
 			return fetch(
-				`http://localhost:${PORT[PACKAGE.MAIN]}${url.pathname}?${url.search}`,
+				`http://localhost:${PORT[PACKAGE.MAIN]}${url.pathname}${url.search}`,
 				req,
 			);
 		},

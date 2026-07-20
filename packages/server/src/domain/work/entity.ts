@@ -5,3 +5,5 @@ export const workInputSchema = z.object({
 	description: z.string(),
 	public: z.boolean(),
 });
+
+export type Work = z.infer<typeof workInputSchema>;

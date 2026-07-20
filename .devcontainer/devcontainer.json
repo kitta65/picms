@@ -8,7 +8,9 @@
 	"containerEnv": {
 		// https://code.claude.com/docs/en/env-vars
 		"CLAUDE_CONFIG_DIR": "${containerWorkspaceFolder}/.cache/claude-config",
-		"BUN_INSTALL_CACHE_DIR": "${containerWorkspaceFolder}/.cache/bun"
+		"BUN_INSTALL_CACHE_DIR": "${containerWorkspaceFolder}/.cache/bun",
+		// https://cli.github.com/manual/gh_help_environment
+		"GH_CONFIG_DIR": "${containerWorkspaceFolder}/.config/gh"
 	},
 	"forwardPorts": ["picms:4000", "dbgate:3000"],
 	"features": {

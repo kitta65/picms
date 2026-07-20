@@ -10,6 +10,8 @@ services:
       dockerfile: Dockerfile
     environment:
       <<: *dev-constants
+      PICMS_CACHE_DIR: /workspaces/picms/.cache
+      PICMS_STORAGE: local
     command: sleep infinity
     volumes:
       - "..:/workspaces/picms"
@@ -37,5 +39,7 @@ services:
       PASSWORD_postgres: *pg-pass
       PORT_postgres: 5432
       ENGINE_postgres: postgres@dbgate-plugin-postgres
-    volumes:
-      - "../.cache/dbgate:/root/.dbgate"
+
+    # do not persist data until this bug is fixed https://github.com/dbgate/dbgate/issues/1493
+    # volumes:
+    #   - "../.cache/dbgate:/root/.dbgate"
