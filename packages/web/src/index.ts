@@ -1,15 +1,17 @@
 import { serve } from "bun";
 import { PACKAGE, PORT } from "picms-common/constants";
+import { COMMON_API_BASE_PATH } from "picms-server/api";
 import index from "./index.html";
 
 const server = serve({
-	// delegate everything except for index.html
 	routes: {
-		"/": index,
-		"/*": async (req) => {
+		"/*": index,
+
+		// delegate everything
+		[`${COMMON_API_BASE_PATH}/*`]: async (req) => {
 			const url = new URL(req.url);
 			return fetch(
-				`http://localhost:${PORT[PACKAGE.MAIN]}${url.pathname}?${url.search}`,
+				`http://localhost:${PORT[PACKAGE.MAIN]}${url.pathname}${url.search}`,
 				req,
 			);
 		},

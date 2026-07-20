@@ -10,7 +10,3 @@ export const PORT = {
 	[PACKAGE.MAIN]: 5173,
 	[PACKAGE.WEB]: 4000,
 } as const satisfies { [k in (typeof PACKAGES)[number]]?: number };
-
-export const ROUTE = {
-	[PACKAGE.SERVER]: "/api",
-} as const satisfies { [k in (typeof PACKAGES)[number]]?: string };

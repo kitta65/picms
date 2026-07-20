@@ -1,0 +1,45 @@
+# https://docs.docker.com/reference/compose-file/extension/
+x-dev-constants: &dev-constants
+  PG_USER: &pg-user picms
+  PG_PASS: &pg-pass pass 
+
+services:
+  picms:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      <<: *dev-constants
+      PICMS_CACHE_DIR: /workspaces/picms/.cache
+      PICMS_STORAGE: local
+    command: sleep infinity
+    volumes:
+      - "..:/workspaces/picms"
+
+  # https://hub.docker.com/_/postgres#-via-docker-compose
+  postgres:
+    image: postgres:18.4 # TODO: specify hash
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: *pg-pass
+      POSTGRES_USER: *pg-user
+
+  # https://hub.docker.com/r/dbgate/dbgate
+  dbgate:
+    image: dbgate/dbgate:7.2.1 # TODO: specify hash
+    restart: always
+    environment:
+      CONNECTIONS: postgres
+
+      # postgress
+      LABEL_postgres: Postgres
+      SERVER_postgres: postgres
+      USER_postgres: *pg-user
+      PASSWORD_postgres: *pg-pass
+      PORT_postgres: 5432
+      ENGINE_postgres: postgres@dbgate-plugin-postgres
+
+    # do not persist data until this bug is fixed https://github.com/dbgate/dbgate/issues/1493
+    # volumes:
+    #   - "../.cache/dbgate:/root/.dbgate"

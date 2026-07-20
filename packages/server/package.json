@@ -1,16 +1,23 @@
 {
 	"name": "picms-server",
-	"module": "index.ts",
+	"exports": {
+		"./*": "./src/*.ts"
+	},
 	"type": "module",
 	"private": true,
 	"devDependencies": {
-		"@types/bun": "latest"
+		"@types/bun": "latest",
+		"drizzle-kit": "1.0.0-beta.22"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
 	},
 	"dependencies": {
-		"hono": "^4.12.16",
-		"picms-common": "workspace:*"
+		"drizzle-orm": "1.0.0-beta.22",
+		"hono": "catalog:",
+		"zod": "catalog:"
+	},
+	"scripts": {
+		"setup": "bun run drizzle-kit push --force"
 	}
 }

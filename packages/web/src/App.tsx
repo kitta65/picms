@@ -1,5 +1,6 @@
 import "./index.css";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { Redirect, Route, Switch } from "wouter";
 
@@ -17,11 +18,15 @@ import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { isRoute, ROUTE, type Route as RouteType } from "@/lib/constants";
 
+const queryClient = new QueryClient();
+
 function Wrapper({ children }: { children: React.ReactNode }) {
 	// add anything which should wrap entire app here!
 	return (
 		<StrictMode>
-			<TooltipProvider>{children}</TooltipProvider>
+			<QueryClientProvider client={queryClient}>
+				<TooltipProvider>{children}</TooltipProvider>
+			</QueryClientProvider>
 		</StrictMode>
 	);
 }
@@ -43,8 +48,9 @@ export function App() {
 			<div className="mx-6 my-2">
 				<Header />
 				<Separator className="my-2" />
-				<Breadcrumb className="mb-2 container mx-auto" />
-				<main className="container mx-auto">
+				{/* TODO: Breadcrumb should be in the main tag? */}
+				<Breadcrumb className="mb-2 mx-auto" />
+				<main className="container mx-auto flex flex-col items-center justify-center">
 					<Switch>
 						{Object.entries(ROUTE).map(([k, v]) => {
 							if (!isRoute(k)) return null; // can't be!
