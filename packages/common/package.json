@@ -5,7 +5,8 @@
 	},
 	"type": "module",
 	"devDependencies": {
-		"@types/bun": "latest"
+		"@types/bun": "catalog:",
+		"typescript": "catalog:"
 	},
 	"scripts": {
 		"lint": "tsc --noEmit"

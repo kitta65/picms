@@ -16,6 +16,7 @@
 		"picms-web": "workspace:*"
 	},
 	"devDependencies": {
-		"@types/bun": "latest"
+		"@types/bun": "catalog:",
+		"typescript": "catalog:"
 	}
 }

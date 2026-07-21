@@ -6,16 +6,18 @@
       "name": "picms",
       "devDependencies": {
         "@biomejs/biome": "^2.4.16",
+        "@types/bun": "catalog:",
         "@types/node": "^25.6.0",
         "husky": "^9.1.7",
         "knip": "^6.11.0",
-        "typescript": "^7.0.0",
+        "typescript": "catalog:",
       },
     },
     "packages/common": {
       "name": "picms-common",
       "devDependencies": {
-        "@types/bun": "latest",
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
       },
     },
     "packages/main": {
@@ -27,7 +29,8 @@
         "picms-web": "workspace:*",
       },
       "devDependencies": {
-        "@types/bun": "latest",
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
       },
     },
     "packages/server": {
@@ -35,10 +38,11 @@
       "dependencies": {
         "drizzle-orm": "1.0.0-beta.22",
         "hono": "catalog:",
+        "typescript": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@types/bun": "latest",
+        "@types/bun": "catalog:",
         "drizzle-kit": "1.0.0-beta.22",
       },
     },
@@ -66,15 +70,18 @@
         "wouter": "^3.10.0",
       },
       "devDependencies": {
-        "@types/bun": "latest",
+        "@types/bun": "catalog:",
         "@types/react": "^19",
         "@types/react-dom": "^19",
         "tailwindcss": "^4.1.11",
+        "typescript": "catalog:",
       },
     },
   },
   "catalog": {
+    "@types/bun": "latest",
     "hono": "^4.2.16",
+    "typescript": "^7.0.0",
     "zod": "^4.4.3",
   },
   "packages": {
