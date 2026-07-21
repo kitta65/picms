@@ -17,7 +17,7 @@
 		"dev": "bun run --filter '*' --parallel dev",
 		"start": "./packages/main/dist/picms",
 		"build": "bun run --filter '*' build",
-		"lint": "knip && biome check",
+		"lint": "knip && biome check && bun run --filter '*' --parallel lint",
 		"fix": "knip --fix && biome check --write",
 		"fix:unsafe": "knip --fix && biome check --write --unsafe",
 		"prepare": "husky",
