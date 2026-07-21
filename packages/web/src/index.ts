@@ -1,6 +1,6 @@
 import { serve } from "bun";
-import { PACKAGE, PORT } from "picms-common/constants";
 import { COMMON_API_BASE_PATH } from "picms-server/api";
+import { PACKAGE, PORT } from "picms-shared/constants";
 import index from "./index.html";
 
 const server = serve({

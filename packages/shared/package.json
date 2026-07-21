@@ -1,5 +1,5 @@
 {
-	"name": "picms-common",
+	"name": "picms-shared",
 	"exports": {
 		"./*": "./src/*.ts"
 	},

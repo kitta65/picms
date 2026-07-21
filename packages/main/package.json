@@ -11,8 +11,8 @@
 		"test": "bun test"
 	},
 	"dependencies": {
-		"picms-common": "workspace:*",
 		"picms-server": "workspace:*",
+		"picms-shared": "workspace:*",
 		"picms-web": "workspace:*"
 	},
 	"devDependencies": {
