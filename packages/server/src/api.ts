@@ -103,7 +103,7 @@ export const PRIVATE_API = new Hono()
 	);
 export type PrivateApi = typeof PRIVATE_API;
 
-export const PUBLIC_API_BASE_PATH = `${COMMON_API_BASE_PATH}/api/public`;
+export const PUBLIC_API_BASE_PATH = `${COMMON_API_BASE_PATH}/public`;
 export const PUBLIC_API = new Hono()
 	.basePath(PRIVATE_API_BASE_PATH)
 	.post("/", (c) => {
