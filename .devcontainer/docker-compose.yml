@@ -12,6 +12,7 @@ services:
       <<: *dev-constants
       PICMS_CACHE_DIR: /workspaces/picms/.cache
       PICMS_STORAGE: local
+      PICMS_INSPECT: 6499
     command: sleep infinity
     volumes:
       - "..:/workspaces/picms"
