@@ -12,7 +12,7 @@ import index from "picms-web/dist/index.html";
 type ApiFunc = (req: Bun.BunRequest) => Awaitable<Response>;
 const { PICMS_PORT_MAIN, PICMS_PORT_WEB } = Bun.env;
 
-export function createServerOptions(
+function createServerOptions(
 	{
 		privateApiFunc,
 		publicApiFunc,
@@ -67,3 +67,7 @@ function main() {
 if (import.meta.main) {
 	main();
 }
+
+export const TEST = {
+	createServerOptions,
+};
