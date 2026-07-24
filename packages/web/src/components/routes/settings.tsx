@@ -32,7 +32,10 @@ function useConfigQuery() {
 	return useQuery({
 		// TODO: refactor
 		queryKey: ["config", "get"],
-		queryFn: () => CLIENT.api.private.config.$get(),
+		queryFn: async () => {
+			const res = await CLIENT.api.private.config.$get();
+			return res.json();
+		},
 	});
 }
 
@@ -58,7 +61,7 @@ function useConfigOperation() {
 
 export function Settings() {
 	// TODO: handle isError
-	const { data, isLoading, mutate } = useConfigOperation();
+	const { data: config, isLoading, mutate } = useConfigOperation();
 	const form = useForm({
 		defaultValues: {
 			timezone: "",
@@ -73,20 +76,17 @@ export function Settings() {
 
 	useEffect(() => {
 		// do nothing if current config does not exist
-		if (!data) return;
+		if (!config) return;
 
-		const config = data.json();
+		// supported values may change in the future
+		if (!Intl.supportedValuesOf("timeZone").includes(config.timezone)) {
+			console.log(config);
+			form.reset({ ...config, timezone: "" });
+			return;
+		}
 
-		config.then((c) => {
-			// supported values may change in the future
-			if (!(c.timezone in Intl.supportedValuesOf("timeZone"))) {
-				form.reset({ ...c, timezone: "" });
-				return;
-			}
-
-			form.reset(c);
-		});
-	}, [data, form]);
+		form.reset(config);
+	}, [config, form]);
 
 	return (
 		<form
