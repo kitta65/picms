@@ -1,6 +1,6 @@
 import { defineConfig } from "drizzle-kit";
 
-const { PG_USER, PG_PASS } = Bun.env;
+const { PG_USER, PG_PASS, PG_PORT } = Bun.env;
 
 export default defineConfig({
 	out: "./drizzle",
@@ -10,7 +10,7 @@ export default defineConfig({
 		user: PG_USER,
 		password: PG_PASS,
 		host: "postgres",
-		port: 5432,
+		port: Number(PG_PORT),
 		database: "picms",
 	},
 });

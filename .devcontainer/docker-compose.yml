@@ -2,6 +2,7 @@
 x-dev-constants: &dev-constants
   PG_USER: &pg-user picms
   PG_PASS: &pg-pass pass 
+  PG_PORT: &pg-port 5432
 
 services:
   picms:
@@ -40,7 +41,7 @@ services:
       SERVER_postgres: postgres
       USER_postgres: *pg-user
       PASSWORD_postgres: *pg-pass
-      PORT_postgres: 5432
+      PORT_postgres: *pg-port
       ENGINE_postgres: postgres@dbgate-plugin-postgres
 
     # do not persist data until this bug is fixed https://github.com/dbgate/dbgate/issues/1493

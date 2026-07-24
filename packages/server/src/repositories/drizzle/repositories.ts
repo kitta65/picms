@@ -8,13 +8,13 @@ import type { IWorkDatabase } from "../../domain/work/repository";
 import type { IWorkRevisionDatabase } from "../../domain/work-revision/repository";
 import { configTable, workRevisionTable, workTable } from "./schema";
 
-const { PG_PASS, PG_USER } = Bun.env;
+const { PG_PASS, PG_USER, PG_PORT } = Bun.env;
 const DB = drizzle({
 	connection: {
 		hostname: "postgres",
 		password: PG_PASS,
 		username: PG_USER,
-		port: 5432,
+		port: PG_PORT,
 	},
 });
 
