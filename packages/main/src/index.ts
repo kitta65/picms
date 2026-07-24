@@ -6,11 +6,11 @@ import {
 	STORAGE_API,
 	STORAGE_API_BASE_PATH,
 } from "picms-server/api";
-import { PACKAGE, PORT } from "picms-shared/constants";
 import type { Awaitable } from "picms-shared/types";
 import index from "picms-web/dist/index.html";
 
 type ApiFunc = (req: Bun.BunRequest) => Awaitable<Response>;
+const { PICMS_PORT_MAIN, PICMS_PORT_WEB } = Bun.env;
 
 export function createServerOptions(
 	{
@@ -31,7 +31,7 @@ export function createServerOptions(
 	const routes = {
 		"/*": isProduction
 			? index
-			: Response.redirect(`http://localhost:${PORT[PACKAGE.WEB]}`),
+			: Response.redirect(`http://localhost:${PICMS_PORT_WEB}`),
 
 		[`${PRIVATE_API_BASE_PATH}/*`]: privateApiFunc ?? fallbackFunc,
 		[`${PUBLIC_API_BASE_PATH}/*`]: publicApiFunc ?? fallbackFunc,
@@ -45,9 +45,11 @@ export function createServerOptions(
 }
 
 function main() {
+	if (!PICMS_PORT_MAIN) {
+		throw new Error("PICMS_PORT_MAIN is not specified");
+	}
+	const port = Number(PICMS_PORT_MAIN);
 	const isProduction = Bun.env.NODE_ENV === "production";
-
-	const port = PORT[PACKAGE.MAIN];
 	const options = createServerOptions(
 		{
 			privateApiFunc: (req) => PRIVATE_API.fetch(req),

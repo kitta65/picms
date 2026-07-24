@@ -12,7 +12,7 @@
 		// https://cli.github.com/manual/gh_help_environment
 		"GH_CONFIG_DIR": "${containerWorkspaceFolder}/.config/gh"
 	},
-	"forwardPorts": ["picms:4000", "dbgate:3000"],
+	"forwardPorts": ["dbgate:3000"],
 	"features": {
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
 		"ghcr.io/devcontainers/features/github-cli:1": {}
