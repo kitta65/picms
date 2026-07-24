@@ -29,6 +29,27 @@ describe("createServerOptions", () => {
 		expect(res.status).toBe(200);
 	});
 
+	test("/api/private/foo returns 404 when private api function is not given", async () => {
+		const options = createServerOptions({});
+		const server = Bun.serve(options);
+		const res = await fetch(new URL("/api/private/foo", server.url));
+		expect(res.status).toBe(404);
+	});
+
+	test("/api/public/foo returns 404 when public api function is not given", async () => {
+		const options = createServerOptions({});
+		const server = Bun.serve(options);
+		const res = await fetch(new URL("/api/public/foo", server.url));
+		expect(res.status).toBe(404);
+	});
+
+	test("/api/storage/foo returns 404 when storage api function is not given", async () => {
+		const options = createServerOptions({});
+		const server = Bun.serve(options);
+		const res = await fetch(new URL("/api/storage/foo", server.url));
+		expect(res.status).toBe(404);
+	});
+
 	test("/foo is routed to index.html (production)", async () => {
 		const options = createServerOptions({}, true);
 		const server = Bun.serve(options);

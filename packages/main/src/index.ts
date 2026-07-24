@@ -45,14 +45,17 @@ export function createServerOptions(
 }
 
 function main() {
+	const isProduction = Bun.env.NODE_ENV === "production";
+
+	const port = PORT[PACKAGE.MAIN];
 	const options = createServerOptions(
 		{
 			privateApiFunc: (req) => PRIVATE_API.fetch(req),
 			publicApiFunc: (req) => PUBLIC_API.fetch(req),
 			storageApiFunc: (req) => STORAGE_API.fetch(req),
-			port: PORT[PACKAGE.MAIN],
+			port,
 		},
-		Bun.env.NODE_ENV === "production",
+		isProduction,
 	);
 
 	const server = Bun.serve(options);
