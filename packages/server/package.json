@@ -13,6 +13,7 @@
 	"dependencies": {
 		"drizzle-orm": "1.0.0-beta.22",
 		"hono": "catalog:",
+		"picms-shared": "workspace:*",
 		"zod": "catalog:"
 	},
 	"scripts": {

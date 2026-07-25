@@ -41,10 +41,10 @@ export function WorksNew() {
 		},
 		onSubmit: async ({ value }) => {
 			if (value.file) {
-				const revisionRes = await CLIENT.api.private["work-revisions"].$post();
+				const revisionRes = await CLIENT.api.private.revisions.$post();
 				const revision = await revisionRes.json();
 
-				const signedUrlRes = await CLIENT.api.private["work-revisions"][":id"][
+				const signedUrlRes = await CLIENT.api.private.revisions[":id"][
 					"signed-url"
 				].$get({
 					param: {

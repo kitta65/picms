@@ -1,11 +1,9 @@
+import { PRIVATE_API, PUBLIC_API, STORAGE_API } from "picms-server/api";
 import {
-	PRIVATE_API,
 	PRIVATE_API_BASE_PATH,
-	PUBLIC_API,
 	PUBLIC_API_BASE_PATH,
-	STORAGE_API,
 	STORAGE_API_BASE_PATH,
-} from "picms-server/api";
+} from "picms-server/constants";
 import type { Awaitable } from "picms-shared/types";
 import index from "picms-web/dist/index.html";
 

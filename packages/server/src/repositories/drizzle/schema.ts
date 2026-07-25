@@ -14,6 +14,18 @@ export const configTable = pgTable("config", {
 	timezone: varchar("timezone", { length: 255 }).notNull(),
 });
 
+export const eventTable = pgTable(
+	"event",
+	{
+		id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
+		type: varchar("type", { length: 255 }).notNull(),
+		targetId: integer("target_id").notNull(),
+		scheduledAt: timestamp("scheduled_at"),
+		createdAt: timestamp("created_at").notNull(),
+	},
+	(table) => [index("type_index").on(table.type)],
+);
+
 export const workTable = pgTable("work", {
 	id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
 	title: varchar("title").notNull(),

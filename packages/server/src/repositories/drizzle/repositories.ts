@@ -1,12 +1,19 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, gt, isNull, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/bun-sql";
 
 import type { Config } from "../../domain/config/entity";
 import type { IConfigRepository } from "../../domain/config/repository";
+import { Event, type EventType } from "../../domain/event/entity";
+import type { IEventDatabase } from "../../domain/event/repository";
 import type { Work } from "../../domain/work/entity";
 import type { IWorkDatabase } from "../../domain/work/repository";
 import type { IWorkRevisionDatabase } from "../../domain/work-revision/repository";
-import { configTable, workRevisionTable, workTable } from "./schema";
+import {
+	configTable,
+	eventTable,
+	workRevisionTable,
+	workTable,
+} from "./schema";
 
 const { PG_PASS, PG_USER, PG_PORT } = Bun.env;
 const DB = drizzle({
@@ -111,5 +118,78 @@ export const workRevisionDatabase: IWorkRevisionDatabase = {
 		}
 
 		return revisions.at(0);
+	},
+
+	deleteById: async (id: number) => {
+		const results = await DB.delete(workRevisionTable)
+			.where(eq(workRevisionTable.id, id))
+			.returning();
+
+		const deleted = results.at(0);
+		if (!deleted) {
+			console.info(
+				`the revision (id: ${id}) has not deleted (maybe it has already been deleted)`,
+			);
+			return;
+		}
+
+		return deleted;
+	},
+};
+
+export const EventDatabase: IEventDatabase = {
+	create: async (
+		type: EventType,
+		targetId: number,
+		scheduledAt: Date | null,
+	) => {
+		const results = await DB.insert(eventTable)
+			.values({
+				type,
+				targetId,
+				scheduledAt,
+				createdAt: new Date(),
+			})
+			.returning();
+
+		const inserted = results.at(0);
+		if (!inserted) {
+			throw new Error("failed to insert");
+		}
+
+		const event = new Event(inserted);
+		return event;
+	},
+
+	deleteById: async (id: number) => {
+		const result = await DB.delete(eventTable)
+			.where(
+				and(
+					eq(eventTable.id, id),
+					or(
+						isNull(eventTable.scheduledAt),
+						gt(eventTable.scheduledAt, new Date()),
+					),
+				),
+			)
+			.returning();
+		const deleted = result.at(0);
+		if (!deleted) {
+			console.info(
+				`the event (id: ${id}) has not deleted (maybe it has already been deleted)`,
+			);
+			return;
+		}
+
+		const event = new Event(deleted);
+		return event;
+	},
+
+	get: async (limit?: number) => {
+		const query = DB.select().from(eventTable).orderBy(eventTable.id);
+		const shouldLimit = limit !== undefined;
+		const results = await (shouldLimit ? query.limit(limit) : query);
+		const events = results.map((res) => new Event(res));
+		return events;
 	},
 };

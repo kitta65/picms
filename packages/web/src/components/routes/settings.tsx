@@ -33,7 +33,7 @@ function useConfigQuery() {
 		// TODO: refactor
 		queryKey: ["config", "get"],
 		queryFn: async () => {
-			const res = await CLIENT.api.private.config.$get();
+			const res = await CLIENT.api.private.configs.$get();
 			return res.json();
 		},
 	});
@@ -42,7 +42,7 @@ function useConfigQuery() {
 function useConfigMutation(onSuccess?: () => void) {
 	return useMutation({
 		mutationFn: (config: Config) =>
-			CLIENT.api.private.config.$post({ json: config }),
+			CLIENT.api.private.configs.$post({ json: config }),
 		onSuccess,
 	});
 }

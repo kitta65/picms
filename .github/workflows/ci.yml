@@ -23,5 +23,5 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' }}
       - run: devcontainer up
       - run: devcontainer exec bun run lint
-      - run: devcontainer exec bun run test
+      - run: devcontainer exec bun test
       - run: devcontainer exec bun run build
