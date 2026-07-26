@@ -3,8 +3,8 @@ import { validator } from "hono/validator";
 
 import { STORAGE_API_BASE_PATH } from "../constants";
 import * as revisionIo from "../features/revision/io";
-import * as drizzleRepositories from "../repositories/drizzle/repositories";
-import * as localRepository from "../repositories/local/repositories";
+import * as drizzleRepositories from "../infrastructures/drizzle/repositories";
+import * as localRepository from "../infrastructures/local/repositories";
 import { getRootUrl } from "../utils";
 
 export const REVISION_API = new Hono()

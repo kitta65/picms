@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { validator } from "hono/validator";
 
 import * as workIo from "../features/work/io";
-import * as drizzleRepositories from "../repositories/drizzle/repositories";
+import * as drizzleRepositories from "../infrastructures/drizzle/repositories";
 
 export const WORK_API = new Hono().post(
 	"/",

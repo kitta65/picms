@@ -4,8 +4,8 @@ import { REVISION_API } from "./apis/revision";
 import { WORK_API } from "./apis/work";
 import { PRIVATE_API_BASE_PATH, STORAGE_API_BASE_PATH } from "./constants";
 import * as eventUsecases from "./features/event/usecases";
-import * as drizzleRepositories from "./repositories/drizzle/repositories";
-import * as localRepository from "./repositories/local/repositories";
+import * as drizzleRepositories from "./infrastructures/drizzle/repositories";
+import * as localRepository from "./infrastructures/local/repositories";
 import { getRootUrl } from "./utils";
 
 export const PRIVATE_API = new Hono()

@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { validator } from "hono/validator";
 import { configInputSchema } from "../domain/config/entity";
 import * as configService from "../domain/config/service";
-import * as drizzleRepositories from "../repositories/drizzle/repositories";
+import * as drizzleRepositories from "../infrastructures/drizzle/repositories";
 
 export const CONFIG_API = new Hono()
 	.get("/", async (c) => {
