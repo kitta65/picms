@@ -1,33 +1,17 @@
 import * as z from "zod";
 
-const EVENT_TYPES = ["REVISION_SIGNED_URL_EXPIRED", "WORK_DELETED"] as const;
-const EVENT_TYPE_SCHEMA = z.enum(EVENT_TYPES);
+const EVENT_TYPES = [
+	"REVISION_CREATED",
+	"REVISION_SIGNED_URL_EXPIRED",
+	"WORK_DELETED",
+] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 
-export class Event {
-	id: number;
-	type: EventType;
-	targetId: number;
-	scheduledAt: Date | null;
-	createdAt: Date;
-
-	constructor({
-		id,
-		type,
-		targetId,
-		scheduledAt,
-		createdAt,
-	}: {
-		id: number;
-		type: string;
-		targetId: number;
-		scheduledAt: Date | null;
-		createdAt: Date;
-	}) {
-		this.id = id;
-		this.type = EVENT_TYPE_SCHEMA.parse(type);
-		this.targetId = targetId;
-		this.scheduledAt = scheduledAt;
-		this.createdAt = createdAt;
-	}
-}
+export const EVENT_SCHEMA = z.object({
+	id: z.uuidv7(),
+	type: z.enum(EVENT_TYPES),
+	targetId: z.uuidv7(),
+	scheduledAt: z.date(),
+	createdAt: z.date(),
+});
+export type Event = z.infer<typeof EVENT_SCHEMA>;

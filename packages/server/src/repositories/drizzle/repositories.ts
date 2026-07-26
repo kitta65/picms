@@ -1,19 +1,17 @@
-import { and, eq, gt, isNull, or } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/bun-sql";
+
+import type { AtLeast } from "picms-shared/types";
 
 import type { Config } from "../../domain/config/entity";
 import type { IConfigRepository } from "../../domain/config/repository";
-import { Event, type EventType } from "../../domain/event/entity";
+import { EVENT_SCHEMA, type Event } from "../../domain/event/entity";
 import type { IEventDatabase } from "../../domain/event/repository";
+import type { Revision } from "../../domain/revision/entity";
+import type { IRevisionDatabase } from "../../domain/revision/repository";
 import type { Work } from "../../domain/work/entity";
 import type { IWorkDatabase } from "../../domain/work/repository";
-import type { IWorkRevisionDatabase } from "../../domain/work-revision/repository";
-import {
-	configTable,
-	eventTable,
-	workRevisionTable,
-	workTable,
-} from "./schema";
+import { configTable, eventTable, revisionTable, workTable } from "./schema";
 
 const { PG_PASS, PG_USER, PG_PORT } = Bun.env;
 const DB = drizzle({
@@ -25,7 +23,7 @@ const DB = drizzle({
 	},
 });
 
-const CONFIG_ID = 1; // currently only one config exists
+const CONFIG_ID = "019f9c30-51a0-7000-b96f-ab19bc1ceed2"; // currently only one config exists
 export const configDatabase: IConfigRepository = {
 	findFirst: async () => {
 		const configs = await DB.select()
@@ -54,60 +52,50 @@ export const configDatabase: IConfigRepository = {
 };
 
 export const workDatabase: IWorkDatabase = {
-	upsert: async (work: Work) => {
-		const inserted = await DB.transaction(async (tx) => {
-			const insertedWorks = await tx
-				.insert(workTable)
-				.values({
-					...work,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				})
-				.returning();
-			const insertedWork = insertedWorks.at(0);
-			if (!insertedWork) {
-				throw new Error("failed to insert work");
-			}
-
-			await tx
-				.update(workRevisionTable)
-				.set({
-					workId: insertedWork.id,
-				})
-				.where(
-					and(isNull(workRevisionTable.workId), eq(workRevisionTable.id, 1)),
-				);
-
-			return insertedWork;
-		});
-
-		if (!inserted) {
+	getById: async (work: Pick<Work, "id">) => {
+		const results = await DB.select()
+			.from(workTable)
+			.where(eq(workTable.id, work.id));
+		const found = results.at(0);
+		return found;
+	},
+	create: async (work: Work) => {
+		const results = await DB.insert(workTable).values(work).returning();
+		const created = results.at(0);
+		if (!created) {
 			throw new Error("failed to insert");
 		}
-		return inserted;
+		return created;
+	},
+	update: async (work: AtLeast<Work, "id">) => {
+		const results = await DB.update(workTable)
+			.set({ ...work })
+			.where(eq(workTable.id, work.id))
+			.returning();
+		const updated = results.at(0);
+		if (!updated) {
+			throw new Error("failed to insert work");
+		}
+		return updated;
 	},
 };
 
-export const workRevisionDatabase: IWorkRevisionDatabase = {
-	create: async () => {
-		const result = await DB.insert(workRevisionTable)
-			.values({
-				createdAt: new Date(),
-			})
-			.returning();
+export const revisionDatabase: IRevisionDatabase = {
+	create: async (revision: Revision) => {
+		const results = await DB.insert(revisionTable).values(revision).returning();
 
-		const revision = result.at(0);
-		if (!revision) {
+		const created = results.at(0);
+		if (!created) {
 			throw new Error("failed to insert");
 		}
 
-		return revision;
+		return created;
 	},
 
-	getById: async (id: number) => {
+	getById: async (id: Revision["id"]) => {
 		const revisions = await DB.select()
-			.from(workRevisionTable)
-			.where(eq(workRevisionTable.id, id));
+			.from(revisionTable)
+			.where(eq(revisionTable.id, id));
 
 		if (revisions.length === 0) {
 			return undefined;
@@ -120,76 +108,35 @@ export const workRevisionDatabase: IWorkRevisionDatabase = {
 		return revisions.at(0);
 	},
 
-	deleteById: async (id: number) => {
-		const results = await DB.delete(workRevisionTable)
-			.where(eq(workRevisionTable.id, id))
-			.returning();
-
-		const deleted = results.at(0);
-		if (!deleted) {
-			console.info(
-				`the revision (id: ${id}) has not deleted (maybe it has already been deleted)`,
-			);
-			return;
-		}
-
-		return deleted;
+	deleteById: async (id: Revision["id"]) => {
+		await DB.delete(revisionTable).where(eq(revisionTable.id, id)).returning();
 	},
 };
 
 export const EventDatabase: IEventDatabase = {
-	create: async (
-		type: EventType,
-		targetId: number,
-		scheduledAt: Date | null,
-	) => {
-		const results = await DB.insert(eventTable)
-			.values({
-				type,
-				targetId,
-				scheduledAt,
-				createdAt: new Date(),
-			})
-			.returning();
+	create: async (event: Event) => {
+		const results = await DB.insert(eventTable).values(event).returning();
 
-		const inserted = results.at(0);
-		if (!inserted) {
+		const created = results.at(0);
+		if (!created) {
 			throw new Error("failed to insert");
 		}
 
-		const event = new Event(inserted);
 		return event;
 	},
 
-	deleteById: async (id: number) => {
-		const result = await DB.delete(eventTable)
-			.where(
-				and(
-					eq(eventTable.id, id),
-					or(
-						isNull(eventTable.scheduledAt),
-						gt(eventTable.scheduledAt, new Date()),
-					),
-				),
-			)
+	deleteById: async (id: Event["id"]) => {
+		await DB.delete(eventTable)
+			.where(and(eq(eventTable.id, id)))
 			.returning();
-		const deleted = result.at(0);
-		if (!deleted) {
-			console.info(
-				`the event (id: ${id}) has not deleted (maybe it has already been deleted)`,
-			);
-			return;
-		}
-
-		const event = new Event(deleted);
-		return event;
 	},
 
-	get: async (limit?: number) => {
+	get: async (options?: { limit?: number }) => {
+		const limit = options?.limit;
 		const query = DB.select().from(eventTable).orderBy(eventTable.id);
 		const shouldLimit = limit !== undefined;
 		const results = await (shouldLimit ? query.limit(limit) : query);
-		const events = results.map((res) => new Event(res));
+		const events = results.map((res) => EVENT_SCHEMA.parse(res));
 		return events;
 	},
 };

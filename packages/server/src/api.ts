@@ -1,9 +1,9 @@
 import { Hono } from "hono";
+import { CONFIG_API } from "./apis/config";
+import { REVISION_API } from "./apis/revision";
+import { WORK_API } from "./apis/work";
 import { PRIVATE_API_BASE_PATH, STORAGE_API_BASE_PATH } from "./constants";
-import { CONFIG_API } from "./features/config/api";
 import * as eventUsecases from "./features/event/usecases";
-import { REVISION_API } from "./features/revision/api";
-import { WORK_API } from "./features/work/api";
 import * as drizzleRepositories from "./repositories/drizzle/repositories";
 import * as localRepository from "./repositories/local/repositories";
 import { getRootUrl } from "./utils";
@@ -16,7 +16,8 @@ export const PRIVATE_API = new Hono()
 		await next();
 		await eventUsecases.handleAll(
 			drizzleRepositories.EventDatabase,
-			drizzleRepositories.workRevisionDatabase,
+			drizzleRepositories.workDatabase,
+			drizzleRepositories.revisionDatabase,
 		);
 	})
 

@@ -1,12 +1,8 @@
 import type { Awaitable } from "picms-shared/types";
-import type { Event, EventType } from "./entity";
+import type { Event } from "./entity";
 
 export interface IEventDatabase {
-	create: (
-		type: EventType,
-		targetId: number,
-		schduledAt: Date | null,
-	) => Awaitable<Event>;
-	get: (limit?: number) => Awaitable<Event[]>;
-	deleteById: (id: number) => Awaitable<Event | undefined>;
+	create: (event: Event) => Awaitable<Event>;
+	get: (options?: { limit?: number }) => Awaitable<Event[]>;
+	deleteById: (id: Event["id"]) => Awaitable<Event | undefined>;
 }

@@ -1,15 +1,15 @@
 import {
 	boolean,
 	index,
-	integer,
 	pgTable,
 	timestamp,
+	uuid,
 	varchar,
 } from "drizzle-orm/pg-core";
 
 export const configTable = pgTable("config", {
 	// currently id is not required, but it is useful to implement upsert
-	id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
+	id: uuid("id").notNull().primaryKey(),
 
 	timezone: varchar("timezone", { length: 255 }).notNull(),
 });
@@ -17,17 +17,17 @@ export const configTable = pgTable("config", {
 export const eventTable = pgTable(
 	"event",
 	{
-		id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
+		id: uuid("id").notNull().primaryKey(),
 		type: varchar("type", { length: 255 }).notNull(),
-		targetId: integer("target_id").notNull(),
-		scheduledAt: timestamp("scheduled_at"),
+		targetId: uuid("target_id").notNull(),
+		scheduledAt: timestamp("scheduled_at").notNull(),
 		createdAt: timestamp("created_at").notNull(),
 	},
-	(table) => [index("type_index").on(table.type)],
+	(table) => [index("scheduled_at").on(table.scheduledAt)],
 );
 
 export const workTable = pgTable("work", {
-	id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
+	id: uuid("id").notNull().primaryKey(),
 	title: varchar("title").notNull(),
 	description: varchar("description").notNull(),
 	public: boolean("public").notNull(),
@@ -38,8 +38,8 @@ export const workTable = pgTable("work", {
 export const workTagTable = pgTable(
 	"work_tag",
 	{
-		id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
-		workId: integer("work_id")
+		id: uuid("id").notNull().primaryKey(),
+		workId: uuid("work_id")
 			.notNull()
 			.references(() => workTable.id),
 		name: varchar("name", { length: 255 }).notNull(),
@@ -47,8 +47,8 @@ export const workTagTable = pgTable(
 	(table) => [index("work_id_index").on(table.workId)],
 );
 
-export const workRevisionTable = pgTable("work_revision", {
-	id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
-	workId: integer("work_id"), // no foreign key constraint here. they both belong to different repositories.
+export const revisionTable = pgTable("work_revision", {
+	id: uuid("id").notNull().primaryKey(),
+	workId: uuid("work_id").notNull(), // no foreign key constraint here. they both belong to different repositories.
 	createdAt: timestamp("created_at").notNull(),
 });
