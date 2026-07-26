@@ -25,7 +25,7 @@ export const REVISION_API = new Hono()
 		},
 	)
 	.get(
-		"/:id/signed-url",
+		"/:id",
 		validator("param", async (value, c) => {
 			const parsed = revisionIo.FIND_BY_ID_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
@@ -38,10 +38,30 @@ export const REVISION_API = new Hono()
 			const param = c.req.valid("param");
 			const repo = drizzleRepositories.revisionDatabase;
 			const revision = await repo.getById(param.id);
+			if (!revision) {
+				return c.body(null, 404);
+			}
+			return c.json(revision);
+		},
+	)
+	.get(
+		"/:id/signed-url",
+		validator("param", async (value, c) => {
+			const parsed = revisionIo.ISSUE_SIGNED_URL_INPUT_SCHEMA.safeParse(value);
+			if (!parsed.success) {
+				return c.text("Invalid", 401);
+			}
+
+			return parsed.data;
+		}),
+		async (c) => {
+			const param = c.req.valid("param");
+			const repo = drizzleRepositories.revisionDatabase;
+			const revision = await repo.getById(param.id);
 
 			// when revision is not found or revision is already associated with work
-			if (!revision || revision.workId) {
-				return c.text("Invalid", 401);
+			if (!revision) {
+				return c.text("Invalid", 400);
 			}
 
 			const apiBaseUrl = `${getRootUrl(c.req)}${STORAGE_API_BASE_PATH}`;

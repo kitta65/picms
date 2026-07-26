@@ -20,3 +20,7 @@ export function toEntity(input: CreateInput): Revision {
 export const FIND_BY_ID_INPUT_SCHEMA = REVISION_SCHEMA.pick({
 	id: true,
 }).brand();
+
+export const ISSUE_SIGNED_URL_INPUT_SCHEMA = REVISION_SCHEMA.pick({
+	id: true,
+}).brand();
