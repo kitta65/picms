@@ -4,7 +4,7 @@ import * as path from "node:path";
 import type { ISharedStorage } from "../../domain/shared/repository";
 
 type Sign = {
-	filename: string;
+	path: string;
 	token: string;
 };
 
@@ -15,31 +15,32 @@ export class SharedStorage implements ISharedStorage {
 	// NOTE:
 	// currenty only one sign is rememberd.
 	// it is enough for local environment.
-	static sign: Sign = { filename: "", token: "" };
+	static sign: Sign = { path: "", token: "" };
 
 	constructor(apiBaseUrl: string) {
 		this.apiBaseUrl = apiBaseUrl;
 	}
 
-	async getSignedUrl(filename: string) {
+	async getSignedUrl(fileName: string) {
 		const token = crypto.randomBytes(36).toString("hex");
 		const url = this.directory
-			? `${this.apiBaseUrl}/${this.directory}/${filename}?token=${token}`
-			: `${this.apiBaseUrl}/${filename}?token=${token}`;
-		SharedStorage.sign = { filename, token };
+			? `${this.apiBaseUrl}/${this.directory}/${fileName}?token=${token}`
+			: `${this.apiBaseUrl}/${fileName}?token=${token}`;
+		const path_ = path.join(this.directory, fileName);
+		SharedStorage.sign = { path: path_, token };
 		return url;
 	}
 
 	async checkAvailability(fileName: string) {
 		const fullPath = this.#buildFullPath(fileName);
 		const exists = await fs.exists(fullPath);
-		return exists;
+		return !exists;
 	}
 
 	async save(fileName: string, token: string, data: Blob) {
 		// validate
 		const isValid =
-			SharedStorage.sign.filename === fileName &&
+			SharedStorage.sign.path === fileName &&
 			SharedStorage.sign.token === token;
 		if (!isValid) {
 			throw new Error("Invalid token");
@@ -59,8 +60,7 @@ export class SharedStorage implements ISharedStorage {
 		}
 
 		// "server" represents this package in monorepo
-		basePath = path.resolve(basePath, "server", this.directory);
-		const fullPath = path.resolve(basePath, fileName);
+		const fullPath = path.resolve(basePath, "server", this.directory, fileName);
 		return fullPath;
 	}
 }
@@ -68,6 +68,6 @@ export class SharedStorage implements ISharedStorage {
 export class RevisionStorage extends SharedStorage {
 	constructor(apiBaseUrl: string) {
 		super(apiBaseUrl);
-		this.directory = "revision/";
+		this.directory = "revision";
 	}
 }
