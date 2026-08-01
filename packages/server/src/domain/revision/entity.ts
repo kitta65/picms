@@ -12,10 +12,11 @@ export type Revision = z.infer<typeof REVISION_SCHEMA>;
 
 export const Revision = {
 	isWithinOrphanTtl(revision: Revision, now?: Date) {
-		const currUnixMs = Number(now) ?? Date.now();
+		const currDate = now ?? new Date();
+		const currUnixMs = Number(currDate);
 		const elapsedMilliSeconds = currUnixMs - Number(revision.createdAt);
 		const elapsedMinutes = elapsedMilliSeconds / 1000 / 60;
-		const result = ORPHAN_REVISION_TTL_MINUTES < elapsedMinutes;
+		const result = elapsedMinutes <= ORPHAN_REVISION_TTL_MINUTES;
 		return result;
 	},
 };

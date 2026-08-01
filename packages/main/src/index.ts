@@ -66,6 +66,6 @@ if (import.meta.main) {
 	main();
 }
 
-export const TEST = {
+export const _TEST = {
 	createServerOptions,
 };

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { TEST } from ".";
+import { _TEST } from ".";
 
-const { createServerOptions } = TEST;
+const { createServerOptions } = _TEST;
 
 describe("createServerOptions", () => {
 	test("/api/private/foo is routed to private api function", async () => {
