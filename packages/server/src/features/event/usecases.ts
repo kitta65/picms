@@ -3,12 +3,13 @@ import type { IEventDatabase } from "../../domain/event/repository";
 import type { IRevisionDatabase } from "../../domain/revision/repository";
 import type { IWorkDatabase } from "../../domain/work/repository";
 
-export async function handleAll(
+export async function handleFirstN(
+	n: number,
 	eventDatabase: IEventDatabase,
 	workDatabase: IWorkDatabase,
 	revisionDatabase: IRevisionDatabase,
 ) {
-	const events = await eventDatabase.get();
+	const events = await eventDatabase.findMany({ limit: n });
 	for (const e of events) {
 		switch (e.type) {
 			case "REVISION_CREATED":
@@ -33,14 +34,14 @@ async function handleRevisionCreated(
 	workDatabase: IWorkDatabase,
 	revisionDatabase: IRevisionDatabase,
 ) {
-	const revision = await revisionDatabase.getById(e.targetId);
+	const revision = await revisionDatabase.findById(e.targetId);
 	if (!revision) {
 		return;
 	}
 
 	// since work and revision belong to different repository, work might have been deleted **before** the creation of the revision.
 	// in that case, the orphan revision should be deleted here.
-	const work = workDatabase.getById({ id: revision.workId });
+	const work = workDatabase.findById(revision.workId);
 	if (!work) {
 		await revisionDatabase.deleteById(revision.id);
 	}

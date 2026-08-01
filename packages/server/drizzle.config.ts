@@ -4,7 +4,7 @@ const { PG_USER, PG_PASS, PG_PORT } = Bun.env;
 
 export default defineConfig({
 	out: "./drizzle",
-	schema: "./src/repositories/drizzle/schema.ts",
+	schema: "./src/infrastructures/drizzle/schema.ts",
 	dialect: "postgresql",
 	dbCredentials: {
 		user: PG_USER,

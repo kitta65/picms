@@ -14,9 +14,10 @@ export const WORK_API = new Hono().post(
 		return parsed.data;
 	}),
 	async (c) => {
+		const input = c.req.valid("json");
 		const repo = drizzleRepositories.workDatabase;
-		const work = workIo.toEntity(c.req.valid("json"));
-		const result = await repo.create(work);
+		const work = workIo.CreateInput.toEntity(input);
+		const result = await repo.upsert(work);
 		return c.json(result, 200);
 	},
 );

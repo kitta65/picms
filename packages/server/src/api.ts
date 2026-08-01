@@ -2,11 +2,17 @@ import { Hono } from "hono";
 import { CONFIG_API } from "./apis/config";
 import { REVISION_API } from "./apis/revision";
 import { WORK_API } from "./apis/work";
-import { PRIVATE_API_BASE_PATH, STORAGE_API_BASE_PATH } from "./constants";
+import {
+	PRIVATE_API_BASE_PATH,
+	PUBLIC_API_BASE_PATH,
+	STORAGE_API_BASE_PATH,
+} from "./constants";
 import * as eventUsecases from "./features/event/usecases";
 import * as drizzleRepositories from "./infrastructures/drizzle/repositories";
 import * as localRepository from "./infrastructures/local/repositories";
 import { getRootUrl } from "./utils";
+
+const EVENT_BATCH_SIZE = 10;
 
 export const PRIVATE_API = new Hono()
 	.basePath(PRIVATE_API_BASE_PATH)
@@ -14,7 +20,8 @@ export const PRIVATE_API = new Hono()
 	// middleware
 	.use(async (_, next) => {
 		await next();
-		await eventUsecases.handleAll(
+		await eventUsecases.handleFirstN(
+			EVENT_BATCH_SIZE,
 			drizzleRepositories.EventDatabase,
 			drizzleRepositories.workDatabase,
 			drizzleRepositories.revisionDatabase,
@@ -27,7 +34,7 @@ export const PRIVATE_API = new Hono()
 export type PrivateApi = typeof PRIVATE_API;
 
 export const PUBLIC_API = new Hono()
-	.basePath(PRIVATE_API_BASE_PATH)
+	.basePath(PUBLIC_API_BASE_PATH)
 	.post("/", (c) => {
 		return c.text("hello from server");
 	});

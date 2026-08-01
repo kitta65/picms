@@ -3,9 +3,9 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { hc } from "hono/client";
 import type { PrivateApi } from "picms-server/api";
 import {
-	type Config,
-	configInputSchema,
-} from "picms-server/domain/config/entity";
+	UPSERT_INPUT_SCHEMA,
+	type UpsertInput,
+} from "picms-server/features/config/io";
 import { useEffect } from "react";
 import {
 	Combobox,
@@ -41,7 +41,7 @@ function useConfigQuery() {
 
 function useConfigMutation(onSuccess?: () => void) {
 	return useMutation({
-		mutationFn: (config: Config) =>
+		mutationFn: (config: UpsertInput) =>
 			CLIENT.api.private.configs.$post({ json: config }),
 		onSuccess,
 	});
@@ -62,12 +62,13 @@ function useConfigOperation() {
 export function Settings() {
 	// TODO: handle isError
 	const { data: config, isLoading, mutate } = useConfigOperation();
+	const defaultValues: UpsertInput = {
+		timezone: null,
+	} as const;
 	const form = useForm({
-		defaultValues: {
-			timezone: "",
-		},
+		defaultValues,
 		validators: {
-			onSubmit: configInputSchema,
+			onSubmit: UPSERT_INPUT_SCHEMA,
 		},
 		onSubmit: ({ value }) => {
 			mutate(value);
@@ -79,9 +80,11 @@ export function Settings() {
 		if (!config) return;
 
 		// supported values may change in the future
-		if (!Intl.supportedValuesOf("timeZone").includes(config.timezone)) {
+		if (
+			!Intl.supportedValuesOf("timeZone").some((tz) => tz === config.timezone)
+		) {
 			console.log(config);
-			form.reset({ ...config, timezone: "" });
+			form.reset({ ...config, timezone: null });
 			return;
 		}
 
@@ -113,7 +116,7 @@ export function Settings() {
 									items={Intl.supportedValuesOf("timeZone")}
 									name={field.name}
 									value={field.state.value}
-									onValueChange={(val) => field.handleChange(val ?? "")}
+									onValueChange={(val) => field.handleChange(val)}
 								>
 									<ComboboxInput placeholder="Select a timezone" />
 									<ComboboxContent>

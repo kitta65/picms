@@ -1,9 +1,8 @@
-import type { AtLeast } from "picms-shared/types";
+import type { Awaitable } from "picms-shared/types";
 
 import type { Work } from "./entity";
 
 export interface IWorkDatabase {
-	create: (work: Work) => Promise<Work>;
-	update: (work: AtLeast<Work, "id">) => Promise<Work>;
-	getById: (id: Pick<Work, "id">) => Promise<Work | undefined>;
+	upsert: (work: Work) => Awaitable<Work>;
+	findById: (id: Work["id"]) => Awaitable<Work | undefined>;
 }

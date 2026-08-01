@@ -1,22 +1,12 @@
+import type { ISharedStorage } from "../shared/repository";
 import type { Revision } from "./entity";
-import type { IRevisionDatabase } from "./repository";
 
-export async function create(
+export async function checkStorageAvailability(
 	revision: Revision,
-	db: IRevisionDatabase,
-): Promise<Revision> {
-	const created = await db.create(revision);
-	return created;
-}
-
-export async function findById(
-	id: Revision["id"],
-	db: IRevisionDatabase,
-): Promise<Revision | undefined> {
-	const fetched = await db.getById(id);
-	return fetched;
-}
-
-export async function deleteById(id: Revision["id"], db: IRevisionDatabase) {
-	await db.deleteById(id);
+	di: { storage: ISharedStorage },
+) {
+	const storage = di.storage;
+	const filename = revision.id;
+	const isAvailable = storage.checkAvailability(filename);
+	return isAvailable;
 }

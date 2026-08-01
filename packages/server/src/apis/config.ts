@@ -1,28 +1,28 @@
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-import { configInputSchema } from "../domain/config/entity";
-import * as configService from "../domain/config/service";
+import * as configIo from "../features/config/io";
 import * as drizzleRepositories from "../infrastructures/drizzle/repositories";
 
 export const CONFIG_API = new Hono()
 	.get("/", async (c) => {
 		const repo = drizzleRepositories.configDatabase;
-		const res = await configService.findFirst(repo);
+		const res = await repo.findFirst();
 		return c.json(res);
 	})
 	.post(
 		"/",
 		validator("json", (value, c) => {
-			const parsed = configInputSchema.safeParse(value);
+			const parsed = configIo.UPSERT_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
 				return c.text("Invalid", 400);
 			}
 			return parsed.data;
 		}),
 		async (c) => {
-			const entity = c.req.valid("json");
+			const input = c.req.valid("json");
+			const entity = configIo.UpsertInput.toEntity(input);
 			const repo = drizzleRepositories.configDatabase;
-			await configService.upsert(repo, entity);
+			await repo.upsert(entity);
 			return c.json(entity);
 		},
 	);

@@ -1,6 +1,7 @@
+import type { Awaitable } from "picms-shared/types";
 import type { Config } from "./entity";
 
 export interface IConfigRepository {
-	findFirst: () => Promise<Config | undefined>;
-	upsert: (config: Config) => Promise<Config>;
+	findFirst: () => Awaitable<Config | undefined>;
+	upsert: (config: Config) => Awaitable<Config>;
 }
