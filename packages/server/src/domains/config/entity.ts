@@ -7,9 +7,12 @@ const _DEFAULT = {
 export const CONFIG_SCHEMA = z.object({
 	// catch(null) handles future changes of supporetedValues
 	timezone: z
-		.enum(Intl.supportedValuesOf("timeZone"))
+		.string()
 		.nullable()
-		.catch(_DEFAULT.timezone),
+		.transform(
+			(val) =>
+				Intl.supportedValuesOf("timeZone").find((tz) => tz === val) ?? null,
+		),
 });
 
 export type Config = z.infer<typeof CONFIG_SCHEMA>;
