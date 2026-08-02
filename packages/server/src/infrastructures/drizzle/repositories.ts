@@ -4,14 +4,14 @@ import {
 	ORPHAN_REVISION_TTL_MINUTES,
 	SIGNED_URL_TTL_MINUTES,
 } from "../../constants";
-import type { Config } from "../../domain/config/entity";
-import type { IConfigRepository } from "../../domain/config/repository";
-import { EVENT_SCHEMA, Event } from "../../domain/event/entity";
-import type { IEventDatabase } from "../../domain/event/repository";
-import { REVISION_SCHEMA, type Revision } from "../../domain/revision/entity";
-import type { IRevisionDatabase } from "../../domain/revision/repository";
-import type { Work } from "../../domain/work/entity";
-import type { IWorkDatabase } from "../../domain/work/repository";
+import type { Config } from "../../domains/config/entity";
+import type { IConfigRepository } from "../../domains/config/repository";
+import { EVENT_SCHEMA, Event } from "../../domains/event/entity";
+import type { IEventDatabase } from "../../domains/event/repository";
+import { REVISION_SCHEMA, type Revision } from "../../domains/revision/entity";
+import type { IRevisionDatabase } from "../../domains/revision/repository";
+import type { Work } from "../../domains/work/entity";
+import type { IWorkDatabase } from "../../domains/work/repository";
 import { configTable, eventTable, revisionTable, workTable } from "./schema";
 
 const { PG_PASS, PG_USER, PG_PORT } = Bun.env;

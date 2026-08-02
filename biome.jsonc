@@ -14,9 +14,9 @@
 		"useIgnoreFile": true
 	},
 	"overrides": [
-		// server domain layer
+		// server/src/domains
 		{
-			"includes": ["packages/server/src/domain/**/*.ts"],
+			"includes": ["packages/server/src/domains/**/*.ts"],
 			"linter": {
 				"rules": {
 					"style": {
@@ -38,7 +38,7 @@
 				}
 			}
 		},
-		// server infrastucture layer
+		// server/src/infrastuctures
 		{
 			"includes": ["packages/server/src/infrastructures/**/*.ts"],
 			"linter": {
@@ -58,7 +58,7 @@
 				}
 			}
 		},
-		// server features layer
+		// server/src/features
 		{
 			"includes": ["packages/server/src/features/**/*.ts"],
 			"linter": {

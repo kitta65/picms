@@ -2,7 +2,7 @@ import * as crypto from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { SIGNED_URL_TTL_MINUTES } from "../../constants";
-import type { ISharedStorage } from "../../domain/shared/repository";
+import type { ISharedStorage } from "../../domains/shared/repository";
 
 type Sign = {
 	path: string;

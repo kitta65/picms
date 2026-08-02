@@ -4,7 +4,7 @@ import {
 	CONFIG_SCHEMA,
 	type Config,
 	DEFAULT,
-} from "../../domain/config/entity";
+} from "../../domains/config/entity";
 
 export const UPSERT_INPUT_SCHEMA = CONFIG_SCHEMA.partial();
 export type UpsertInput = z.infer<typeof UPSERT_INPUT_SCHEMA>;

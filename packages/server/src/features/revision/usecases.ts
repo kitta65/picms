@@ -1,7 +1,7 @@
-import { Revision } from "../../domain/revision/entity";
-import type { IRevisionDatabase } from "../../domain/revision/repository";
-import * as RevisionService from "../../domain/revision/service";
-import type { ISharedStorage } from "../../domain/shared/repository";
+import { Revision } from "../../domains/revision/entity";
+import type { IRevisionDatabase } from "../../domains/revision/repository";
+import * as RevisionService from "../../domains/revision/service";
+import type { ISharedStorage } from "../../domains/shared/repository";
 
 export async function issueSignedUrl(
 	revisionId: Revision["id"],

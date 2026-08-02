@@ -1,8 +1,8 @@
-import type { Event } from "../../domain/event/entity";
-import type { IEventDatabase } from "../../domain/event/repository";
-import type { IRevisionDatabase } from "../../domain/revision/repository";
-import type { ISharedStorage } from "../../domain/shared/repository";
-import type { IWorkDatabase } from "../../domain/work/repository";
+import type { Event } from "../../domains/event/entity";
+import type { IEventDatabase } from "../../domains/event/repository";
+import type { IRevisionDatabase } from "../../domains/revision/repository";
+import type { ISharedStorage } from "../../domains/shared/repository";
+import type { IWorkDatabase } from "../../domains/work/repository";
 
 const RETRY_INTERVAL_MINUTES = 1;
 const MAX_ATTEMPTS = 3;

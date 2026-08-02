@@ -1,6 +1,6 @@
 import type * as z from "zod";
 
-import { REVISION_SCHEMA, type Revision } from "../../domain/revision/entity";
+import { REVISION_SCHEMA, type Revision } from "../../domains/revision/entity";
 
 export const CREATE_INPUT_SCHEMA = REVISION_SCHEMA.omit({
 	id: true,

@@ -1,6 +1,6 @@
 import type * as z from "zod";
 
-import { WORK_SCHEMA, type Work } from "../../domain/work/entity";
+import { WORK_SCHEMA, type Work } from "../../domains/work/entity";
 
 export const CREATE_INPUT_SCHEMA = WORK_SCHEMA.omit({
 	id: true,
