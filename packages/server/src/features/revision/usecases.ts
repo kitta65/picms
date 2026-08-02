@@ -5,9 +5,9 @@ import type { ISharedStorage } from "../../domains/shared/repository";
 
 export async function issueSignedUrl(
 	revisionId: Revision["id"],
-	{ db, storage }: { db: IRevisionDatabase; storage: ISharedStorage },
+	di: { revisionDatabase: IRevisionDatabase; revisionStorage: ISharedStorage },
 ) {
-	const revision = await db.findById(revisionId);
+	const revision = await di.revisionDatabase.findById(revisionId);
 
 	if (!revision) {
 		throw new Error("revision not found");
@@ -19,12 +19,12 @@ export async function issueSignedUrl(
 
 	// avoid duplicate upload (best effort)
 	const isAvailable = await RevisionService.checkStorageAvailability(revision, {
-		storage,
+		revisionStorage: di.revisionStorage,
 	});
 	if (!isAvailable) {
 		throw new Error("storage is not available");
 	}
 
-	const url = await storage.getSignedUrl(revisionId);
+	const url = await di.revisionStorage.getSignedUrl(revisionId);
 	return url;
 }

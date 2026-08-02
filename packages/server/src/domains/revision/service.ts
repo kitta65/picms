@@ -3,9 +3,9 @@ import type { Revision } from "./entity";
 
 export async function checkStorageAvailability(
 	revision: Revision,
-	di: { storage: ISharedStorage },
+	di: { revisionStorage: ISharedStorage },
 ) {
-	const storage = di.storage;
+	const storage = di.revisionStorage;
 	const filename = revision.id;
 	const isAvailable = storage.checkAvailability(filename);
 	return isAvailable;

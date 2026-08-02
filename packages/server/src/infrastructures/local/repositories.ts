@@ -10,17 +10,23 @@ type Sign = {
 	signedAt: Date;
 };
 
+type Options = {
+	skipValidation?: boolean;
+};
+
 export class SharedStorage implements ISharedStorage {
 	apiBaseUrl: string;
 	directory: string = "";
+	options: Options;
 
 	// NOTE:
 	// currenty only one sign is rememberd.
 	// it is enough for local environment.
 	static sign: Sign = { path: "", token: "", signedAt: new Date(0) };
 
-	constructor(apiBaseUrl: string) {
+	constructor(apiBaseUrl: string, options?: Options) {
 		this.apiBaseUrl = apiBaseUrl;
+		this.options = options ?? {};
 	}
 
 	async getSignedUrl(fileName: string) {
@@ -46,9 +52,9 @@ export class SharedStorage implements ISharedStorage {
 		const elapsedMinutes = (currTs - signedTs) / 1000 / 60;
 		const isValid =
 			SharedStorage.sign.path === fileName &&
-			SharedStorage.sign.token === token;
-		elapsedMinutes < SIGNED_URL_TTL_MINUTES;
-		if (!isValid) {
+			SharedStorage.sign.token === token &&
+			elapsedMinutes < SIGNED_URL_TTL_MINUTES;
+		if (!isValid && !this.options.skipValidation) {
 			throw new Error("Invalid token");
 		}
 

@@ -16,7 +16,10 @@
 	"overrides": [
 		// server/src/domains
 		{
-			"includes": ["packages/server/src/domains/**/*.ts"],
+			"includes": [
+				"packages/server/src/domains/**/*.ts",
+				"!packages/server/src/domains/**/*.test.ts"
+			],
 			"linter": {
 				"rules": {
 					"style": {
@@ -40,7 +43,10 @@
 		},
 		// server/src/infrastuctures
 		{
-			"includes": ["packages/server/src/infrastructures/**/*.ts"],
+			"includes": [
+				"packages/server/src/infrastructures/**/*.ts",
+				"!packages/server/src/infrastructures/**/*.test.ts"
+			],
 			"linter": {
 				"rules": {
 					"style": {
@@ -60,7 +66,10 @@
 		},
 		// server/src/features
 		{
-			"includes": ["packages/server/src/features/**/*.ts"],
+			"includes": [
+				"packages/server/src/features/**/*.ts",
+				"!packages/server/src/features/**/*.test.ts"
+			],
 			"linter": {
 				"rules": {
 					"style": {

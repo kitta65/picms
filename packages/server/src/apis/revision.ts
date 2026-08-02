@@ -57,12 +57,12 @@ export const REVISION_API = new Hono()
 		}),
 		async (c) => {
 			const param = c.req.valid("param");
-			const db = drizzleRepositories.revisionDatabase;
+			const revisionDatabase = drizzleRepositories.revisionDatabase;
 			const apiBaseUrl = `${getRootUrl(c.req)}${STORAGE_API_BASE_PATH}`;
-			const storage = new localRepository.RevisionStorage(apiBaseUrl);
+			const revisionStorage = new localRepository.RevisionStorage(apiBaseUrl);
 			const url = await revisionUsecase.issueSignedUrl(param.id, {
-				db,
-				storage,
+				revisionDatabase,
+				revisionStorage,
 			});
 			return c.text(url);
 		},
