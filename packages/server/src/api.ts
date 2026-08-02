@@ -18,14 +18,21 @@ export const PRIVATE_API = new Hono()
 	.basePath(PRIVATE_API_BASE_PATH)
 
 	// middleware
-	.use(async (_, next) => {
+	.use(async (c, next) => {
 		await next();
-		await eventUsecases.handleFirstN(
-			EVENT_BATCH_SIZE,
-			drizzleRepositories.EventDatabase,
-			drizzleRepositories.workDatabase,
-			drizzleRepositories.revisionDatabase,
-		);
+
+		// fire and forget!
+		// if you use cloudflare someday, see https://hono.dev/docs/api/context#executionctx
+		const apiBaseUrl = `${getRootUrl(c.req)}${STORAGE_API_BASE_PATH}`;
+		const revisionStorage = new localRepository.SharedStorage(apiBaseUrl);
+		eventUsecases
+			.handleFirstN(EVENT_BATCH_SIZE, {
+				eventDatabase: drizzleRepositories.EventDatabase,
+				workDatabase: drizzleRepositories.workDatabase,
+				revisionDatabase: drizzleRepositories.revisionDatabase,
+				revisionStorage,
+			})
+			.catch((e) => console.error(e));
 	})
 
 	.route("/works", WORK_API)

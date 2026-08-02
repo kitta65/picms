@@ -1,6 +1,7 @@
 import {
 	boolean,
 	index,
+	integer,
 	pgTable,
 	timestamp,
 	uuid,
@@ -20,10 +21,17 @@ export const eventTable = pgTable(
 		id: uuid("id").notNull().primaryKey(),
 		type: varchar("type", { length: 255 }).notNull(),
 		targetId: uuid("target_id").notNull(),
+		attemptCount: integer("attempt_count").notNull(),
 		scheduledAt: timestamp("scheduled_at").notNull(),
 		createdAt: timestamp("created_at").notNull(),
 	},
-	(table) => [index("scheduled_at").on(table.scheduledAt)],
+	(table) => [
+		index("scheduled_at__idx").on(table.scheduledAt),
+		index("attempt_count__scheduled_at__idx").on(
+			table.attemptCount,
+			table.scheduledAt,
+		),
+	],
 );
 
 export const workTable = pgTable("work", {
@@ -44,7 +52,7 @@ export const workTagTable = pgTable(
 			.references(() => workTable.id),
 		name: varchar("name", { length: 255 }).notNull(),
 	},
-	(table) => [index("work_id_index").on(table.workId)],
+	(table) => [index("work_id__idx").on(table.workId)],
 );
 
 export const revisionTable = pgTable("work_revision", {

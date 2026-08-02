@@ -1,22 +1,33 @@
 import type { Event } from "../../domain/event/entity";
 import type { IEventDatabase } from "../../domain/event/repository";
 import type { IRevisionDatabase } from "../../domain/revision/repository";
+import type { ISharedStorage } from "../../domain/shared/repository";
 import type { IWorkDatabase } from "../../domain/work/repository";
+
+const RETRY_INTERVAL_MINUTES = 1;
+const MAX_ATTEMPTS = 3;
 
 export async function handleFirstN(
 	n: number,
-	eventDatabase: IEventDatabase,
-	workDatabase: IWorkDatabase,
-	revisionDatabase: IRevisionDatabase,
+	di: {
+		eventDatabase: IEventDatabase;
+		workDatabase: IWorkDatabase;
+		revisionDatabase: IRevisionDatabase;
+		revisionStorage: ISharedStorage;
+	},
 ) {
-	const events = await eventDatabase.findMany({ limit: n });
+	const events = await di.eventDatabase.attemptFirstN({
+		limit: n,
+		retryIntervalMinutes: RETRY_INTERVAL_MINUTES,
+		maxAttempts: MAX_ATTEMPTS,
+	});
 	for (const e of events) {
 		switch (e.type) {
-			case "REVISION_CREATED":
-				await handleRevisionCreated(e, workDatabase, revisionDatabase);
+			case "REVISION_INSERTED":
+				await handleRevisionCreated(e, di);
 				break;
 			case "REVISION_SIGNED_URL_EXPIRED":
-				await handleRevisionSignedUrlExpired(e, revisionDatabase);
+				await handleRevisionSignedUrlExpired(e, di);
 				break;
 			case "WORK_DELETED":
 				console.warn("TODO: not implemented");
@@ -30,30 +41,37 @@ export async function handleFirstN(
 }
 
 async function handleRevisionCreated(
-	e: Event,
-	workDatabase: IWorkDatabase,
-	revisionDatabase: IRevisionDatabase,
+	event: Event,
+	di: {
+		eventDatabase: IEventDatabase;
+		workDatabase: IWorkDatabase;
+		revisionDatabase: IRevisionDatabase;
+	},
 ) {
-	const revision = await revisionDatabase.findById(e.targetId);
+	const revision = await di.revisionDatabase.findById(event.targetId);
 	if (!revision) {
 		return;
 	}
 
 	// since work and revision belong to different repository, work might have been deleted **before** the creation of the revision.
 	// in that case, the orphan revision should be deleted here.
-	const work = workDatabase.findById(revision.workId);
+	const work = await di.workDatabase.findById(revision.workId);
 	if (!work) {
-		await revisionDatabase.deleteById(revision.id);
+		await di.revisionDatabase.deleteById(revision.id);
 	}
-	// TODO: mark event as completed
+
+	await di.eventDatabase.deleteById(event.id);
 }
 
-async function handleRevisionSignedUrlExpired(e: Event, db: IRevisionDatabase) {
-	const results = await db.deleteById(e.targetId);
-	if (!results) {
-		console.info(
-			`the revision (id: ${e.id}) has not been deleted (maybe it does not exist)`,
-		);
-	}
-	// TODO: mark event as completed
+async function handleRevisionSignedUrlExpired(
+	event: Event,
+	di: {
+		eventDatabase: IEventDatabase;
+		revisionDatabase: IRevisionDatabase;
+		revisionStorage: ISharedStorage;
+	},
+) {
+	await di.revisionDatabase.deleteById(event.targetId);
+	await di.revisionStorage.deleteByFileName(event.id);
+	await di.eventDatabase.deleteById(event.id);
 }

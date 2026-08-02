@@ -1,9 +1,12 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray, lt, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/bun-sql";
-
+import {
+	ORPHAN_REVISION_TTL_MINUTES,
+	SIGNED_URL_TTL_MINUTES,
+} from "../../constants";
 import type { Config } from "../../domain/config/entity";
 import type { IConfigRepository } from "../../domain/config/repository";
-import { EVENT_SCHEMA, type Event } from "../../domain/event/entity";
+import { EVENT_SCHEMA, Event } from "../../domain/event/entity";
 import type { IEventDatabase } from "../../domain/event/repository";
 import { REVISION_SCHEMA, type Revision } from "../../domain/revision/entity";
 import type { IRevisionDatabase } from "../../domain/revision/repository";
@@ -73,14 +76,42 @@ export const workDatabase: IWorkDatabase = {
 
 export const revisionDatabase: IRevisionDatabase = {
 	insert: async (revision: Revision) => {
-		const results = await DB.insert(revisionTable).values(revision).returning();
+		const inserted = await DB.transaction(async (tx) => {
+			// insert
+			const results = await tx
+				.insert(revisionTable)
+				.values(revision)
+				.returning();
+			const inserted = results.at(0);
+			if (!inserted) {
+				throw new Error("failed to insert revision");
+			}
 
-		const created = results.at(0);
-		if (!created) {
-			throw new Error("failed to insert");
-		}
+			// issue event
+			const scheduledAt = new Date();
+			scheduledAt.setMinutes(
+				scheduledAt.getMinutes() +
+					ORPHAN_REVISION_TTL_MINUTES +
+					SIGNED_URL_TTL_MINUTES +
+					5, // margin
+			);
+			const revisionInsetedEvent = Event.create({
+				type: "REVISION_INSERTED",
+				targetId: inserted.id,
+			});
+			const revisionSignedUrlExpiredEvent = Event.create({
+				type: "REVISION_SIGNED_URL_EXPIRED",
+				targetId: inserted.id,
+				scheduledAt,
+			});
+			await tx
+				.insert(eventTable)
+				.values([revisionInsetedEvent, revisionSignedUrlExpiredEvent]);
 
-		const entity = REVISION_SCHEMA.parse(created);
+			return inserted;
+		});
+
+		const entity = REVISION_SCHEMA.parse(inserted);
 		return entity;
 	},
 
@@ -107,29 +138,54 @@ export const revisionDatabase: IRevisionDatabase = {
 };
 
 export const EventDatabase: IEventDatabase = {
-	insert: async (event: Event) => {
-		const results = await DB.insert(eventTable).values(event).returning();
+	attemptFirstN: async (options?: {
+		limit?: number;
+		retryIntervalMinutes?: number;
+		maxAttempts?: number;
+	}) => {
+		const limit = options?.limit;
+		const nextScheduledAt = new Date();
+		nextScheduledAt.setMinutes(
+			nextScheduledAt.getMinutes() + (options?.retryIntervalMinutes ?? 0),
+		);
 
-		const created = results.at(0);
-		if (!created) {
-			throw new Error("failed to insert");
-		}
+		const results = await DB.transaction(async (tx) => {
+			// select
+			const query = tx
+				.select()
+				.from(eventTable)
+				.where(
+					and(
+						lt(eventTable.attemptCount, options?.maxAttempts ?? 1),
+						lt(eventTable.scheduledAt, new Date()),
+					),
+				)
+				.orderBy(eventTable.scheduledAt, eventTable.id);
+			const shouldLimit = limit !== undefined;
+			const results = await (shouldLimit ? query.limit(limit) : query);
 
-		return event;
+			// update
+			await tx
+				.update(eventTable)
+				.set({
+					scheduledAt: nextScheduledAt,
+					attemptCount: sql`${eventTable.attemptCount} + 1`,
+				})
+				.where(
+					inArray(
+						eventTable.id,
+						results.map((res) => res.id),
+					),
+				);
+			return results;
+		});
+		const events = results.map((res) => EVENT_SCHEMA.parse(res));
+		return events;
 	},
 
 	deleteById: async (id: Event["id"]) => {
 		await DB.delete(eventTable)
 			.where(and(eq(eventTable.id, id)))
 			.returning();
-	},
-
-	findMany: async (options?: { limit?: number }) => {
-		const limit = options?.limit;
-		const query = DB.select().from(eventTable).orderBy(eventTable.id);
-		const shouldLimit = limit !== undefined;
-		const results = await (shouldLimit ? query.limit(limit) : query);
-		const events = results.map((res) => EVENT_SCHEMA.parse(res));
-		return events;
 	},
 };
