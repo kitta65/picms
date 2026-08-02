@@ -5,7 +5,7 @@ import { SIGNED_URL_TTL_MINUTES } from "../../constants";
 import type { ISharedStorage } from "../../domains/shared/repository";
 
 type Sign = {
-	path: string;
+	resourceId: string;
 	token: string;
 	signedAt: Date;
 };
@@ -14,15 +14,15 @@ type Options = {
 	skipValidation?: boolean;
 };
 
-class SharedStorage implements ISharedStorage {
+abstract class SharedStorage implements ISharedStorage {
 	apiBaseUrl: string;
-	directory: string = "";
+	abstract directory: string; // empty string may cause undefined behavior
 	options: Options;
 
 	// NOTE:
 	// currenty only one sign is rememberd.
 	// it is enough for local environment.
-	static sign: Sign = { path: "", token: "", signedAt: new Date(0) };
+	static sign: Sign = { resourceId: "", token: "", signedAt: new Date(0) };
 
 	constructor(apiBaseUrl: string, options?: Options) {
 		this.apiBaseUrl = apiBaseUrl;
@@ -31,11 +31,8 @@ class SharedStorage implements ISharedStorage {
 
 	async issueSignedUrl(id: string) {
 		const token = crypto.randomBytes(36).toString("hex");
-		const url = this.directory
-			? `${this.apiBaseUrl}/${this.directory}/${id}?token=${token}`
-			: `${this.apiBaseUrl}/${id}?token=${token}`;
-		const path_ = path.join(this.directory, id);
-		SharedStorage.sign = { path: path_, token, signedAt: new Date() };
+		const url = `${this.apiBaseUrl}/${this.directory}/${id}?token=${token}`;
+		SharedStorage.sign = { resourceId: id, token, signedAt: new Date() };
 		return url;
 	}
 
@@ -51,7 +48,7 @@ class SharedStorage implements ISharedStorage {
 		const signedTs = Number(SharedStorage.sign.signedAt);
 		const elapsedMinutes = (currTs - signedTs) / 1000 / 60;
 		const isValid =
-			SharedStorage.sign.path === path.join(this.directory, id) &&
+			SharedStorage.sign.resourceId === id &&
 			SharedStorage.sign.token === token &&
 			elapsedMinutes < SIGNED_URL_TTL_MINUTES;
 		if (!isValid && !this.options.skipValidation) {
@@ -83,10 +80,7 @@ class SharedStorage implements ISharedStorage {
 }
 
 export class RevisionStorage extends SharedStorage {
-	constructor(apiBaseUrl: string) {
-		super(apiBaseUrl);
-		this.directory = "revision";
-	}
+	directory = "revision";
 }
 
 export const _TEST = {

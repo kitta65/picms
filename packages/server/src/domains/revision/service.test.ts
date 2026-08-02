@@ -1,12 +1,13 @@
 import { describe, expect, test } from "bun:test";
+
 import * as localStorage from "../../infrastructures/local/repositories";
 import type { Revision } from "./entity";
 import * as RevisionService from "./service";
 
 class TestStorage extends localStorage._TEST.SharedStorage {
+	directory = "revision-service-test";
 	constructor() {
 		super("dummy/api/base/url", { skipValidation: true });
-		this.directory = "revision-service-test";
 	}
 }
 
