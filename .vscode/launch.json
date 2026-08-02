@@ -7,7 +7,7 @@
 			"request": "attach",
 			"name": "Attach to Bun",
 			// see https://github.com/oven-sh/bun/issues/7225
-			"url": "ws://localhost:6499/scripts-dev"
+			"url": "ws://localhost:${env:PICMS_PORT_INSPECT}/scripts-dev"
 		}
 	]
 }

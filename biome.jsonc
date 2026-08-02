@@ -12,5 +12,71 @@
 		"enabled": true,
 		"clientKind": "git",
 		"useIgnoreFile": true
-	}
+	},
+	"overrides": [
+		// server/src/domains
+		{
+			"includes": ["packages/server/src/domains/**/*.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": [
+											"**/infrastructures/**/*",
+											"**/features/**/*",
+											"**/apis/**/*"
+										]
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		// server/src/infrastuctures
+		{
+			"includes": ["packages/server/src/infrastructures/**/*.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["**/features/**/*", "**/apis/**/*"]
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		// server/src/features
+		{
+			"includes": ["packages/server/src/features/**/*.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["**/apis/**/*"]
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		}
+	]
 }

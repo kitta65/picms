@@ -1,0 +1,14 @@
+{
+	"name": "picms-shared",
+	"exports": {
+		"./*": "./src/*.ts"
+	},
+	"type": "module",
+	"devDependencies": {
+		"@types/bun": "catalog:",
+		"typescript": "catalog:"
+	},
+	"scripts": {
+		"lint": "tsc --noEmit"
+	}
+}

@@ -1,9 +1,9 @@
-import { serve } from "bun";
-import { PACKAGE, PORT } from "picms-common/constants";
-import { COMMON_API_BASE_PATH } from "picms-server/api";
+import { COMMON_API_BASE_PATH } from "picms-server/constants";
 import index from "./index.html";
 
-const server = serve({
+const { PICMS_PORT_MAIN, PICMS_PORT_WEB } = Bun.env;
+
+const server = Bun.serve({
 	routes: {
 		"/*": index,
 
@@ -11,7 +11,7 @@ const server = serve({
 		[`${COMMON_API_BASE_PATH}/*`]: async (req) => {
 			const url = new URL(req.url);
 			return fetch(
-				`http://localhost:${PORT[PACKAGE.MAIN]}${url.pathname}${url.search}`,
+				`http://localhost:${PICMS_PORT_MAIN}${url.pathname}${url.search}`,
 				req,
 			);
 		},
@@ -24,7 +24,7 @@ const server = serve({
 		// Echo console logs from the browser to the server
 		console: true,
 	},
-	port: PORT[PACKAGE.WEB],
+	port: PICMS_PORT_WEB,
 });
 
 console.log(`🚀 Server running at ${server.url}`);

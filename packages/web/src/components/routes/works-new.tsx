@@ -4,7 +4,7 @@ import { hc } from "hono/client";
 import { ImageIcon } from "lucide-react";
 import type { PrivateApi } from "picms-server/api";
 import { useEffect, useState } from "react";
-// import { workInputSchema } from "picms-server/domain/work/entity";
+// import * as workIo from "picms-server/features/work/io";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -40,22 +40,25 @@ export function WorksNew() {
 			// onSubmit: workInputSchema,
 		},
 		onSubmit: async ({ value }) => {
-			if (value.file) {
-				const revisionRes = await CLIENT.api.private["work-revisions"].$post();
-				const revision = await revisionRes.json();
+			const work = await CLIENT.api.private.works
+				.$post({ json: value })
+				.then((res) => res.json());
 
-				const signedUrlRes = await CLIENT.api.private["work-revisions"][":id"][
+			if (value.file) {
+				const revision = await CLIENT.api.private.revisions
+					.$post({ json: { workId: work.id } })
+					.then((res) => res.json());
+				const signedUrl = await CLIENT.api.private.revisions[":id"][
 					"signed-url"
-				].$get({
-					param: {
-						id: revision.id.toString(),
-					},
-				});
-				const signedUrl = await signedUrlRes.text();
+				]
+					.$get({
+						param: {
+							id: revision.id.toString(),
+						},
+					})
+					.then((res) => res.text());
 				await fetch(signedUrl, { method: "PUT", body: value.file });
 			}
-
-			CLIENT.api.private.works.$post({ json: value });
 		},
 	});
 	const file = useSelector(form.store, (state) => state.values.file);
