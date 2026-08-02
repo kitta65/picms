@@ -3,7 +3,7 @@ import * as localStorage from "../../infrastructures/local/repositories";
 import type { Revision } from "./entity";
 import * as RevisionService from "./service";
 
-class TestStorage extends localStorage.SharedStorage {
+class TestStorage extends localStorage._TEST.SharedStorage {
 	constructor() {
 		super("dummy/api/base/url", { skipValidation: true });
 		this.directory = "revision-service-test";

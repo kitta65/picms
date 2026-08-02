@@ -6,7 +6,7 @@ export async function checkStorageAvailability(
 	di: { revisionStorage: ISharedStorage },
 ) {
 	const storage = di.revisionStorage;
-	const filename = revision.id;
-	const isAvailable = storage.checkAvailability(filename);
+	const revisionId = revision.id;
+	const isAvailable = storage.checkAvailability(revisionId);
 	return isAvailable;
 }

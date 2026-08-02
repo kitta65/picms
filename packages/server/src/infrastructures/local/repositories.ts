@@ -14,7 +14,7 @@ type Options = {
 	skipValidation?: boolean;
 };
 
-export class SharedStorage implements ISharedStorage {
+class SharedStorage implements ISharedStorage {
 	apiBaseUrl: string;
 	directory: string = "";
 	options: Options;
@@ -29,46 +29,46 @@ export class SharedStorage implements ISharedStorage {
 		this.options = options ?? {};
 	}
 
-	async getSignedUrl(fileName: string) {
+	async issueSignedUrl(id: string) {
 		const token = crypto.randomBytes(36).toString("hex");
 		const url = this.directory
-			? `${this.apiBaseUrl}/${this.directory}/${fileName}?token=${token}`
-			: `${this.apiBaseUrl}/${fileName}?token=${token}`;
-		const path_ = path.join(this.directory, fileName);
+			? `${this.apiBaseUrl}/${this.directory}/${id}?token=${token}`
+			: `${this.apiBaseUrl}/${id}?token=${token}`;
+		const path_ = path.join(this.directory, id);
 		SharedStorage.sign = { path: path_, token, signedAt: new Date() };
 		return url;
 	}
 
-	async checkAvailability(fileName: string) {
-		const fullPath = this.#buildFullPath(fileName);
+	async checkAvailability(id: string) {
+		const fullPath = this.#buildFullPath(id);
 		const exists = await fs.exists(fullPath);
 		return !exists;
 	}
 
-	async save(fileName: string, token: string, data: Blob) {
+	async save(id: string, token: string, data: Blob) {
 		// validate
 		const currTs = Date.now();
 		const signedTs = Number(SharedStorage.sign.signedAt);
 		const elapsedMinutes = (currTs - signedTs) / 1000 / 60;
 		const isValid =
-			SharedStorage.sign.path === fileName &&
+			SharedStorage.sign.path === path.join(this.directory, id) &&
 			SharedStorage.sign.token === token &&
 			elapsedMinutes < SIGNED_URL_TTL_MINUTES;
 		if (!isValid && !this.options.skipValidation) {
 			throw new Error("Invalid token");
 		}
 
-		const fullPath = this.#buildFullPath(fileName);
+		const fullPath = this.#buildFullPath(id);
 		await fs.mkdir(path.dirname(fullPath), { recursive: true });
 		await fs.writeFile(fullPath, data.stream());
 	}
 
-	async deleteByFileName(fileName: string) {
-		const fullPath = this.#buildFullPath(fileName);
+	async deleteById(id: string) {
+		const fullPath = this.#buildFullPath(id);
 		await fs.rm(fullPath, { force: true });
 	}
 
-	#buildFullPath(fileName: string) {
+	#buildFullPath(id: string) {
 		const { PICMS_CACHE_DIR } = Bun.env;
 		let basePath = PICMS_CACHE_DIR;
 		if (!basePath) {
@@ -77,7 +77,7 @@ export class SharedStorage implements ISharedStorage {
 		}
 
 		// "server" represents this package in monorepo
-		const fullPath = path.resolve(basePath, "server", this.directory, fileName);
+		const fullPath = path.resolve(basePath, "server", this.directory, id);
 		return fullPath;
 	}
 }
@@ -88,3 +88,7 @@ export class RevisionStorage extends SharedStorage {
 		this.directory = "revision";
 	}
 }
+
+export const _TEST = {
+	SharedStorage,
+};

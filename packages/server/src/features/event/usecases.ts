@@ -72,6 +72,6 @@ async function handleRevisionSignedUrlExpired(
 	},
 ) {
 	await di.revisionDatabase.deleteById(event.targetId);
-	await di.revisionStorage.deleteByFileName(event.id);
+	await di.revisionStorage.deleteById(event.id);
 	await di.eventDatabase.deleteById(event.id);
 }

@@ -25,6 +25,6 @@ export async function issueSignedUrl(
 		throw new Error("storage is not available");
 	}
 
-	const url = await di.revisionStorage.getSignedUrl(revisionId);
+	const url = await di.revisionStorage.issueSignedUrl(revisionId);
 	return url;
 }
