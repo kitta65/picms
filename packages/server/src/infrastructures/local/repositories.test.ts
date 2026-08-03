@@ -1,15 +1,30 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import * as LocalRepository from "./repositories";
 
+const TEMP_DIR_NAME = "local-repository-test";
+
 class TestStorage extends LocalRepository._TEST.SharedStorage {
-	directory = "local-repository-test";
+	directory = TEMP_DIR_NAME;
 	constructor(_?: unknown, options?: { skipValidation?: boolean }) {
 		super("https://example.com", options);
 	}
 }
+
+async function cleanUp() {
+	const path_ = path.resolve(LocalRepository._TEST.BASE_PATH, TEMP_DIR_NAME);
+	await fs.rm(path_, { recursive: true, force: true });
+}
+
+beforeAll(async () => {
+	await cleanUp();
+});
+
+afterAll(async () => {
+	await cleanUp();
+});
 
 describe("issueSignedUrl", () => {
 	test("issued url is expected format", async () => {
@@ -69,8 +84,8 @@ describe("save", () => {
 
 		// read data
 		const path_ = path.join(
-			import.meta.dir,
-			"../../../../../.cache/server/local-repository-test/",
+			LocalRepository._TEST.BASE_PATH,
+			"local-repository-test",
 			uuid,
 		);
 		const result = await fs.readFile(path_, { encoding: "utf-8" });
@@ -108,8 +123,8 @@ describe("deleteById", () => {
 		const storage = new TestStorage(null, { skipValidation: true });
 		await storage.save(uuid, "", new Blob(["data"]));
 		const path_ = path.join(
-			import.meta.dir,
-			"../../../../../.cache/server/local-repository-test/",
+			LocalRepository._TEST.BASE_PATH,
+			"local-repository-test",
 			uuid,
 		);
 		const existsBeforeDelete = await fs.exists(path_);

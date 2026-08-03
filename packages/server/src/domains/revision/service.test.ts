@@ -1,11 +1,15 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 
-import * as localStorage from "../../infrastructures/local/repositories";
+import * as LocalRepository from "../../infrastructures/local/repositories";
 import type { Revision } from "./entity";
 import * as RevisionService from "./service";
 
-class TestStorage extends localStorage._TEST.SharedStorage {
-	directory = "revision-service-test";
+const TEMP_DIR_NAME = "revision-service-test";
+
+class TestStorage extends LocalRepository._TEST.SharedStorage {
+	directory = TEMP_DIR_NAME;
 	constructor() {
 		super("dummy/api/base/url", { skipValidation: true });
 	}
@@ -14,6 +18,19 @@ class TestStorage extends localStorage._TEST.SharedStorage {
 const DI = {
 	revisionStorage: new TestStorage(),
 };
+
+async function cleanUp() {
+	const path_ = path.resolve(LocalRepository._TEST.BASE_PATH, TEMP_DIR_NAME);
+	await fs.rm(path_, { recursive: true, force: true });
+}
+
+beforeAll(async () => {
+	await cleanUp();
+});
+
+afterAll(async () => {
+	await cleanUp();
+});
 
 describe("checkStorageAvailability", () => {
 	test("true when new uuid is specified", async () => {

@@ -5,7 +5,7 @@ import {
 	SIGNED_URL_TTL_MINUTES,
 } from "../../constants";
 import type { Config } from "../../domains/config/entity";
-import type { IConfigRepository } from "../../domains/config/repository";
+import type { IConfigDatabase } from "../../domains/config/repository";
 import { EVENT_SCHEMA, Event } from "../../domains/event/entity";
 import type { IEventDatabase } from "../../domains/event/repository";
 import { REVISION_SCHEMA, type Revision } from "../../domains/revision/entity";
@@ -25,7 +25,7 @@ const DB = drizzle({
 });
 
 const CONFIG_ID = "019f9c30-51a0-7000-b96f-ab19bc1ceed2"; // currently only one config exists
-export const configDatabase: IConfigRepository = {
+export const configDatabase: IConfigDatabase = {
 	findFirst: async () => {
 		const configs = await DB.select()
 			.from(configTable)

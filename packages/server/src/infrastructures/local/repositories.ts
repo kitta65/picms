@@ -14,6 +14,13 @@ type Options = {
 	skipValidation?: boolean;
 };
 
+const { PICMS_CACHE_DIR } = Bun.env;
+const CACHE_DIR = PICMS_CACHE_DIR ? PICMS_CACHE_DIR : "/tmp";
+const BASE_PATH = path.resolve(
+	CACHE_DIR,
+	"server", // "server" represents this package in monorepo
+);
+
 abstract class SharedStorage implements ISharedStorage {
 	apiBaseUrl: string;
 	abstract directory: string; // empty string may cause undefined behavior
@@ -66,15 +73,7 @@ abstract class SharedStorage implements ISharedStorage {
 	}
 
 	#buildFullPath(id: string) {
-		const { PICMS_CACHE_DIR } = Bun.env;
-		let basePath = PICMS_CACHE_DIR;
-		if (!basePath) {
-			console.warn("PICMS_CACHE_DIR is not specified");
-			basePath = "/tmp";
-		}
-
-		// "server" represents this package in monorepo
-		const fullPath = path.resolve(basePath, "server", this.directory, id);
+		const fullPath = path.resolve(BASE_PATH, this.directory, id);
 		return fullPath;
 	}
 }
@@ -84,5 +83,6 @@ export class RevisionStorage extends SharedStorage {
 }
 
 export const _TEST = {
+	BASE_PATH, // for cleanup
 	SharedStorage,
 };
