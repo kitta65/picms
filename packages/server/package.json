@@ -18,6 +18,7 @@
 	},
 	"scripts": {
 		"lint": "tsc --noEmit",
-		"setup": "drizzle-kit push --force"
+		"setup": "drizzle-kit push --force",
+		"test": "bun test"
 	}
 }

@@ -45,6 +45,9 @@
 				"tailwindCSS.classFunctions": ["cn"],
 				"[dockerfile]": {
 					"editor.tabSize": 4
+				},
+				"[toml]": {
+					"editor.defaultFormatter": "tamasfe.even-better-toml"
 				}
 			}
 		}

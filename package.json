@@ -22,7 +22,8 @@
 		"lint": "knip && biome check && bun run --filter '*' --parallel lint",
 		"fix": "knip --fix && biome check --write",
 		"fix:unsafe": "knip --fix && biome check --write --unsafe",
-		"prepare": "husky"
+		"prepare": "husky",
+		"test": "bun run --filter '*' --parallel test"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.16",
