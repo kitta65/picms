@@ -1,19 +1,31 @@
 import { beforeEach, describe, expect, test } from "bun:test";
+import { _TEST as EVENT_REPOSITORY_TEST } from "../../domains/event/repository";
 import type { Revision } from "../../domains/revision/entity";
 import type { Work } from "../../domains/work/entity";
-import * as DrizzleRepositories from "./repositories";
-import * as DrizzleTables from "./tables";
+import {
+	configDatabase,
+	_TEST as DRIZZLE_REPOSITORY_TEST,
+	workDatabase,
+} from "./repositories";
+import {
+	configTable,
+	eventTable,
+	revisionTable,
+	workTable,
+	workTagTable,
+} from "./tables";
 
-const { DB } = DrizzleRepositories._TEST;
+const { DB, RevisionDatabase } = DRIZZLE_REPOSITORY_TEST;
+const { EventDatabaseForTest } = EVENT_REPOSITORY_TEST;
 
 describe("configDatabase", () => {
 	beforeEach(async () => {
-		await DB.delete(DrizzleTables.configTable);
+		await DB.delete(configTable);
 	});
 
 	describe("findFirst", () => {
 		test("retuns undefined when empty", async () => {
-			const result = await DrizzleRepositories.configDatabase.findFirst();
+			const result = await configDatabase.findFirst();
 			expect(result).toBe(undefined);
 		});
 
@@ -21,8 +33,8 @@ describe("configDatabase", () => {
 			const config = {
 				timezone: "Asia/Tokyo",
 			} as const;
-			await DrizzleRepositories.configDatabase.upsert(config);
-			const result = await DrizzleRepositories.configDatabase.findFirst();
+			await configDatabase.upsert(config);
+			const result = await configDatabase.findFirst();
 			expect(result).toStrictEqual(config);
 		});
 
@@ -30,13 +42,13 @@ describe("configDatabase", () => {
 			const config1 = {
 				timezone: "Asia/Tokyo",
 			};
-			await DrizzleRepositories.configDatabase.upsert(config1);
+			await configDatabase.upsert(config1);
 
 			const config2 = {
 				timezone: "UTC",
 			};
-			await DrizzleRepositories.configDatabase.upsert(config2);
-			const result = await DrizzleRepositories.configDatabase.findFirst();
+			await configDatabase.upsert(config2);
+			const result = await configDatabase.findFirst();
 
 			expect(result).toStrictEqual(config2);
 		});
@@ -47,7 +59,7 @@ describe("configDatabase", () => {
 			const config = {
 				timezone: "Asia/Tokyo",
 			} as const;
-			const result = await DrizzleRepositories.configDatabase.upsert(config);
+			const result = await configDatabase.upsert(config);
 			expect(result).toStrictEqual(config);
 		});
 
@@ -55,7 +67,7 @@ describe("configDatabase", () => {
 			const config = {
 				timezone: null,
 			} as const;
-			const result = await DrizzleRepositories.configDatabase.upsert(config);
+			const result = await configDatabase.upsert(config);
 			expect(result).toStrictEqual(config);
 		});
 
@@ -63,7 +75,7 @@ describe("configDatabase", () => {
 			const config = {
 				timezone: "Invalid/TimeZone",
 			} as const;
-			const result = await DrizzleRepositories.configDatabase.upsert(config);
+			const result = await configDatabase.upsert(config);
 			expect(result).toStrictEqual({ timezone: null });
 		});
 	});
@@ -80,15 +92,13 @@ const VALID_WORK: Work = {
 
 describe("workDatabase", () => {
 	beforeEach(async () => {
-		await DB.delete(DrizzleTables.workTagTable);
-		await DB.delete(DrizzleTables.workTable);
+		await DB.delete(workTagTable);
+		await DB.delete(workTable);
 	});
 
 	describe("findById", () => {
 		test("returns undefined when unknown id is specified", async () => {
-			const result = await DrizzleRepositories.workDatabase.findById(
-				Bun.randomUUIDv7(),
-			);
+			const result = await workDatabase.findById(Bun.randomUUIDv7());
 			expect(result).toBe(undefined);
 		});
 
@@ -99,11 +109,11 @@ describe("workDatabase", () => {
 			const work1: Work = { ...VALID_WORK, id: id1, title: "this is 1st work" };
 			const work2: Work = { ...VALID_WORK, id: id2, title: "this is 2nd work" };
 
-			await DrizzleRepositories.workDatabase.upsert(work1);
-			await DrizzleRepositories.workDatabase.upsert(work2);
+			await workDatabase.upsert(work1);
+			await workDatabase.upsert(work2);
 
-			const result1 = await DrizzleRepositories.workDatabase.findById(id1);
-			const result2 = await DrizzleRepositories.workDatabase.findById(id2);
+			const result1 = await workDatabase.findById(id1);
+			const result2 = await workDatabase.findById(id2);
 
 			expect(result1).toStrictEqual(work1);
 			expect(result2).toStrictEqual(work2);
@@ -112,7 +122,7 @@ describe("workDatabase", () => {
 
 	describe("upsert", () => {
 		test("returns upserted value", async () => {
-			const result = await DrizzleRepositories.workDatabase.upsert(VALID_WORK);
+			const result = await workDatabase.upsert(VALID_WORK);
 			expect(result).toStrictEqual(VALID_WORK);
 		});
 
@@ -124,7 +134,7 @@ describe("workDatabase", () => {
 					...VALID_WORK,
 					id,
 				};
-				await DrizzleRepositories.workDatabase.upsert(work);
+				await workDatabase.upsert(work);
 			}).toThrow();
 		});
 	});
@@ -137,15 +147,39 @@ const VALID_REVISION: Revision = {
 };
 
 describe("revisionDatabase", () => {
+	const revisionDatabase = new RevisionDatabase({
+		eventDatabase: new EventDatabaseForTest({ insert: (e) => e }),
+	});
+
 	beforeEach(async () => {
-		await DB.delete(DrizzleTables.revisionTable);
+		await DB.delete(revisionTable);
 	});
 
 	describe("insert", () => {
 		test("returns inserted value", async () => {
-			const result =
-				await DrizzleRepositories.revisionDatabase.insert(VALID_REVISION);
+			const { data: result } = await revisionDatabase.insert(VALID_REVISION);
 			expect(result).toStrictEqual(VALID_REVISION);
+		});
+
+		test("returns expected event", async () => {
+			const { events: results } = await revisionDatabase.insert(VALID_REVISION);
+			expect(results.length).toBe(2);
+
+			const revisionInsertedEvent = results.find(
+				(res) => res.type === "REVISION_INSERTED",
+			);
+			expect(revisionInsertedEvent?.targetId).toBe(VALID_REVISION.id);
+
+			const revisionSignedUrlExpiredEvent = results.find(
+				(res) => res.type === "REVISION_SIGNED_URL_EXPIRED",
+			);
+			expect(revisionSignedUrlExpiredEvent?.targetId).toBe(VALID_REVISION.id);
+			expect(
+				revisionSignedUrlExpiredEvent?.createdAt.getTime(),
+			).toBeLessThanOrEqual(Date.now());
+			expect(
+				revisionSignedUrlExpiredEvent?.scheduledAt.getTime(),
+			).toBeGreaterThan(Date.now());
 		});
 
 		test("not null constraints are working", async () => {
@@ -156,16 +190,14 @@ describe("revisionDatabase", () => {
 					...VALID_REVISION,
 					id,
 				};
-				await DrizzleRepositories.revisionDatabase.insert(revision);
+				await revisionDatabase.insert(revision);
 			}).toThrow();
 		});
 	});
 
 	describe("findById", () => {
 		test("returns unspecified when unknown uuid is specified", async () => {
-			const result = await DrizzleRepositories.revisionDatabase.findById(
-				Bun.randomUUIDv7(),
-			);
+			const result = await revisionDatabase.findById(Bun.randomUUIDv7());
 			expect(result).toBe(undefined);
 		});
 
@@ -176,11 +208,11 @@ describe("revisionDatabase", () => {
 			const revision1: Revision = { ...VALID_REVISION, id: id1 };
 			const revision2: Revision = { ...VALID_REVISION, id: id2 };
 
-			await DrizzleRepositories.revisionDatabase.insert(revision1);
-			await DrizzleRepositories.revisionDatabase.insert(revision2);
+			await revisionDatabase.insert(revision1);
+			await revisionDatabase.insert(revision2);
 
-			const result1 = await DrizzleRepositories.revisionDatabase.findById(id1);
-			const result2 = await DrizzleRepositories.revisionDatabase.findById(id2);
+			const result1 = await revisionDatabase.findById(id1);
+			const result2 = await revisionDatabase.findById(id2);
 
 			expect(result1).toStrictEqual(revision1);
 			expect(result2).toStrictEqual(revision2);
@@ -189,21 +221,23 @@ describe("revisionDatabase", () => {
 
 	describe("deleteById", () => {
 		test("deleted revision is not found", async () => {
-			await DrizzleRepositories.revisionDatabase.insert(VALID_REVISION);
-			const resultBeforeDelete =
-				await DrizzleRepositories.revisionDatabase.findById(VALID_REVISION.id);
+			await revisionDatabase.insert(VALID_REVISION);
+			const resultBeforeDelete = await revisionDatabase.findById(
+				VALID_REVISION.id,
+			);
 			expect(resultBeforeDelete).toStrictEqual(VALID_REVISION);
 
-			await DrizzleRepositories.revisionDatabase.deleteById(VALID_REVISION.id);
-			const resultAfterDelete =
-				await DrizzleRepositories.revisionDatabase.findById(VALID_REVISION.id);
+			await revisionDatabase.deleteById(VALID_REVISION.id);
+			const resultAfterDelete = await revisionDatabase.findById(
+				VALID_REVISION.id,
+			);
 			expect(resultAfterDelete).toBe(undefined);
 		});
 
 		test("do not throw when unknown id is specified", () => {
 			expect(async () => {
 				const id = Bun.randomUUIDv7();
-				await DrizzleRepositories.revisionDatabase.deleteById(id);
+				await revisionDatabase.deleteById(id);
 			}).not.toThrow();
 		});
 	});
@@ -211,7 +245,7 @@ describe("revisionDatabase", () => {
 
 describe("eventDatabase", () => {
 	beforeEach(async () => {
-		await DB.delete(DrizzleTables.eventTable);
+		await DB.delete(eventTable);
 	});
 	describe("attemptFirstN", () => {
 		// TODO

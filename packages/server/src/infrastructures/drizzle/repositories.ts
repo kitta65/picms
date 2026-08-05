@@ -80,20 +80,26 @@ export const workDatabase: IWorkDatabase = {
 	},
 };
 
-export const revisionDatabase: IRevisionDatabase = {
-	insert: async (revision: Revision) => {
-		const inserted = await DB.transaction(async (tx) => {
+class RevisionDatabase implements IRevisionDatabase {
+	eventDatabase?: IEventDatabase;
+
+	constructor(di?: { eventDatabase: IEventDatabase }) {
+		this.eventDatabase = di?.eventDatabase;
+	}
+
+	async insert(revision: Revision) {
+		const result = await DB.transaction(async (tx) => {
 			// insert
 			const results = await tx
 				.insert(revisionTable)
 				.values(revision)
 				.returning();
-			const inserted = results.at(0);
-			if (!inserted) {
+			const insertedRevision = results.at(0);
+			if (!insertedRevision) {
 				throw new Error("failed to insert revision");
 			}
 
-			// issue event
+			// publish events
 			const scheduledAt = new Date();
 			scheduledAt.setMinutes(
 				scheduledAt.getMinutes() +
@@ -101,27 +107,40 @@ export const revisionDatabase: IRevisionDatabase = {
 					SIGNED_URL_TTL_MINUTES +
 					5, // margin
 			);
-			const revisionInsetedEvent = Event.create({
+			const revisionInsertedEvent = Event.create({
 				type: "REVISION_INSERTED",
-				targetId: inserted.id,
+				targetId: insertedRevision.id,
 			});
 			const revisionSignedUrlExpiredEvent = Event.create({
 				type: "REVISION_SIGNED_URL_EXPIRED",
-				targetId: inserted.id,
+				targetId: insertedRevision.id,
 				scheduledAt,
 			});
-			await tx
-				.insert(eventTable)
-				.values([revisionInsetedEvent, revisionSignedUrlExpiredEvent]);
 
-			return inserted;
+			let insertedEvents: unknown[] = [];
+			if (this.eventDatabase) {
+				insertedEvents = await Promise.all([
+					this.eventDatabase.insert(revisionInsertedEvent),
+					this.eventDatabase.insert(revisionSignedUrlExpiredEvent),
+				]);
+			} else {
+				insertedEvents = await tx
+					.insert(eventTable)
+					.values([revisionInsertedEvent, revisionSignedUrlExpiredEvent])
+					.returning();
+			}
+
+			return { insertedRevision, insertedEvents };
 		});
 
-		const entity = REVISION_SCHEMA.parse(inserted);
-		return entity;
-	},
+		const operationResult = {
+			data: REVISION_SCHEMA.parse(result.insertedRevision),
+			events: result.insertedEvents.map((e) => EVENT_SCHEMA.parse(e)),
+		};
+		return operationResult;
+	}
 
-	findById: async (id: Revision["id"]) => {
+	async findById(id: Revision["id"]) {
 		const revisions = await DB.select()
 			.from(revisionTable)
 			.where(eq(revisionTable.id, id));
@@ -136,14 +155,19 @@ export const revisionDatabase: IRevisionDatabase = {
 
 		const entity = REVISION_SCHEMA.parse(revisions.at(0));
 		return entity;
-	},
+	}
 
-	deleteById: async (id: Revision["id"]) => {
+	async deleteById(id: Revision["id"]) {
 		await DB.delete(revisionTable).where(eq(revisionTable.id, id));
-	},
-};
+	}
+}
+
+export const revisionDatabase = new RevisionDatabase();
 
 export const EventDatabase: IEventDatabase = {
+	insert: async (event: Event) => {
+		return event;
+	},
 	attemptFirstN: async (options?: {
 		limit?: number;
 		retryIntervalMinutes?: number;
@@ -198,4 +222,5 @@ export const EventDatabase: IEventDatabase = {
 
 export const _TEST = {
 	DB,
+	RevisionDatabase,
 };
