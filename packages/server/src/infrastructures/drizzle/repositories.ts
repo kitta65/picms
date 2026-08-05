@@ -4,7 +4,7 @@ import {
 	ORPHAN_REVISION_TTL_MINUTES,
 	SIGNED_URL_TTL_MINUTES,
 } from "../../constants";
-import type { Config } from "../../domains/config/entity";
+import { CONFIG_SCHEMA, type Config } from "../../domains/config/entity";
 import type { IConfigDatabase } from "../../domains/config/repository";
 import { EVENT_SCHEMA, Event } from "../../domains/event/entity";
 import type { IEventDatabase } from "../../domains/event/repository";
@@ -39,16 +39,22 @@ export const configDatabase: IConfigDatabase = {
 			console.warn("found more than one config");
 		}
 
-		return configs.at(0);
+		const parsed = CONFIG_SCHEMA.parse(configs.at(0));
+		return parsed;
 	},
 	upsert: async (config: Config) => {
-		const upserted = await DB.insert(configTable)
+		const result = await DB.insert(configTable)
 			.values({ id: CONFIG_ID, ...config })
 			.onConflictDoUpdate({
 				target: configTable.id,
 				set: config,
-			});
-		return upserted;
+			})
+			.returning();
+
+		const upserted = result.at(0);
+
+		const parsed = CONFIG_SCHEMA.parse(upserted);
+		return parsed;
 	},
 };
 
@@ -133,7 +139,7 @@ export const revisionDatabase: IRevisionDatabase = {
 	},
 
 	deleteById: async (id: Revision["id"]) => {
-		await DB.delete(revisionTable).where(eq(revisionTable.id, id)).returning();
+		await DB.delete(revisionTable).where(eq(revisionTable.id, id));
 	},
 };
 
