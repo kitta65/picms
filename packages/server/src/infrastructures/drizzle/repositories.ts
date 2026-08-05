@@ -12,7 +12,7 @@ import { REVISION_SCHEMA, type Revision } from "../../domains/revision/entity";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import type { Work } from "../../domains/work/entity";
 import type { IWorkDatabase } from "../../domains/work/repository";
-import { configTable, eventTable, revisionTable, workTable } from "./schema";
+import { configTable, eventTable, revisionTable, workTable } from "./tables";
 
 const { PG_PASS, PG_USER, PG_PORT } = Bun.env;
 const DB = drizzle({
@@ -188,4 +188,8 @@ export const EventDatabase: IEventDatabase = {
 			.where(and(eq(eventTable.id, id)))
 			.returning();
 	},
+};
+
+export const _TEST = {
+	DB,
 };
