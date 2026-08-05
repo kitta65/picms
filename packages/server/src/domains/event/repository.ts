@@ -7,14 +7,13 @@ type Options = {
 	maxAttempts?: number;
 };
 
-// insert method is not yet implemented
 export interface IEventDatabase {
 	insert: (event: Event) => Awaitable<Event>;
 	attemptFirstN: (options?: Options) => Awaitable<Event[]>;
 	deleteById: (id: Event["id"]) => Awaitable<void>;
 }
 
-class EventDatabaseForTest implements IEventDatabase {
+class EventDatabaseStub implements IEventDatabase {
 	methods: Partial<IEventDatabase>;
 
 	constructor(methods: Partial<IEventDatabase>) {
@@ -47,5 +46,5 @@ class EventDatabaseForTest implements IEventDatabase {
 }
 
 export const _TEST = {
-	EventDatabaseForTest,
+	EventDatabaseStub,
 };

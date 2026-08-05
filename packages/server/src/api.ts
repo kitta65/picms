@@ -29,7 +29,7 @@ export const PRIVATE_API = new Hono()
 		const revisionStorage = new localRepository.RevisionStorage(apiBaseUrl);
 		eventUsecases
 			.handleFirstN(EVENT_BATCH_SIZE, {
-				eventDatabase: drizzleRepositories.EventDatabase,
+				eventDatabase: drizzleRepositories.eventDatabase,
 				workDatabase: drizzleRepositories.workDatabase,
 				revisionDatabase: drizzleRepositories.revisionDatabase,
 				revisionStorage,

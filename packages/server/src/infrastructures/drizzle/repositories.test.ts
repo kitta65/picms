@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, test } from "bun:test";
+import type { Event } from "../../domains/event/entity";
 import { _TEST as EVENT_REPOSITORY_TEST } from "../../domains/event/repository";
 import type { Revision } from "../../domains/revision/entity";
 import type { Work } from "../../domains/work/entity";
 import {
 	configDatabase,
 	_TEST as DRIZZLE_REPOSITORY_TEST,
+	eventDatabase,
 	workDatabase,
 } from "./repositories";
 import {
@@ -16,7 +18,7 @@ import {
 } from "./tables";
 
 const { DB, RevisionDatabase } = DRIZZLE_REPOSITORY_TEST;
-const { EventDatabaseForTest } = EVENT_REPOSITORY_TEST;
+const { EventDatabaseStub } = EVENT_REPOSITORY_TEST;
 
 describe("configDatabase", () => {
 	beforeEach(async () => {
@@ -148,7 +150,7 @@ const VALID_REVISION: Revision = {
 
 describe("revisionDatabase", () => {
 	const revisionDatabase = new RevisionDatabase({
-		eventDatabase: new EventDatabaseForTest({ insert: (e) => e }),
+		eventDatabase: new EventDatabaseStub({ insert: (e) => e }),
 	});
 
 	beforeEach(async () => {
@@ -234,7 +236,7 @@ describe("revisionDatabase", () => {
 			expect(resultAfterDelete).toBe(undefined);
 		});
 
-		test("do not throw when unknown id is specified", () => {
+		test("does not throw when unknown id is specified", () => {
 			expect(async () => {
 				const id = Bun.randomUUIDv7();
 				await revisionDatabase.deleteById(id);
@@ -243,14 +245,126 @@ describe("revisionDatabase", () => {
 	});
 });
 
+const VALID_EVENT: Event = {
+	id: Bun.randomUUIDv7(),
+	type: "REVISION_INSERTED",
+	attemptCount: 0,
+	targetId: Bun.randomUUIDv7(),
+	scheduledAt: new Date(),
+	createdAt: new Date(),
+};
 describe("eventDatabase", () => {
 	beforeEach(async () => {
 		await DB.delete(eventTable);
 	});
-	describe("attemptFirstN", () => {
-		// TODO
+
+	describe("insert", () => {
+		test("returns inserted value", async () => {
+			const inserted = await eventDatabase.insert(VALID_EVENT);
+			expect(inserted).toStrictEqual(VALID_EVENT);
+		});
 	});
+
+	describe("attemptFirstN", () => {
+		test("expected columns are updated", async () => {
+			await eventDatabase.insert(VALID_EVENT);
+
+			const tsBeforeAttempt = Date.now();
+			const results = await eventDatabase.attemptFirstN({ limit: 1 });
+			const tsAfterAttempt = Date.now();
+			expect(results.length).toBe(1);
+
+			const result = results.at(0);
+			expect(result?.attemptCount).toBe(VALID_EVENT.attemptCount + 1);
+			expect(result?.scheduledAt.getTime()).toBeGreaterThanOrEqual(
+				tsBeforeAttempt,
+			);
+			expect(result?.scheduledAt.getTime()).toBeLessThanOrEqual(tsAfterAttempt);
+		});
+
+		test("events are fetced by expected order", async () => {
+			const event1 = {
+				...VALID_EVENT,
+				id: Bun.randomUUIDv7(),
+				scheduledAt: new Date(),
+			};
+			const event2 = {
+				...VALID_EVENT,
+				id: Bun.randomUUIDv7(),
+				scheduledAt: new Date(),
+			};
+			const event3 = {
+				...VALID_EVENT,
+				id: Bun.randomUUIDv7(),
+				scheduledAt: new Date(),
+			};
+
+			// inserted in random order
+			await eventDatabase.insert(event1);
+			await eventDatabase.insert(event3);
+			await eventDatabase.insert(event2);
+
+			const results = await eventDatabase.attemptFirstN({ limit: 2 });
+			expect(results.length).toBe(2);
+
+			// the results that has created (not inserted) earlier should exist
+			const result1 = results.find((res) => res.id === event1.id);
+			expect(result1).toBeDefined();
+			const result2 = results.find((res) => res.id === event2.id);
+			expect(result2).toBeDefined();
+		});
+
+		test("future events are ignored", async () => {
+			await eventDatabase.insert({
+				...VALID_EVENT,
+				scheduledAt: new Date(2100, 0, 1),
+			});
+
+			const results = await eventDatabase.attemptFirstN({ limit: 1 });
+			expect(results.length).toBe(0);
+		});
+
+		test("retryIntervalMinutes option is respected", async () => {
+			await eventDatabase.insert(VALID_EVENT);
+			const results = await eventDatabase.attemptFirstN({
+				retryIntervalMinutes: 100,
+			});
+			const tsAfterAttempt = Date.now();
+			expect(results.at(0)?.scheduledAt.getTime()).toBeGreaterThan(
+				tsAfterAttempt,
+			);
+		});
+
+		test("maxAttempts option is respected", async () => {
+			const options = { maxAttempts: 2 };
+			await eventDatabase.insert(VALID_EVENT);
+
+			const results1 = await eventDatabase.attemptFirstN(options);
+			expect(results1.length).toBe(1);
+
+			const results2 = await eventDatabase.attemptFirstN(options);
+			expect(results2.length).toBe(1);
+
+			const results3 = await eventDatabase.attemptFirstN(options);
+			expect(results3.length).toBe(0);
+		});
+
+		test("maxAttempts option is respected (default)", async () => {
+			await eventDatabase.insert(VALID_EVENT);
+
+			const results1 = await eventDatabase.attemptFirstN();
+			expect(results1.length).toBe(1);
+
+			const results2 = await eventDatabase.attemptFirstN();
+			expect(results2.length).toBe(0);
+		});
+	});
+
 	describe("deleteById", () => {
-		// TODO
+		test("does not throw when unknown id is specified", () => {
+			expect(async () => {
+				await eventDatabase.deleteById(Bun.randomUUIDv7());
+			}).not.toThrow();
+		});
 	});
 });

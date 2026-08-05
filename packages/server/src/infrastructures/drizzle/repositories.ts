@@ -164,10 +164,19 @@ class RevisionDatabase implements IRevisionDatabase {
 
 export const revisionDatabase = new RevisionDatabase();
 
-export const EventDatabase: IEventDatabase = {
+export const eventDatabase: IEventDatabase = {
 	insert: async (event: Event) => {
-		return event;
+		const results = await DB.insert(eventTable).values(event).returning();
+		const inserted = results.at(0);
+
+		if (!inserted) {
+			throw new Error("failed to insert");
+		}
+
+		const parsed = EVENT_SCHEMA.parse(inserted);
+		return parsed;
 	},
+
 	attemptFirstN: async (options?: {
 		limit?: number;
 		retryIntervalMinutes?: number;
@@ -179,6 +188,7 @@ export const EventDatabase: IEventDatabase = {
 			nextScheduledAt.getMinutes() + (options?.retryIntervalMinutes ?? 0),
 		);
 
+		// transaction is required because update statement does not support order by clause
 		const results = await DB.transaction(async (tx) => {
 			// select
 			const query = tx
@@ -192,10 +202,10 @@ export const EventDatabase: IEventDatabase = {
 				)
 				.orderBy(eventTable.scheduledAt, eventTable.id);
 			const shouldLimit = limit !== undefined;
-			const results = await (shouldLimit ? query.limit(limit) : query);
+			const selectResults = await (shouldLimit ? query.limit(limit) : query);
 
 			// update
-			await tx
+			const updateResults = await tx
 				.update(eventTable)
 				.set({
 					scheduledAt: nextScheduledAt,
@@ -204,19 +214,18 @@ export const EventDatabase: IEventDatabase = {
 				.where(
 					inArray(
 						eventTable.id,
-						results.map((res) => res.id),
+						selectResults.map((res) => res.id),
 					),
-				);
-			return results;
+				)
+				.returning();
+			return updateResults;
 		});
 		const events = results.map((res) => EVENT_SCHEMA.parse(res));
 		return events;
 	},
 
 	deleteById: async (id: Event["id"]) => {
-		await DB.delete(eventTable)
-			.where(and(eq(eventTable.id, id)))
-			.returning();
+		await DB.delete(eventTable).where(and(eq(eventTable.id, id)));
 	},
 };
 
