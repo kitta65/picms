@@ -6,13 +6,13 @@ import {
 } from "../../constants";
 import { CONFIG_SCHEMA, type Config } from "../../domains/config/entity";
 import type { IConfigDatabase } from "../../domains/config/repository";
-import { EVENT_SCHEMA, Event } from "../../domains/event/entity";
-import type { IEventDatabase } from "../../domains/event/repository";
+import { MESSAGE_SCHEMA, Message } from "../../domains/message/entity";
+import type { IMessageDatabase } from "../../domains/message/repository";
 import { REVISION_SCHEMA, type Revision } from "../../domains/revision/entity";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import type { Work } from "../../domains/work/entity";
 import type { IWorkDatabase } from "../../domains/work/repository";
-import { configTable, eventTable, revisionTable, workTable } from "./tables";
+import { configTable, messageTable, revisionTable, workTable } from "./tables";
 
 const { PG_PASS, PG_USER, PG_PORT } = Bun.env;
 const DB = drizzle({
@@ -81,10 +81,10 @@ export const workDatabase: IWorkDatabase = {
 };
 
 class RevisionDatabase implements IRevisionDatabase {
-	eventDatabase?: IEventDatabase;
+	messageDatabase?: IMessageDatabase;
 
-	constructor(di?: { eventDatabase: IEventDatabase }) {
-		this.eventDatabase = di?.eventDatabase;
+	constructor(di?: { messageDatabase: IMessageDatabase }) {
+		this.messageDatabase = di?.messageDatabase;
 	}
 
 	async insert(revision: Revision) {
@@ -99,7 +99,7 @@ class RevisionDatabase implements IRevisionDatabase {
 				throw new Error("failed to insert revision");
 			}
 
-			// publish events
+			// publish messages
 			const scheduledAt = new Date();
 			scheduledAt.setMinutes(
 				scheduledAt.getMinutes() +
@@ -107,35 +107,35 @@ class RevisionDatabase implements IRevisionDatabase {
 					SIGNED_URL_TTL_MINUTES +
 					5, // margin
 			);
-			const revisionInsertedEvent = Event.create({
+			const revisionInsertedMessage = Message.create({
 				type: "REVISION_INSERTED",
 				targetId: insertedRevision.id,
 			});
-			const revisionSignedUrlExpiredEvent = Event.create({
+			const revisionSignedUrlExpiredMessage = Message.create({
 				type: "REVISION_SIGNED_URL_EXPIRED",
 				targetId: insertedRevision.id,
 				scheduledAt,
 			});
 
-			let insertedEvents: unknown[] = [];
-			if (this.eventDatabase) {
-				insertedEvents = await Promise.all([
-					this.eventDatabase.insert(revisionInsertedEvent),
-					this.eventDatabase.insert(revisionSignedUrlExpiredEvent),
+			let insertedMessages: unknown[] = [];
+			if (this.messageDatabase) {
+				insertedMessages = await Promise.all([
+					this.messageDatabase.insert(revisionInsertedMessage),
+					this.messageDatabase.insert(revisionSignedUrlExpiredMessage),
 				]);
 			} else {
-				insertedEvents = await tx
-					.insert(eventTable)
-					.values([revisionInsertedEvent, revisionSignedUrlExpiredEvent])
+				insertedMessages = await tx
+					.insert(messageTable)
+					.values([revisionInsertedMessage, revisionSignedUrlExpiredMessage])
 					.returning();
 			}
 
-			return { insertedRevision, insertedEvents };
+			return { insertedRevision, insertedMessages };
 		});
 
 		const operationResult = {
 			data: REVISION_SCHEMA.parse(result.insertedRevision),
-			events: result.insertedEvents.map((e) => EVENT_SCHEMA.parse(e)),
+			messages: result.insertedMessages.map((m) => MESSAGE_SCHEMA.parse(m)),
 		};
 		return operationResult;
 	}
@@ -164,16 +164,16 @@ class RevisionDatabase implements IRevisionDatabase {
 
 export const revisionDatabase = new RevisionDatabase();
 
-export const eventDatabase: IEventDatabase = {
-	insert: async (event: Event) => {
-		const results = await DB.insert(eventTable).values(event).returning();
+export const messageDatabase: IMessageDatabase = {
+	insert: async (message: Message) => {
+		const results = await DB.insert(messageTable).values(message).returning();
 		const inserted = results.at(0);
 
 		if (!inserted) {
 			throw new Error("failed to insert");
 		}
 
-		const parsed = EVENT_SCHEMA.parse(inserted);
+		const parsed = MESSAGE_SCHEMA.parse(inserted);
 		return parsed;
 	},
 
@@ -193,39 +193,39 @@ export const eventDatabase: IEventDatabase = {
 			// select
 			const query = tx
 				.select()
-				.from(eventTable)
+				.from(messageTable)
 				.where(
 					and(
-						lt(eventTable.attemptCount, options?.maxAttempts ?? 1),
-						lt(eventTable.scheduledAt, new Date()),
+						lt(messageTable.attemptCount, options?.maxAttempts ?? 1),
+						lt(messageTable.scheduledAt, new Date()),
 					),
 				)
-				.orderBy(eventTable.scheduledAt, eventTable.id);
+				.orderBy(messageTable.scheduledAt, messageTable.id);
 			const shouldLimit = limit !== undefined;
 			const selectResults = await (shouldLimit ? query.limit(limit) : query);
 
 			// update
 			const updateResults = await tx
-				.update(eventTable)
+				.update(messageTable)
 				.set({
 					scheduledAt: nextScheduledAt,
-					attemptCount: sql`${eventTable.attemptCount} + 1`,
+					attemptCount: sql`${messageTable.attemptCount} + 1`,
 				})
 				.where(
 					inArray(
-						eventTable.id,
+						messageTable.id,
 						selectResults.map((res) => res.id),
 					),
 				)
 				.returning();
 			return updateResults;
 		});
-		const events = results.map((res) => EVENT_SCHEMA.parse(res));
-		return events;
+		const messages = results.map((res) => MESSAGE_SCHEMA.parse(res));
+		return messages;
 	},
 
-	deleteById: async (id: Event["id"]) => {
-		await DB.delete(eventTable).where(and(eq(eventTable.id, id)));
+	deleteById: async (id: Message["id"]) => {
+		await DB.delete(messageTable).where(and(eq(messageTable.id, id)));
 	},
 };
 

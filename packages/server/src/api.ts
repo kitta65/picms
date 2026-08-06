@@ -8,13 +8,13 @@ import {
 	PUBLIC_API_BASE_PATH,
 	STORAGE_API_BASE_PATH,
 } from "./constants";
-import * as eventUsecases from "./features/event/usecases";
+import * as messageUsecases from "./features/message/usecases";
 import * as storageIo from "./features/storage/io";
 import * as drizzleRepositories from "./infrastructures/drizzle/repositories";
 import * as localRepository from "./infrastructures/local/repositories";
 import { getRootUrl } from "./utils";
 
-const EVENT_BATCH_SIZE = 10;
+const MESSAGE_BATCH_SIZE = 10;
 
 export const PRIVATE_API = new Hono()
 	.basePath(PRIVATE_API_BASE_PATH)
@@ -27,9 +27,9 @@ export const PRIVATE_API = new Hono()
 		// if you use cloudflare someday, see https://hono.dev/docs/api/context#executionctx
 		const apiBaseUrl = `${getRootUrl(c.req)}${STORAGE_API_BASE_PATH}`;
 		const revisionStorage = new localRepository.RevisionStorage(apiBaseUrl);
-		eventUsecases
-			.handleFirstN(EVENT_BATCH_SIZE, {
-				eventDatabase: drizzleRepositories.eventDatabase,
+		messageUsecases
+			.handleFirstN(MESSAGE_BATCH_SIZE, {
+				messageDatabase: drizzleRepositories.messageDatabase,
 				workDatabase: drizzleRepositories.workDatabase,
 				revisionDatabase: drizzleRepositories.revisionDatabase,
 				revisionStorage,

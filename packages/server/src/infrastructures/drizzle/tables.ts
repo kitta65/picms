@@ -15,8 +15,8 @@ export const configTable = pgTable("config", {
 	timezone: varchar("timezone", { length: 255 }),
 });
 
-export const eventTable = pgTable(
-	"event",
+export const messageTable = pgTable(
+	"message",
 	{
 		id: uuid("id").notNull().primaryKey(),
 		type: varchar("type", { length: 255 }).notNull(),
