@@ -1,14 +1,8 @@
-import type { HonoRequest } from "hono";
+// NOTE: currently headers (e.g. x-forwarded-proto) are not considered
+export function getRootUrl(req: Request) {
+	const url = new URL(req.url);
+	const proto = url.protocol;
+	const host = url.host;
 
-export function getRootUrl(req: HonoRequest) {
-	const requestUrl = new URL(req.url);
-	const protocol =
-		req.header("x-forwarded-proto") ||
-		req.header("forwarded")?.match(/proto=([^;]+)/)?.[1] ||
-		requestUrl.protocol.replace(":", "");
-	const host =
-		req.header("x-forwarded-host") ||
-		req.header("forwarded")?.match(/host=([^;]+)/)?.[1] ||
-		requestUrl.host;
-	return `${protocol}://${host}`;
+	return `${proto}//${host}`;
 }
