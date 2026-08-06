@@ -16,7 +16,7 @@ export async function handleFirstN(
 		revisionStorage: ISharedStorage;
 	},
 ) {
-	const messages = await di.messageBroker.attemptFirstN({
+	const messages = await di.messageBroker.pull({
 		limit: n,
 		retryIntervalMinutes: RETRY_INTERVAL_MINUTES,
 		maxAttempts: MAX_ATTEMPTS,
@@ -50,7 +50,7 @@ async function handleRevisionInserted(
 ) {
 	const revision = await di.revisionDatabase.findById(message.targetId);
 	if (!revision) {
-		await di.messageBroker.deleteById(message.id);
+		await di.messageBroker.ack(message.id);
 		return;
 	}
 
@@ -61,7 +61,7 @@ async function handleRevisionInserted(
 		await di.revisionDatabase.deleteById(revision.id);
 	}
 
-	await di.messageBroker.deleteById(message.id);
+	await di.messageBroker.ack(message.id);
 }
 
 async function handleRevisionSignedUrlExpired(
@@ -74,7 +74,7 @@ async function handleRevisionSignedUrlExpired(
 ) {
 	await di.revisionDatabase.deleteById(message.targetId);
 	await di.revisionStorage.deleteById(message.id);
-	await di.messageBroker.deleteById(message.id);
+	await di.messageBroker.ack(message.id);
 }
 
 export const _TEST = {

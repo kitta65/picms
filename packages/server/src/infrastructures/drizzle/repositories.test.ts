@@ -150,7 +150,7 @@ const VALID_REVISION: Revision = {
 
 describe("revisionDatabase", () => {
 	const messageBroker = new FakeMessageBroker();
-	spyOn(messageBroker, "insert").mockImplementation((m) => m);
+	spyOn(messageBroker, "publish").mockImplementation((m) => m);
 
 	const revisionDatabase = new RevisionDatabase({
 		messageBroker,
@@ -262,19 +262,19 @@ describe("messageBroker", () => {
 		await DB.delete(messageTable);
 	});
 
-	describe("insert", () => {
-		test("returns inserted value", async () => {
-			const inserted = await messageBroker.insert(VALID_MESSAGE);
-			expect(inserted).toStrictEqual(VALID_MESSAGE);
+	describe("publish", () => {
+		test("returns published value", async () => {
+			const published = await messageBroker.publish(VALID_MESSAGE);
+			expect(published).toStrictEqual(VALID_MESSAGE);
 		});
 	});
 
-	describe("attemptFirstN", () => {
+	describe("pull", () => {
 		test("expected columns are updated", async () => {
-			await messageBroker.insert(VALID_MESSAGE);
+			await messageBroker.publish(VALID_MESSAGE);
 
 			const tsBeforeAttempt = Date.now();
-			const results = await messageBroker.attemptFirstN({ limit: 1 });
+			const results = await messageBroker.pull({ limit: 1 });
 			const tsAfterAttempt = Date.now();
 			expect(results.length).toBe(1);
 
@@ -304,11 +304,11 @@ describe("messageBroker", () => {
 			};
 
 			// inserted in random order
-			await messageBroker.insert(message1);
-			await messageBroker.insert(message3);
-			await messageBroker.insert(message2);
+			await messageBroker.publish(message1);
+			await messageBroker.publish(message3);
+			await messageBroker.publish(message2);
 
-			const results = await messageBroker.attemptFirstN({ limit: 2 });
+			const results = await messageBroker.pull({ limit: 2 });
 			expect(results.length).toBe(2);
 
 			// the results that has created (not inserted) earlier should exist
@@ -319,18 +319,18 @@ describe("messageBroker", () => {
 		});
 
 		test("future messages are ignored", async () => {
-			await messageBroker.insert({
+			await messageBroker.publish({
 				...VALID_MESSAGE,
 				scheduledAt: new Date(2100, 0, 1),
 			});
 
-			const results = await messageBroker.attemptFirstN({ limit: 1 });
+			const results = await messageBroker.pull({ limit: 1 });
 			expect(results.length).toBe(0);
 		});
 
 		test("retryIntervalMinutes option is respected", async () => {
-			await messageBroker.insert(VALID_MESSAGE);
-			const results = await messageBroker.attemptFirstN({
+			await messageBroker.publish(VALID_MESSAGE);
+			const results = await messageBroker.pull({
 				retryIntervalMinutes: 100,
 			});
 			const tsAfterAttempt = Date.now();
@@ -341,33 +341,33 @@ describe("messageBroker", () => {
 
 		test("maxAttempts option is respected", async () => {
 			const options = { maxAttempts: 2 };
-			await messageBroker.insert(VALID_MESSAGE);
+			await messageBroker.publish(VALID_MESSAGE);
 
-			const results1 = await messageBroker.attemptFirstN(options);
+			const results1 = await messageBroker.pull(options);
 			expect(results1.length).toBe(1);
 
-			const results2 = await messageBroker.attemptFirstN(options);
+			const results2 = await messageBroker.pull(options);
 			expect(results2.length).toBe(1);
 
-			const results3 = await messageBroker.attemptFirstN(options);
+			const results3 = await messageBroker.pull(options);
 			expect(results3.length).toBe(0);
 		});
 
 		test("maxAttempts option is respected (default)", async () => {
-			await messageBroker.insert(VALID_MESSAGE);
+			await messageBroker.publish(VALID_MESSAGE);
 
-			const results1 = await messageBroker.attemptFirstN();
+			const results1 = await messageBroker.pull();
 			expect(results1.length).toBe(1);
 
-			const results2 = await messageBroker.attemptFirstN();
+			const results2 = await messageBroker.pull();
 			expect(results2.length).toBe(0);
 		});
 	});
 
-	describe("deleteById", () => {
+	describe("ack", () => {
 		test("does not throw when unknown id is specified", () => {
 			expect(async () => {
-				await messageBroker.deleteById(Bun.randomUUIDv7());
+				await messageBroker.ack(Bun.randomUUIDv7());
 			}).not.toThrow();
 		});
 	});
