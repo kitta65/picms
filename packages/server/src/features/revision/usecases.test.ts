@@ -42,17 +42,17 @@ describe("issueSignedUrl", () => {
 		const revisionStorage = new FakeSharedStorage();
 		const spy = spyOn(revisionStorage, "issueSignedUrl");
 
-		expect(async () => {
-			await issueSignedUrl(VALID_REVISION.id, {
+		await expect(
+			issueSignedUrl(VALID_REVISION.id, {
 				revisionDatabase,
 				revisionStorage,
-			});
-		}).toThrow(ERROR_CODE.NOT_FOUND);
+			}),
+		).rejects.toThrow(ERROR_CODE.NOT_FOUND);
 
 		expect(spy).toBeCalledTimes(0);
 	});
 
-	test("do not issue url if revision is too old", () => {
+	test("do not issue url if revision is too old", async () => {
 		const revision: Revision = {
 			...VALID_REVISION,
 			createdAt: new Date(0),
@@ -62,17 +62,17 @@ describe("issueSignedUrl", () => {
 		const revisionStorage = new FakeSharedStorage();
 		const spy = spyOn(revisionStorage, "issueSignedUrl");
 
-		expect(async () => {
-			await issueSignedUrl(revision.id, {
+		await expect(
+			issueSignedUrl(revision.id, {
 				revisionDatabase,
 				revisionStorage,
-			});
-		}).toThrow(ERROR_CODE.REQUEST_TIMEOUT);
+			}),
+		).rejects.toThrow(ERROR_CODE.REQUEST_TIMEOUT);
 
 		expect(spy).toBeCalledTimes(0);
 	});
 
-	test("do not issue url if storage is not available", () => {
+	test("do not issue url if storage is not available", async () => {
 		const revision: Revision = {
 			...VALID_REVISION,
 		};
@@ -82,12 +82,12 @@ describe("issueSignedUrl", () => {
 		spyOn(revisionStorage, "checkAvailability").mockImplementation(() => false);
 		const spy = spyOn(revisionStorage, "issueSignedUrl");
 
-		expect(async () => {
-			await issueSignedUrl(revision.id, {
+		await expect(
+			issueSignedUrl(revision.id, {
 				revisionDatabase,
 				revisionStorage,
-			});
-		}).toThrow(ERROR_CODE.CONFLICT);
+			}),
+		).rejects.toThrow(ERROR_CODE.CONFLICT);
 
 		expect(spy).toBeCalledTimes(0);
 	});
