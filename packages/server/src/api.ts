@@ -1,9 +1,12 @@
-import { Hono } from "hono";
+import { type Context, Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
+import type { HTTPResponseError } from "hono/types";
 import { validator } from "hono/validator";
 import { CONFIG_API } from "./apis/config";
 import { REVISION_API } from "./apis/revision";
 import { WORK_API } from "./apis/work";
 import {
+	ERROR_CODE,
 	PRIVATE_API_BASE_PATH,
 	PUBLIC_API_BASE_PATH,
 	STORAGE_API_BASE_PATH,
@@ -15,6 +18,16 @@ import * as localRepository from "./infrastructures/local/repositories";
 import { getRootUrl } from "./utils";
 
 const MESSAGE_BATCH_SIZE = 10;
+
+function handleError(err: Error | HTTPResponseError, c: Context) {
+	if (err instanceof HTTPException) {
+		return err.getResponse();
+	}
+
+	// fallback
+	const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
+	return c.text(message, status);
+}
 
 export const PRIVATE_API = new Hono()
 	.basePath(PRIVATE_API_BASE_PATH)
@@ -39,14 +52,16 @@ export const PRIVATE_API = new Hono()
 
 	.route("/works", WORK_API)
 	.route("/revisions", REVISION_API)
-	.route("/configs", CONFIG_API);
+	.route("/configs", CONFIG_API)
+	.onError(handleError);
 export type PrivateApi = typeof PRIVATE_API;
 
 export const PUBLIC_API = new Hono()
 	.basePath(PUBLIC_API_BASE_PATH)
 	.post("/", (c) => {
 		return c.text("hello from server");
-	});
+	})
+	.onError(handleError);
 export type PublicApi = typeof PUBLIC_API;
 
 export const STORAGE_API = new Hono()
@@ -80,4 +95,5 @@ export const STORAGE_API = new Hono()
 			await storage.save(id, token, blob);
 			return c.text("ok", 200);
 		},
-	);
+	)
+	.onError(handleError);

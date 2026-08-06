@@ -1,6 +1,8 @@
 import { and, eq, inArray, lt, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/bun-sql";
+import { HTTPException } from "hono/http-exception";
 import {
+	ERROR_CODE,
 	ORPHAN_REVISION_TTL_MINUTES,
 	SIGNED_URL_TTL_MINUTES,
 } from "../../constants";
@@ -73,7 +75,8 @@ export const workDatabase: IWorkDatabase = {
 			.returning();
 		const upserted = results.at(0);
 		if (!upserted) {
-			throw new Error("failed to upsert");
+			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
+			throw new HTTPException(status, { message });
 		}
 
 		return upserted;
@@ -96,7 +99,8 @@ class RevisionDatabase implements IRevisionDatabase {
 				.returning();
 			const insertedRevision = results.at(0);
 			if (!insertedRevision) {
-				throw new Error("failed to insert revision");
+				const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
+				throw new HTTPException(status, { message });
 			}
 
 			// publish messages
@@ -170,7 +174,8 @@ export const messageBroker: IMessageBroker = {
 		const inserted = results.at(0);
 
 		if (!inserted) {
-			throw new Error("failed to insert");
+			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
+			throw new HTTPException(status, { message });
 		}
 
 		const parsed = MESSAGE_SCHEMA.parse(inserted);

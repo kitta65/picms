@@ -1,3 +1,4 @@
+import { HTTPException } from "hono/http-exception";
 import type { Awaitable } from "picms-shared/types";
 import { ERROR_CODE } from "../../constants";
 import type { Work } from "./entity";
@@ -9,10 +10,12 @@ export interface IWorkDatabase {
 
 class FakeWorkDatabase implements IWorkDatabase {
 	upsert(_: Work): Awaitable<Work> {
-		throw new Error(ERROR_CODE.NOT_IMPLEMENTED);
+		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
+		throw new HTTPException(status, { message });
 	}
 	findById(_: Work["id"]): Awaitable<Work | undefined> {
-		throw new Error(ERROR_CODE.NOT_IMPLEMENTED);
+		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
+		throw new HTTPException(status, { message });
 	}
 }
 

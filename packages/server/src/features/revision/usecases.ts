@@ -1,3 +1,4 @@
+import { HTTPException } from "hono/http-exception";
 import { ERROR_CODE } from "../../constants";
 import { Revision } from "../../domains/revision/entity";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
@@ -11,11 +12,13 @@ export async function issueSignedUrl(
 	const revision = await di.revisionDatabase.findById(revisionId);
 
 	if (!revision) {
-		throw new Error(ERROR_CODE.NOT_FOUND);
+		const { status, message } = ERROR_CODE.NOT_FOUND;
+		throw new HTTPException(status, { message });
 	}
 
 	if (!Revision.isWithinOrphanTtl(revision)) {
-		throw new Error(ERROR_CODE.REQUEST_TIMEOUT);
+		const { status, message } = ERROR_CODE.REQUEST_TIMEOUT;
+		throw new HTTPException(status, { message });
 	}
 
 	// avoid duplicate upload (best effort)
@@ -23,7 +26,8 @@ export async function issueSignedUrl(
 		revisionStorage: di.revisionStorage,
 	});
 	if (!isAvailable) {
-		throw new Error(ERROR_CODE.CONFLICT);
+		const { status, message } = ERROR_CODE.CONFLICT;
+		throw new HTTPException(status, { message });
 	}
 
 	const url = await di.revisionStorage.issueSignedUrl(revisionId);
