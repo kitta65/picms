@@ -1,30 +1,30 @@
 import * as z from "zod";
 
-const EVENT_TYPES = [
+const MESSAGE_TYPES = [
 	"REVISION_INSERTED",
 	"REVISION_SIGNED_URL_EXPIRED",
 	"WORK_DELETED",
 ] as const;
-export type EventType = (typeof EVENT_TYPES)[number];
+export type MessageType = (typeof MESSAGE_TYPES)[number];
 
-export const EVENT_SCHEMA = z.object({
+export const MESSAGE_SCHEMA = z.object({
 	id: z.uuidv7(),
-	type: z.enum(EVENT_TYPES),
+	type: z.enum(MESSAGE_TYPES),
 	targetId: z.uuidv7(),
 	attemptCount: z.int(),
 	scheduledAt: z.date(),
 	createdAt: z.date(),
 });
 
-export type Event = z.infer<typeof EVENT_SCHEMA>;
-export const Event = {
+export type Message = z.infer<typeof MESSAGE_SCHEMA>;
+export const Message = {
 	create(input: {
-		type: Event["type"];
-		targetId: Event["targetId"];
-		scheduledAt?: Event["scheduledAt"];
+		type: Message["type"];
+		targetId: Message["targetId"];
+		scheduledAt?: Message["scheduledAt"];
 	}) {
 		const ts = new Date();
-		const event: Event = {
+		const message: Message = {
 			id: Bun.randomUUIDv7(),
 			type: input.type,
 			targetId: input.targetId,
@@ -32,6 +32,6 @@ export const Event = {
 			scheduledAt: input.scheduledAt ?? ts,
 			createdAt: ts,
 		};
-		return event;
+		return message;
 	},
 };

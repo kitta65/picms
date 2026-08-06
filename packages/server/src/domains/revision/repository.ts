@@ -1,5 +1,5 @@
 import type { Awaitable } from "picms-shared/types";
-import type { OperationResult } from "../event/types";
+import type { OperationResult } from "../message/types";
 import type { Revision } from "./entity";
 
 export interface IRevisionDatabase {

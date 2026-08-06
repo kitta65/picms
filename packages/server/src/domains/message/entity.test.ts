@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { EVENT_SCHEMA, Event } from "./entity";
+import { MESSAGE_SCHEMA, Message } from "./entity";
 
 const VALID_UUID_V7 = "019fbc3a-44c6-7000-8617-c2fbfbf7729d";
 const VALID_DATE = new Date(2026, 0, 1, 0, 0, 0); // 2026-01-01 00:00:00
@@ -12,10 +12,10 @@ const VALID_INPUT = {
 	createdAt: VALID_DATE,
 } as const;
 
-describe("EVENT_SCHEMA", () => {
+describe("MESSAGE_SCHEMA", () => {
 	test("succeed to parse valid data", () => {
-		const input: Event = VALID_INPUT;
-		const result = EVENT_SCHEMA.safeParse(input);
+		const input: Message = VALID_INPUT;
+		const result = MESSAGE_SCHEMA.safeParse(input);
 		expect(result.success).toBe(true);
 	});
 
@@ -24,7 +24,7 @@ describe("EVENT_SCHEMA", () => {
 			...VALID_INPUT,
 			id: null,
 		};
-		const result = EVENT_SCHEMA.safeParse(input);
+		const result = MESSAGE_SCHEMA.safeParse(input);
 		expect(result.success).toBe(false);
 	});
 
@@ -33,7 +33,7 @@ describe("EVENT_SCHEMA", () => {
 			...VALID_INPUT,
 			type: "UNKNOWN_TYPE",
 		};
-		const result = EVENT_SCHEMA.safeParse(input);
+		const result = MESSAGE_SCHEMA.safeParse(input);
 		expect(result.success).toBe(false);
 	});
 });
@@ -44,8 +44,8 @@ describe("create", () => {
 		const input = {
 			type: "REVISION_INSERTED",
 			targetId: VALID_UUID_V7,
-		} as const satisfies Partial<Event>;
-		const created = Event.create(input);
+		} as const satisfies Partial<Message>;
+		const created = Message.create(input);
 		const tsAfterCreate = new Date();
 
 		// createdAt is current timestamp
@@ -66,8 +66,8 @@ describe("create", () => {
 			type: "REVISION_INSERTED",
 			targetId: VALID_UUID_V7,
 			scheduledAt,
-		} as const satisfies Partial<Event>;
-		const created = Event.create(input);
+		} as const satisfies Partial<Message>;
+		const created = Message.create(input);
 
 		expect(created.scheduledAt).toBe(VALID_DATE);
 	});

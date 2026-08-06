@@ -1,5 +1,5 @@
-import type { Event } from "../../domains/event/entity";
-import type { IEventDatabase } from "../../domains/event/repository";
+import type { Message } from "../../domains/message/entity";
+import type { IMessageBroker } from "../../domains/message/repository";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import type { ISharedStorage } from "../../domains/shared/repository";
 import type { IWorkDatabase } from "../../domains/work/repository";
@@ -10,30 +10,30 @@ const MAX_ATTEMPTS = 3;
 export async function handleFirstN(
 	n: number,
 	di: {
-		eventDatabase: IEventDatabase;
+		messageBroker: IMessageBroker;
 		workDatabase: IWorkDatabase;
 		revisionDatabase: IRevisionDatabase;
 		revisionStorage: ISharedStorage;
 	},
 ) {
-	const events = await di.eventDatabase.attemptFirstN({
+	const messages = await di.messageBroker.attemptFirstN({
 		limit: n,
 		retryIntervalMinutes: RETRY_INTERVAL_MINUTES,
 		maxAttempts: MAX_ATTEMPTS,
 	});
-	for (const e of events) {
-		switch (e.type) {
+	for (const m of messages) {
+		switch (m.type) {
 			case "REVISION_INSERTED":
-				await handleRevisionInserted(e, di);
+				await handleRevisionInserted(m, di);
 				break;
 			case "REVISION_SIGNED_URL_EXPIRED":
-				await handleRevisionSignedUrlExpired(e, di);
+				await handleRevisionSignedUrlExpired(m, di);
 				break;
 			case "WORK_DELETED":
 				console.warn("TODO: not implemented");
 				break;
 			default: {
-				const unreachable: never = e.type;
+				const unreachable: never = m.type;
 				throw new Error(`unreachable: ${unreachable}`);
 			}
 		}
@@ -41,16 +41,16 @@ export async function handleFirstN(
 }
 
 async function handleRevisionInserted(
-	event: Event,
+	message: Message,
 	di: {
-		eventDatabase: IEventDatabase;
+		messageBroker: IMessageBroker;
 		workDatabase: IWorkDatabase;
 		revisionDatabase: IRevisionDatabase;
 	},
 ) {
-	const revision = await di.revisionDatabase.findById(event.targetId);
+	const revision = await di.revisionDatabase.findById(message.targetId);
 	if (!revision) {
-		await di.eventDatabase.deleteById(event.id);
+		await di.messageBroker.deleteById(message.id);
 		return;
 	}
 
@@ -61,20 +61,20 @@ async function handleRevisionInserted(
 		await di.revisionDatabase.deleteById(revision.id);
 	}
 
-	await di.eventDatabase.deleteById(event.id);
+	await di.messageBroker.deleteById(message.id);
 }
 
 async function handleRevisionSignedUrlExpired(
-	event: Event,
+	message: Message,
 	di: {
-		eventDatabase: IEventDatabase;
+		messageBroker: IMessageBroker;
 		revisionDatabase: IRevisionDatabase;
 		revisionStorage: ISharedStorage;
 	},
 ) {
-	await di.revisionDatabase.deleteById(event.targetId);
-	await di.revisionStorage.deleteById(event.id);
-	await di.eventDatabase.deleteById(event.id);
+	await di.revisionDatabase.deleteById(message.targetId);
+	await di.revisionStorage.deleteById(message.id);
+	await di.messageBroker.deleteById(message.id);
 }
 
 export const _TEST = {

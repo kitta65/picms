@@ -1,24 +1,24 @@
 import { beforeEach, describe, expect, spyOn, test } from "bun:test";
-import type { Event } from "../../domains/event/entity";
-import { _TEST as EVENT_REPOSITORY_TEST } from "../../domains/event/repository";
+import type { Message } from "../../domains/message/entity";
+import { _TEST as MESSAGE_REPOSITORY_TEST } from "../../domains/message/repository";
 import type { Revision } from "../../domains/revision/entity";
 import type { Work } from "../../domains/work/entity";
 import {
 	configDatabase,
 	_TEST as DRIZZLE_REPOSITORY_TEST,
-	eventDatabase,
+	messageBroker,
 	workDatabase,
 } from "./repositories";
 import {
 	configTable,
-	eventTable,
+	messageTable,
 	revisionTable,
 	workTable,
 	workTagTable,
 } from "./tables";
 
 const { DB, RevisionDatabase } = DRIZZLE_REPOSITORY_TEST;
-const { FakeEventDatabase } = EVENT_REPOSITORY_TEST;
+const { FakeMessageBroker } = MESSAGE_REPOSITORY_TEST;
 
 describe("configDatabase", () => {
 	beforeEach(async () => {
@@ -149,11 +149,11 @@ const VALID_REVISION: Revision = {
 };
 
 describe("revisionDatabase", () => {
-	const eventDatabase = new FakeEventDatabase();
-	spyOn(eventDatabase, "insert").mockImplementation((e) => e);
+	const messageBroker = new FakeMessageBroker();
+	spyOn(messageBroker, "insert").mockImplementation((m) => m);
 
 	const revisionDatabase = new RevisionDatabase({
-		eventDatabase,
+		messageBroker,
 	});
 
 	beforeEach(async () => {
@@ -166,24 +166,25 @@ describe("revisionDatabase", () => {
 			expect(result).toStrictEqual(VALID_REVISION);
 		});
 
-		test("returns expected event", async () => {
-			const { events: results } = await revisionDatabase.insert(VALID_REVISION);
+		test("returns expected message", async () => {
+			const { messages: results } =
+				await revisionDatabase.insert(VALID_REVISION);
 			expect(results.length).toBe(2);
 
-			const revisionInsertedEvent = results.find(
+			const revisionInsertedMessage = results.find(
 				(res) => res.type === "REVISION_INSERTED",
 			);
-			expect(revisionInsertedEvent?.targetId).toBe(VALID_REVISION.id);
+			expect(revisionInsertedMessage?.targetId).toBe(VALID_REVISION.id);
 
-			const revisionSignedUrlExpiredEvent = results.find(
+			const revisionSignedUrlExpiredMessage = results.find(
 				(res) => res.type === "REVISION_SIGNED_URL_EXPIRED",
 			);
-			expect(revisionSignedUrlExpiredEvent?.targetId).toBe(VALID_REVISION.id);
+			expect(revisionSignedUrlExpiredMessage?.targetId).toBe(VALID_REVISION.id);
 			expect(
-				revisionSignedUrlExpiredEvent?.createdAt.getTime(),
+				revisionSignedUrlExpiredMessage?.createdAt.getTime(),
 			).toBeLessThanOrEqual(Date.now());
 			expect(
-				revisionSignedUrlExpiredEvent?.scheduledAt.getTime(),
+				revisionSignedUrlExpiredMessage?.scheduledAt.getTime(),
 			).toBeGreaterThan(Date.now());
 		});
 
@@ -248,7 +249,7 @@ describe("revisionDatabase", () => {
 	});
 });
 
-const VALID_EVENT: Event = {
+const VALID_MESSAGE: Message = {
 	id: Bun.randomUUIDv7(),
 	type: "REVISION_INSERTED",
 	attemptCount: 0,
@@ -256,80 +257,80 @@ const VALID_EVENT: Event = {
 	scheduledAt: new Date(),
 	createdAt: new Date(),
 };
-describe("eventDatabase", () => {
+describe("messageBroker", () => {
 	beforeEach(async () => {
-		await DB.delete(eventTable);
+		await DB.delete(messageTable);
 	});
 
 	describe("insert", () => {
 		test("returns inserted value", async () => {
-			const inserted = await eventDatabase.insert(VALID_EVENT);
-			expect(inserted).toStrictEqual(VALID_EVENT);
+			const inserted = await messageBroker.insert(VALID_MESSAGE);
+			expect(inserted).toStrictEqual(VALID_MESSAGE);
 		});
 	});
 
 	describe("attemptFirstN", () => {
 		test("expected columns are updated", async () => {
-			await eventDatabase.insert(VALID_EVENT);
+			await messageBroker.insert(VALID_MESSAGE);
 
 			const tsBeforeAttempt = Date.now();
-			const results = await eventDatabase.attemptFirstN({ limit: 1 });
+			const results = await messageBroker.attemptFirstN({ limit: 1 });
 			const tsAfterAttempt = Date.now();
 			expect(results.length).toBe(1);
 
 			const result = results.at(0);
-			expect(result?.attemptCount).toBe(VALID_EVENT.attemptCount + 1);
+			expect(result?.attemptCount).toBe(VALID_MESSAGE.attemptCount + 1);
 			expect(result?.scheduledAt.getTime()).toBeGreaterThanOrEqual(
 				tsBeforeAttempt,
 			);
 			expect(result?.scheduledAt.getTime()).toBeLessThanOrEqual(tsAfterAttempt);
 		});
 
-		test("events are fetced by expected order", async () => {
-			const event1 = {
-				...VALID_EVENT,
+		test("messages are fetced by expected order", async () => {
+			const message1 = {
+				...VALID_MESSAGE,
 				id: Bun.randomUUIDv7(),
 				scheduledAt: new Date(),
 			};
-			const event2 = {
-				...VALID_EVENT,
+			const message2 = {
+				...VALID_MESSAGE,
 				id: Bun.randomUUIDv7(),
 				scheduledAt: new Date(),
 			};
-			const event3 = {
-				...VALID_EVENT,
+			const message3 = {
+				...VALID_MESSAGE,
 				id: Bun.randomUUIDv7(),
 				scheduledAt: new Date(),
 			};
 
 			// inserted in random order
-			await eventDatabase.insert(event1);
-			await eventDatabase.insert(event3);
-			await eventDatabase.insert(event2);
+			await messageBroker.insert(message1);
+			await messageBroker.insert(message3);
+			await messageBroker.insert(message2);
 
-			const results = await eventDatabase.attemptFirstN({ limit: 2 });
+			const results = await messageBroker.attemptFirstN({ limit: 2 });
 			expect(results.length).toBe(2);
 
 			// the results that has created (not inserted) earlier should exist
-			const result1 = results.find((res) => res.id === event1.id);
+			const result1 = results.find((res) => res.id === message1.id);
 			expect(result1).toBeDefined();
-			const result2 = results.find((res) => res.id === event2.id);
+			const result2 = results.find((res) => res.id === message2.id);
 			expect(result2).toBeDefined();
 		});
 
-		test("future events are ignored", async () => {
-			await eventDatabase.insert({
-				...VALID_EVENT,
+		test("future messages are ignored", async () => {
+			await messageBroker.insert({
+				...VALID_MESSAGE,
 				scheduledAt: new Date(2100, 0, 1),
 			});
 
-			const results = await eventDatabase.attemptFirstN({ limit: 1 });
+			const results = await messageBroker.attemptFirstN({ limit: 1 });
 			expect(results.length).toBe(0);
 		});
 
 		test("retryIntervalMinutes option is respected", async () => {
-			await eventDatabase.insert(VALID_EVENT);
-			const results = await eventDatabase.attemptFirstN({
+			await messageBroker.insert(VALID_MESSAGE);
+			const results = await messageBroker.attemptFirstN({
 				retryIntervalMinutes: 100,
 			});
 			const tsAfterAttempt = Date.now();
@@ -340,25 +341,25 @@ describe("eventDatabase", () => {
 
 		test("maxAttempts option is respected", async () => {
 			const options = { maxAttempts: 2 };
-			await eventDatabase.insert(VALID_EVENT);
+			await messageBroker.insert(VALID_MESSAGE);
 
-			const results1 = await eventDatabase.attemptFirstN(options);
+			const results1 = await messageBroker.attemptFirstN(options);
 			expect(results1.length).toBe(1);
 
-			const results2 = await eventDatabase.attemptFirstN(options);
+			const results2 = await messageBroker.attemptFirstN(options);
 			expect(results2.length).toBe(1);
 
-			const results3 = await eventDatabase.attemptFirstN(options);
+			const results3 = await messageBroker.attemptFirstN(options);
 			expect(results3.length).toBe(0);
 		});
 
 		test("maxAttempts option is respected (default)", async () => {
-			await eventDatabase.insert(VALID_EVENT);
+			await messageBroker.insert(VALID_MESSAGE);
 
-			const results1 = await eventDatabase.attemptFirstN();
+			const results1 = await messageBroker.attemptFirstN();
 			expect(results1.length).toBe(1);
 
-			const results2 = await eventDatabase.attemptFirstN();
+			const results2 = await messageBroker.attemptFirstN();
 			expect(results2.length).toBe(0);
 		});
 	});
@@ -366,7 +367,7 @@ describe("eventDatabase", () => {
 	describe("deleteById", () => {
 		test("does not throw when unknown id is specified", () => {
 			expect(async () => {
-				await eventDatabase.deleteById(Bun.randomUUIDv7());
+				await messageBroker.deleteById(Bun.randomUUIDv7());
 			}).not.toThrow();
 		});
 	});

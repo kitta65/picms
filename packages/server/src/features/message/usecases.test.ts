@@ -1,16 +1,16 @@
 import { describe, expect, spyOn, test } from "bun:test";
-import type { Event } from "../../domains/event/entity";
-import { _TEST as EVENT_REPOSITORY_TEST } from "../../domains/event/repository";
+import type { Message } from "../../domains/message/entity";
+import { _TEST as MESSAGE_REPOSITORY_TEST } from "../../domains/message/repository";
 import type { Revision } from "../../domains/revision/entity";
 import { _TEST as REVISION_REPOSITORY_TEST } from "../../domains/revision/repository";
 import type { Work } from "../../domains/work/entity";
 import { _TEST as WORK_REPOSITORY_TEST } from "../../domains/work/repository";
-import { _TEST as EVENT_USECASE_TEST } from "./usecases";
+import { _TEST as MESSAGE_USECASE_TEST } from "./usecases";
 
-const { FakeEventDatabase } = EVENT_REPOSITORY_TEST;
+const { FakeMessageBroker } = MESSAGE_REPOSITORY_TEST;
 const { FakeWorkDatabase } = WORK_REPOSITORY_TEST;
 const { FakeRevisionDatabase } = REVISION_REPOSITORY_TEST;
-const { handleRevisionInserted } = EVENT_USECASE_TEST;
+const { handleRevisionInserted } = MESSAGE_USECASE_TEST;
 
 const VALID_WORK: Work = {
 	id: Bun.randomUUIDv7(),
@@ -27,7 +27,7 @@ const VALID_REVISION: Revision = {
 	createdAt: new Date(),
 };
 
-const VALID_REVISION_INSERTED_EVENT: Event = {
+const VALID_REVISION_INSERTED_MESSAGE: Message = {
 	id: Bun.randomUUIDv7(),
 	type: "REVISION_INSERTED",
 	targetId: VALID_REVISION.id,
@@ -37,44 +37,44 @@ const VALID_REVISION_INSERTED_EVENT: Event = {
 };
 
 describe("handleRevisionCreated", () => {
-	test("delete event if everything was found", async () => {
+	test("delete message if everything was found", async () => {
 		const revisionDatabase = new FakeRevisionDatabase();
 		spyOn(revisionDatabase, "findById").mockImplementation(
 			() => VALID_REVISION,
 		);
 		const workDatabase = new FakeWorkDatabase();
 		spyOn(workDatabase, "findById").mockImplementation(() => VALID_WORK);
-		const eventDatabase = new FakeEventDatabase();
-		const spy = spyOn(eventDatabase, "deleteById").mockImplementation(() => {});
+		const messageBroker = new FakeMessageBroker();
+		const spy = spyOn(messageBroker, "deleteById").mockImplementation(() => {});
 
 		const di = {
-			eventDatabase,
+			messageBroker,
 			workDatabase,
 			revisionDatabase,
 		};
 
-		await handleRevisionInserted(VALID_REVISION_INSERTED_EVENT, di);
+		await handleRevisionInserted(VALID_REVISION_INSERTED_MESSAGE, di);
 		expect(spy).toBeCalledTimes(1);
 	});
 
-	test("delete event if revision was not found", async () => {
+	test("delete message if revision was not found", async () => {
 		const revisionDatabase = new FakeRevisionDatabase();
 		spyOn(revisionDatabase, "findById").mockImplementation(() => undefined);
 		const workDatabase = new FakeWorkDatabase();
-		const eventDatabase = new FakeEventDatabase();
-		const spy = spyOn(eventDatabase, "deleteById").mockImplementation(() => {});
+		const messageBroker = new FakeMessageBroker();
+		const spy = spyOn(messageBroker, "deleteById").mockImplementation(() => {});
 
 		const di = {
-			eventDatabase,
+			messageBroker,
 			workDatabase,
 			revisionDatabase,
 		};
 
-		await handleRevisionInserted(VALID_REVISION_INSERTED_EVENT, di);
+		await handleRevisionInserted(VALID_REVISION_INSERTED_MESSAGE, di);
 		expect(spy).toBeCalledTimes(1);
 	});
 
-	test("delete event and revision if work was not found", async () => {
+	test("delete message and revision if work was not found", async () => {
 		const revisionDatabase = new FakeRevisionDatabase();
 		spyOn(revisionDatabase, "findById").mockImplementation(
 			() => VALID_REVISION,
@@ -85,21 +85,21 @@ describe("handleRevisionCreated", () => {
 		).mockImplementation(() => {});
 		const workDatabase = new FakeWorkDatabase();
 		spyOn(workDatabase, "findById").mockImplementation(() => undefined);
-		const eventDatabase = new FakeEventDatabase();
-		const eventDeleteSpy = spyOn(
-			eventDatabase,
+		const messageBroker = new FakeMessageBroker();
+		const messageDeleteSpy = spyOn(
+			messageBroker,
 			"deleteById",
 		).mockImplementation(() => {});
 
 		const di = {
-			eventDatabase,
+			messageBroker,
 			workDatabase,
 			revisionDatabase,
 		};
 
-		await handleRevisionInserted(VALID_REVISION_INSERTED_EVENT, di);
+		await handleRevisionInserted(VALID_REVISION_INSERTED_MESSAGE, di);
 
 		expect(revisionDeleteSpy).toBeCalledTimes(1);
-		expect(eventDeleteSpy).toBeCalledTimes(1);
+		expect(messageDeleteSpy).toBeCalledTimes(1);
 	});
 });
