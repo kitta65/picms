@@ -1,9 +1,5 @@
-import { PRIVATE_API, PUBLIC_API, STORAGE_API } from "picms-server/api";
-import {
-	PRIVATE_API_BASE_PATH,
-	PUBLIC_API_BASE_PATH,
-	STORAGE_API_BASE_PATH,
-} from "picms-server/constants";
+import { PICMS_API } from "picms-server/api";
+import { PICMS_API_PATH } from "picms-server/constants";
 import type { Awaitable } from "picms-shared/types";
 import index from "picms-web/dist/index.html";
 
@@ -11,33 +7,26 @@ type ApiFunc = (req: Bun.BunRequest) => Awaitable<Response>;
 const { PICMS_PORT_MAIN, PICMS_PORT_WEB } = Bun.env;
 
 function createServerOptions(
-	{
-		privateApiFunc,
-		publicApiFunc,
-		storageApiFunc,
-		port,
-	}: {
-		privateApiFunc?: ApiFunc;
-		publicApiFunc?: ApiFunc;
-		storageApiFunc?: ApiFunc;
-		port?: number;
+	fn: {
+		apiFunc?: ApiFunc;
 	},
-	isProduction = false,
+	options?: {
+		port?: number;
+		isProduction?: boolean;
+	},
 ) {
 	const fallbackFunc = () => new Response(null, { status: 404 });
 
 	const routes = {
-		"/*": isProduction
+		"/*": options?.isProduction
 			? index
 			: Response.redirect(`http://localhost:${PICMS_PORT_WEB}`),
 
-		[`${PRIVATE_API_BASE_PATH}/*`]: privateApiFunc ?? fallbackFunc,
-		[`${PUBLIC_API_BASE_PATH}/*`]: publicApiFunc ?? fallbackFunc,
-		[`${STORAGE_API_BASE_PATH}/*`]: storageApiFunc ?? fallbackFunc,
+		[`${PICMS_API_PATH}/*`]: fn.apiFunc ?? fallbackFunc,
 	};
 
 	// 0 means random port https://bun.com/docs/runtime/http/server#changing-the-port-and-hostname
-	const port_ = port ?? 0;
+	const port_ = options?.port ?? 0;
 
 	return { routes, port: port_ };
 }
@@ -50,12 +39,9 @@ function main() {
 	const isProduction = Bun.env.NODE_ENV === "production";
 	const options = createServerOptions(
 		{
-			privateApiFunc: (req) => PRIVATE_API.fetch(req),
-			publicApiFunc: (req) => PUBLIC_API.fetch(req),
-			storageApiFunc: (req) => STORAGE_API.fetch(req),
-			port,
+			apiFunc: (req) => PICMS_API.fetch(req),
 		},
-		isProduction,
+		{ port, isProduction },
 	);
 
 	const server = Bun.serve(options);

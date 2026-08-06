@@ -2,7 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { useSelector } from "@tanstack/react-store";
 import { hc } from "hono/client";
 import { ImageIcon } from "lucide-react";
-import type { PrivateApi } from "picms-server/api";
+import type { PicmsApi } from "picms-server/api";
 import { useEffect, useState } from "react";
 // import * as workIo from "picms-server/features/work/io";
 
@@ -26,7 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 
-const CLIENT = hc<PrivateApi>(window.location.origin);
+const CLIENT = hc<PicmsApi>(window.location.origin);
 
 export function WorksNew() {
 	const form = useForm({
