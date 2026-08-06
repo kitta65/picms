@@ -3,6 +3,7 @@ import type { IMessageBroker } from "../../domains/message/repository";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import type { ISharedStorage } from "../../domains/shared/repository";
 import type { IWorkDatabase } from "../../domains/work/repository";
+import { assertNever } from "../../utils";
 
 const RETRY_INTERVAL_MINUTES = 1;
 const MAX_ATTEMPTS = 3;
@@ -33,8 +34,7 @@ export async function handleFirstN(
 				console.warn("TODO: not implemented");
 				break;
 			default: {
-				const unreachable: never = m.type;
-				throw new Error(`unreachable: ${unreachable}`);
+				assertNever(m.type);
 			}
 		}
 	}

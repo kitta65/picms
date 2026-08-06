@@ -1,7 +1,8 @@
 import * as crypto from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { SIGNED_URL_TTL_MINUTES } from "../../constants";
+import { HTTPException } from "hono/http-exception";
+import { ERROR_CODE, SIGNED_URL_TTL_MINUTES } from "../../constants";
 import type { ISharedStorage } from "../../domains/shared/repository";
 
 type Sign = {
@@ -59,7 +60,8 @@ abstract class SharedStorage implements ISharedStorage {
 			SharedStorage.sign.token === token &&
 			elapsedMinutes < SIGNED_URL_TTL_MINUTES;
 		if (!isValid && !this.options.skipValidation) {
-			throw new Error("Invalid token");
+			const { status, message } = ERROR_CODE.UNAUTHORIZED;
+			throw new HTTPException(status, { message });
 		}
 
 		const fullPath = this.#buildFullPath(id);

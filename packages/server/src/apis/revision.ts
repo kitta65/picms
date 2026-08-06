@@ -1,7 +1,8 @@
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { validator } from "hono/validator";
 
-import { STORAGE_API_BASE_PATH } from "../constants";
+import { ERROR_CODE, STORAGE_API_BASE_PATH } from "../constants";
 import * as revisionIo from "../features/revision/io";
 import * as revisionUsecase from "../features/revision/usecases";
 import * as drizzleRepositories from "../infrastructures/drizzle/repositories";
@@ -11,10 +12,11 @@ import { getRootUrl } from "../utils";
 export const REVISION_API = new Hono()
 	.post(
 		"/",
-		validator("json", async (value, c) => {
+		validator("json", async (value) => {
 			const parsed = revisionIo.CREATE_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
-				return c.text("Invalid", 400);
+				const { status, message } = ERROR_CODE.BAD_REQUEST;
+				throw new HTTPException(status, { message });
 			}
 			return parsed.data;
 		}),
@@ -27,10 +29,11 @@ export const REVISION_API = new Hono()
 	)
 	.get(
 		"/:id",
-		validator("param", async (value, c) => {
+		validator("param", async (value) => {
 			const parsed = revisionIo.FIND_BY_ID_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
-				return c.text("Invalid", 401);
+				const { status, message } = ERROR_CODE.BAD_REQUEST;
+				throw new HTTPException(status, { message });
 			}
 
 			return parsed.data;
@@ -40,17 +43,19 @@ export const REVISION_API = new Hono()
 			const repo = drizzleRepositories.revisionDatabase;
 			const revision = await repo.findById(param.id);
 			if (!revision) {
-				return c.body(null, 404);
+				const { status, message } = ERROR_CODE.NOT_FOUND;
+				throw new HTTPException(status, { message });
 			}
 			return c.json(revision);
 		},
 	)
 	.get(
 		"/:id/signed-url",
-		validator("param", async (value, c) => {
+		validator("param", async (value) => {
 			const parsed = revisionIo.ISSUE_SIGNED_URL_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
-				return c.text("Invalid", 401);
+				const { status, message } = ERROR_CODE.BAD_REQUEST;
+				throw new HTTPException(status, { message });
 			}
 
 			return parsed.data;

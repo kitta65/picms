@@ -1,4 +1,6 @@
+import { HTTPException } from "hono/http-exception";
 import type { Awaitable } from "picms-shared/types";
+import { ERROR_CODE } from "../../constants";
 import type { Message } from "./entity";
 
 type Options = {
@@ -16,15 +18,18 @@ export interface IMessageBroker {
 
 class FakeMessageBroker implements IMessageBroker {
 	publish(_: Message): Awaitable<Message> {
-		throw new Error("not implemented");
+		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
+		throw new HTTPException(status, { message });
 	}
 
 	pull(_?: Options): Awaitable<Message[]> {
-		throw new Error("not implemented");
+		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
+		throw new HTTPException(status, { message });
 	}
 
 	ack(_: Message["id"]): Awaitable<void> {
-		throw new Error("not implemented");
+		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
+		throw new HTTPException(status, { message });
 	}
 }
 

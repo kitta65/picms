@@ -129,15 +129,13 @@ describe("workDatabase", () => {
 		});
 
 		test("not null constraints are working", async () => {
-			expect(async () => {
-				// biome-ignore lint: intentional type error for test
-				const id = null as any;
-				const work: Work = {
-					...VALID_WORK,
-					id,
-				};
-				await workDatabase.upsert(work);
-			}).toThrow();
+			// biome-ignore lint: intentional type error for test
+			const id = null as any;
+			const work: Work = {
+				...VALID_WORK,
+				id,
+			};
+			await expect(workDatabase.upsert(work)).rejects.toThrow();
 		});
 	});
 });
@@ -189,15 +187,13 @@ describe("revisionDatabase", () => {
 		});
 
 		test("not null constraints are working", async () => {
-			expect(async () => {
-				// biome-ignore lint: intentional type error for test
-				const id = null as any;
-				const revision: Revision = {
-					...VALID_REVISION,
-					id,
-				};
-				await revisionDatabase.insert(revision);
-			}).toThrow();
+			// biome-ignore lint: intentional type error for test
+			const id = null as any;
+			const revision: Revision = {
+				...VALID_REVISION,
+				id,
+			};
+			await expect(revisionDatabase.insert(revision)).rejects.toThrow();
 		});
 	});
 
@@ -240,11 +236,13 @@ describe("revisionDatabase", () => {
 			expect(resultAfterDelete).toBe(undefined);
 		});
 
-		test("does not throw when unknown id is specified", () => {
-			expect(async () => {
+		test("does not throw when unknown id is specified", async () => {
+			try {
 				const id = Bun.randomUUIDv7();
 				await revisionDatabase.deleteById(id);
-			}).not.toThrow();
+			} catch {
+				expect.unreachable();
+			}
 		});
 	});
 });
@@ -365,10 +363,12 @@ describe("messageBroker", () => {
 	});
 
 	describe("ack", () => {
-		test("does not throw when unknown id is specified", () => {
-			expect(async () => {
+		test("does not throw when unknown id is specified", async () => {
+			try {
 				await messageBroker.ack(Bun.randomUUIDv7());
-			}).not.toThrow();
+			} catch {
+				expect.unreachable();
+			}
 		});
 	});
 });
