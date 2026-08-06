@@ -10,7 +10,7 @@
 		"CLAUDE_CONFIG_DIR": "${containerWorkspaceFolder}/.cache/claude-config",
 		"BUN_INSTALL_CACHE_DIR": "${containerWorkspaceFolder}/.cache/bun",
 		// https://cli.github.com/manual/gh_help_environment
-		"GH_CONFIG_DIR": "${containerWorkspaceFolder}/.config/gh"
+		"GH_CONFIG_DIR": "${containerWorkspaceFolder}/.cache/gh"
 	},
 	"forwardPorts": ["dbgate:3000"],
 	"features": {
