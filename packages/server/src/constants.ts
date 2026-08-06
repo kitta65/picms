@@ -16,7 +16,9 @@ type ErrorCode = {
 };
 export const ERROR_CODE = {
 	// 4xx
+	BAD_REQUEST: { status: 400, message: "Bad Request" },
 	UNAUTHORIZED: { status: 401, message: "Unauthorized" },
+	FORBIDDEN: { status: 403, message: "Forbidden" },
 	NOT_FOUND: { status: 404, message: "Client Error" },
 	REQUEST_TIMEOUT: { status: 408, message: "Request Timeout" },
 	CONFLICT: {

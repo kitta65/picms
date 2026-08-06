@@ -69,10 +69,11 @@ export const STORAGE_API = new Hono()
 
 	.put(
 		"/revision/:id",
-		validator("param", (value, c) => {
+		validator("param", (value) => {
 			const parsed = storageIo.REVISION_POST_SCHEMA.safeParse(value);
 			if (!parsed.success) {
-				return c.text("Invalid", 400);
+				const { status, message } = ERROR_CODE.BAD_REQUEST;
+				throw new HTTPException(status, { message });
 			}
 			return parsed.data;
 		}),
@@ -80,7 +81,8 @@ export const STORAGE_API = new Hono()
 		async (c) => {
 			const { PICMS_STORAGE } = Bun.env;
 			if (PICMS_STORAGE !== "local") {
-				return c.text("Not Found", 404);
+				const { status, message } = ERROR_CODE.NOT_FOUND;
+				throw new HTTPException(status, { message });
 			}
 
 			const apiBaseUrl = `${getRootUrl(c.req.raw)}${STORAGE_API_BASE_PATH}`;
@@ -88,7 +90,8 @@ export const STORAGE_API = new Hono()
 
 			const token = c.req.query("token");
 			if (!token) {
-				return c.body(null, 403);
+				const { status, message } = ERROR_CODE.FORBIDDEN;
+				throw new HTTPException(status, { message });
 			}
 			const id = c.req.valid("param").id;
 			const blob = await c.req.blob();
