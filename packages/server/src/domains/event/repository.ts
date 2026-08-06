@@ -8,6 +8,7 @@ type Options = {
 };
 
 export interface IEventDatabase {
+	// insert() should be called from infrastructure layer
 	insert: (event: Event) => Awaitable<Event>;
 	attemptFirstN: (options?: Options) => Awaitable<Event[]>;
 	deleteById: (id: Event["id"]) => Awaitable<void>;
