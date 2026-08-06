@@ -14,38 +14,20 @@ export interface IEventDatabase {
 	deleteById: (id: Event["id"]) => Awaitable<void>;
 }
 
-class EventDatabaseStub implements IEventDatabase {
-	methods: Partial<IEventDatabase>;
-
-	constructor(methods: Partial<IEventDatabase>) {
-		this.methods = methods;
+class FakeEventDatabase implements IEventDatabase {
+	insert(_: Event): Awaitable<Event> {
+		throw new Error("not implemented");
 	}
 
-	async insert(event: Event) {
-		const fn = this.methods.insert;
-		if (!fn) {
-			throw new Error("not implemented");
-		}
-		return await fn(event);
+	attemptFirstN(_?: Options): Awaitable<Event[]> {
+		throw new Error("not implemented");
 	}
 
-	async attemptFirstN(options?: Options) {
-		const fn = this.methods.attemptFirstN;
-		if (!fn) {
-			throw new Error("not implemented");
-		}
-		return await fn(options);
-	}
-
-	async deleteById(id: Event["id"]) {
-		const fn = this.methods.deleteById;
-		if (!fn) {
-			throw new Error("not implemented");
-		}
-		await fn(id);
+	deleteById(_: Event["id"]): Awaitable<void> {
+		throw new Error("not implemented");
 	}
 }
 
 export const _TEST = {
-	EventDatabaseStub,
+	FakeEventDatabase,
 };

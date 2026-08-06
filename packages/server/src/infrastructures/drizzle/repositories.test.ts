@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "bun:test";
+import { beforeEach, describe, expect, spyOn, test } from "bun:test";
 import type { Event } from "../../domains/event/entity";
 import { _TEST as EVENT_REPOSITORY_TEST } from "../../domains/event/repository";
 import type { Revision } from "../../domains/revision/entity";
@@ -18,7 +18,7 @@ import {
 } from "./tables";
 
 const { DB, RevisionDatabase } = DRIZZLE_REPOSITORY_TEST;
-const { EventDatabaseStub } = EVENT_REPOSITORY_TEST;
+const { FakeEventDatabase } = EVENT_REPOSITORY_TEST;
 
 describe("configDatabase", () => {
 	beforeEach(async () => {
@@ -149,8 +149,11 @@ const VALID_REVISION: Revision = {
 };
 
 describe("revisionDatabase", () => {
+	const eventDatabase = new FakeEventDatabase();
+	spyOn(eventDatabase, "insert").mockImplementation((e) => e);
+
 	const revisionDatabase = new RevisionDatabase({
-		eventDatabase: new EventDatabaseStub({ insert: (e) => e }),
+		eventDatabase,
 	});
 
 	beforeEach(async () => {
