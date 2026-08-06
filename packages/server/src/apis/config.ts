@@ -7,6 +7,11 @@ export const CONFIG_API = new Hono()
 	.get("/", async (c) => {
 		const repo = drizzleRepositories.configDatabase;
 		const res = await repo.findFirst();
+
+		// FIXME:
+		// it has special meaning to return undefined.
+		// instead we should return default config
+		// see https://github.com/TanStack/query/discussions/6029
 		return c.json(res);
 	})
 	.post(

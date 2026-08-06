@@ -24,7 +24,7 @@ export async function handleFirstN(
 	for (const e of events) {
 		switch (e.type) {
 			case "REVISION_INSERTED":
-				await handleRevisionCreated(e, di);
+				await handleRevisionInserted(e, di);
 				break;
 			case "REVISION_SIGNED_URL_EXPIRED":
 				await handleRevisionSignedUrlExpired(e, di);
@@ -40,7 +40,7 @@ export async function handleFirstN(
 	}
 }
 
-async function handleRevisionCreated(
+async function handleRevisionInserted(
 	event: Event,
 	di: {
 		eventDatabase: IEventDatabase;
@@ -50,6 +50,7 @@ async function handleRevisionCreated(
 ) {
 	const revision = await di.revisionDatabase.findById(event.targetId);
 	if (!revision) {
+		await di.eventDatabase.deleteById(event.id);
 		return;
 	}
 
@@ -72,6 +73,10 @@ async function handleRevisionSignedUrlExpired(
 	},
 ) {
 	await di.revisionDatabase.deleteById(event.targetId);
-	await di.revisionStorage.deleteByFileName(event.id);
+	await di.revisionStorage.deleteById(event.id);
 	await di.eventDatabase.deleteById(event.id);
 }
+
+export const _TEST = {
+	handleRevisionInserted,
+};

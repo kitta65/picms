@@ -3,10 +3,10 @@ import type { Revision } from "./entity";
 
 export async function checkStorageAvailability(
 	revision: Revision,
-	di: { storage: ISharedStorage },
+	di: { revisionStorage: ISharedStorage },
 ) {
-	const storage = di.storage;
-	const filename = revision.id;
-	const isAvailable = storage.checkAvailability(filename);
+	const storage = di.revisionStorage;
+	const revisionId = revision.id;
+	const isAvailable = storage.checkAvailability(revisionId);
 	return isAvailable;
 }

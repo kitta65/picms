@@ -4,15 +4,15 @@ import {
 	ORPHAN_REVISION_TTL_MINUTES,
 	SIGNED_URL_TTL_MINUTES,
 } from "../../constants";
-import type { Config } from "../../domains/config/entity";
-import type { IConfigRepository } from "../../domains/config/repository";
+import { CONFIG_SCHEMA, type Config } from "../../domains/config/entity";
+import type { IConfigDatabase } from "../../domains/config/repository";
 import { EVENT_SCHEMA, Event } from "../../domains/event/entity";
 import type { IEventDatabase } from "../../domains/event/repository";
 import { REVISION_SCHEMA, type Revision } from "../../domains/revision/entity";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import type { Work } from "../../domains/work/entity";
 import type { IWorkDatabase } from "../../domains/work/repository";
-import { configTable, eventTable, revisionTable, workTable } from "./schema";
+import { configTable, eventTable, revisionTable, workTable } from "./tables";
 
 const { PG_PASS, PG_USER, PG_PORT } = Bun.env;
 const DB = drizzle({
@@ -25,7 +25,7 @@ const DB = drizzle({
 });
 
 const CONFIG_ID = "019f9c30-51a0-7000-b96f-ab19bc1ceed2"; // currently only one config exists
-export const configDatabase: IConfigRepository = {
+export const configDatabase: IConfigDatabase = {
 	findFirst: async () => {
 		const configs = await DB.select()
 			.from(configTable)
@@ -39,16 +39,22 @@ export const configDatabase: IConfigRepository = {
 			console.warn("found more than one config");
 		}
 
-		return configs.at(0);
+		const parsed = CONFIG_SCHEMA.parse(configs.at(0));
+		return parsed;
 	},
 	upsert: async (config: Config) => {
-		const upserted = await DB.insert(configTable)
+		const result = await DB.insert(configTable)
 			.values({ id: CONFIG_ID, ...config })
 			.onConflictDoUpdate({
 				target: configTable.id,
 				set: config,
-			});
-		return upserted;
+			})
+			.returning();
+
+		const upserted = result.at(0);
+
+		const parsed = CONFIG_SCHEMA.parse(upserted);
+		return parsed;
 	},
 };
 
@@ -74,20 +80,26 @@ export const workDatabase: IWorkDatabase = {
 	},
 };
 
-export const revisionDatabase: IRevisionDatabase = {
-	insert: async (revision: Revision) => {
-		const inserted = await DB.transaction(async (tx) => {
+class RevisionDatabase implements IRevisionDatabase {
+	eventDatabase?: IEventDatabase;
+
+	constructor(di?: { eventDatabase: IEventDatabase }) {
+		this.eventDatabase = di?.eventDatabase;
+	}
+
+	async insert(revision: Revision) {
+		const result = await DB.transaction(async (tx) => {
 			// insert
 			const results = await tx
 				.insert(revisionTable)
 				.values(revision)
 				.returning();
-			const inserted = results.at(0);
-			if (!inserted) {
+			const insertedRevision = results.at(0);
+			if (!insertedRevision) {
 				throw new Error("failed to insert revision");
 			}
 
-			// issue event
+			// publish events
 			const scheduledAt = new Date();
 			scheduledAt.setMinutes(
 				scheduledAt.getMinutes() +
@@ -95,27 +107,40 @@ export const revisionDatabase: IRevisionDatabase = {
 					SIGNED_URL_TTL_MINUTES +
 					5, // margin
 			);
-			const revisionInsetedEvent = Event.create({
+			const revisionInsertedEvent = Event.create({
 				type: "REVISION_INSERTED",
-				targetId: inserted.id,
+				targetId: insertedRevision.id,
 			});
 			const revisionSignedUrlExpiredEvent = Event.create({
 				type: "REVISION_SIGNED_URL_EXPIRED",
-				targetId: inserted.id,
+				targetId: insertedRevision.id,
 				scheduledAt,
 			});
-			await tx
-				.insert(eventTable)
-				.values([revisionInsetedEvent, revisionSignedUrlExpiredEvent]);
 
-			return inserted;
+			let insertedEvents: unknown[] = [];
+			if (this.eventDatabase) {
+				insertedEvents = await Promise.all([
+					this.eventDatabase.insert(revisionInsertedEvent),
+					this.eventDatabase.insert(revisionSignedUrlExpiredEvent),
+				]);
+			} else {
+				insertedEvents = await tx
+					.insert(eventTable)
+					.values([revisionInsertedEvent, revisionSignedUrlExpiredEvent])
+					.returning();
+			}
+
+			return { insertedRevision, insertedEvents };
 		});
 
-		const entity = REVISION_SCHEMA.parse(inserted);
-		return entity;
-	},
+		const operationResult = {
+			data: REVISION_SCHEMA.parse(result.insertedRevision),
+			events: result.insertedEvents.map((e) => EVENT_SCHEMA.parse(e)),
+		};
+		return operationResult;
+	}
 
-	findById: async (id: Revision["id"]) => {
+	async findById(id: Revision["id"]) {
 		const revisions = await DB.select()
 			.from(revisionTable)
 			.where(eq(revisionTable.id, id));
@@ -130,14 +155,28 @@ export const revisionDatabase: IRevisionDatabase = {
 
 		const entity = REVISION_SCHEMA.parse(revisions.at(0));
 		return entity;
+	}
+
+	async deleteById(id: Revision["id"]) {
+		await DB.delete(revisionTable).where(eq(revisionTable.id, id));
+	}
+}
+
+export const revisionDatabase = new RevisionDatabase();
+
+export const eventDatabase: IEventDatabase = {
+	insert: async (event: Event) => {
+		const results = await DB.insert(eventTable).values(event).returning();
+		const inserted = results.at(0);
+
+		if (!inserted) {
+			throw new Error("failed to insert");
+		}
+
+		const parsed = EVENT_SCHEMA.parse(inserted);
+		return parsed;
 	},
 
-	deleteById: async (id: Revision["id"]) => {
-		await DB.delete(revisionTable).where(eq(revisionTable.id, id)).returning();
-	},
-};
-
-export const EventDatabase: IEventDatabase = {
 	attemptFirstN: async (options?: {
 		limit?: number;
 		retryIntervalMinutes?: number;
@@ -149,6 +188,7 @@ export const EventDatabase: IEventDatabase = {
 			nextScheduledAt.getMinutes() + (options?.retryIntervalMinutes ?? 0),
 		);
 
+		// transaction is required because update statement does not support order by clause
 		const results = await DB.transaction(async (tx) => {
 			// select
 			const query = tx
@@ -162,10 +202,10 @@ export const EventDatabase: IEventDatabase = {
 				)
 				.orderBy(eventTable.scheduledAt, eventTable.id);
 			const shouldLimit = limit !== undefined;
-			const results = await (shouldLimit ? query.limit(limit) : query);
+			const selectResults = await (shouldLimit ? query.limit(limit) : query);
 
 			// update
-			await tx
+			const updateResults = await tx
 				.update(eventTable)
 				.set({
 					scheduledAt: nextScheduledAt,
@@ -174,18 +214,22 @@ export const EventDatabase: IEventDatabase = {
 				.where(
 					inArray(
 						eventTable.id,
-						results.map((res) => res.id),
+						selectResults.map((res) => res.id),
 					),
-				);
-			return results;
+				)
+				.returning();
+			return updateResults;
 		});
 		const events = results.map((res) => EVENT_SCHEMA.parse(res));
 		return events;
 	},
 
 	deleteById: async (id: Event["id"]) => {
-		await DB.delete(eventTable)
-			.where(and(eq(eventTable.id, id)))
-			.returning();
+		await DB.delete(eventTable).where(and(eq(eventTable.id, id)));
 	},
+};
+
+export const _TEST = {
+	DB,
+	RevisionDatabase,
 };
