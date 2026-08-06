@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { hc } from "hono/client";
-import type { PrivateApi } from "picms-server/api";
+import type { PicmsApi } from "picms-server/api";
 import {
 	UPSERT_INPUT_SCHEMA,
 	type UpsertInput,
@@ -26,7 +26,7 @@ import {
 
 import { Button } from "../ui/button";
 
-const CLIENT = hc<PrivateApi>(window.location.origin);
+const CLIENT = hc<PicmsApi>(window.location.origin);
 
 function useConfigQuery() {
 	return useQuery({
