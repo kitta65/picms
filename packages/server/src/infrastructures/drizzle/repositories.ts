@@ -7,7 +7,7 @@ import {
 import { CONFIG_SCHEMA, type Config } from "../../domains/config/entity";
 import type { IConfigDatabase } from "../../domains/config/repository";
 import { MESSAGE_SCHEMA, Message } from "../../domains/message/entity";
-import type { IMessageDatabase } from "../../domains/message/repository";
+import type { IMessageBroker } from "../../domains/message/repository";
 import { REVISION_SCHEMA, type Revision } from "../../domains/revision/entity";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import type { Work } from "../../domains/work/entity";
@@ -81,10 +81,10 @@ export const workDatabase: IWorkDatabase = {
 };
 
 class RevisionDatabase implements IRevisionDatabase {
-	messageDatabase?: IMessageDatabase;
+	messageBroker?: IMessageBroker;
 
-	constructor(di?: { messageDatabase: IMessageDatabase }) {
-		this.messageDatabase = di?.messageDatabase;
+	constructor(di?: { messageBroker: IMessageBroker }) {
+		this.messageBroker = di?.messageBroker;
 	}
 
 	async insert(revision: Revision) {
@@ -118,10 +118,10 @@ class RevisionDatabase implements IRevisionDatabase {
 			});
 
 			let insertedMessages: unknown[] = [];
-			if (this.messageDatabase) {
+			if (this.messageBroker) {
 				insertedMessages = await Promise.all([
-					this.messageDatabase.insert(revisionInsertedMessage),
-					this.messageDatabase.insert(revisionSignedUrlExpiredMessage),
+					this.messageBroker.insert(revisionInsertedMessage),
+					this.messageBroker.insert(revisionSignedUrlExpiredMessage),
 				]);
 			} else {
 				insertedMessages = await tx
@@ -164,7 +164,7 @@ class RevisionDatabase implements IRevisionDatabase {
 
 export const revisionDatabase = new RevisionDatabase();
 
-export const messageDatabase: IMessageDatabase = {
+export const messageBroker: IMessageBroker = {
 	insert: async (message: Message) => {
 		const results = await DB.insert(messageTable).values(message).returning();
 		const inserted = results.at(0);

@@ -1,5 +1,5 @@
 import type { Message } from "../../domains/message/entity";
-import type { IMessageDatabase } from "../../domains/message/repository";
+import type { IMessageBroker } from "../../domains/message/repository";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import type { ISharedStorage } from "../../domains/shared/repository";
 import type { IWorkDatabase } from "../../domains/work/repository";
@@ -10,13 +10,13 @@ const MAX_ATTEMPTS = 3;
 export async function handleFirstN(
 	n: number,
 	di: {
-		messageDatabase: IMessageDatabase;
+		messageBroker: IMessageBroker;
 		workDatabase: IWorkDatabase;
 		revisionDatabase: IRevisionDatabase;
 		revisionStorage: ISharedStorage;
 	},
 ) {
-	const messages = await di.messageDatabase.attemptFirstN({
+	const messages = await di.messageBroker.attemptFirstN({
 		limit: n,
 		retryIntervalMinutes: RETRY_INTERVAL_MINUTES,
 		maxAttempts: MAX_ATTEMPTS,
@@ -43,14 +43,14 @@ export async function handleFirstN(
 async function handleRevisionInserted(
 	message: Message,
 	di: {
-		messageDatabase: IMessageDatabase;
+		messageBroker: IMessageBroker;
 		workDatabase: IWorkDatabase;
 		revisionDatabase: IRevisionDatabase;
 	},
 ) {
 	const revision = await di.revisionDatabase.findById(message.targetId);
 	if (!revision) {
-		await di.messageDatabase.deleteById(message.id);
+		await di.messageBroker.deleteById(message.id);
 		return;
 	}
 
@@ -61,20 +61,20 @@ async function handleRevisionInserted(
 		await di.revisionDatabase.deleteById(revision.id);
 	}
 
-	await di.messageDatabase.deleteById(message.id);
+	await di.messageBroker.deleteById(message.id);
 }
 
 async function handleRevisionSignedUrlExpired(
 	message: Message,
 	di: {
-		messageDatabase: IMessageDatabase;
+		messageBroker: IMessageBroker;
 		revisionDatabase: IRevisionDatabase;
 		revisionStorage: ISharedStorage;
 	},
 ) {
 	await di.revisionDatabase.deleteById(message.targetId);
 	await di.revisionStorage.deleteById(message.id);
-	await di.messageDatabase.deleteById(message.id);
+	await di.messageBroker.deleteById(message.id);
 }
 
 export const _TEST = {

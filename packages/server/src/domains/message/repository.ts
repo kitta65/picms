@@ -7,14 +7,14 @@ type Options = {
 	maxAttempts?: number;
 };
 
-export interface IMessageDatabase {
+export interface IMessageBroker {
 	// insert() should be called from infrastructure layer
 	insert: (message: Message) => Awaitable<Message>;
 	attemptFirstN: (options?: Options) => Awaitable<Message[]>;
 	deleteById: (id: Message["id"]) => Awaitable<void>;
 }
 
-class FakeMessageDatabase implements IMessageDatabase {
+class FakeMessageBroker implements IMessageBroker {
 	insert(_: Message): Awaitable<Message> {
 		throw new Error("not implemented");
 	}
@@ -29,5 +29,5 @@ class FakeMessageDatabase implements IMessageDatabase {
 }
 
 export const _TEST = {
-	FakeMessageDatabase,
+	FakeMessageBroker,
 };

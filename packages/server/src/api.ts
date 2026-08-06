@@ -29,7 +29,7 @@ export const PRIVATE_API = new Hono()
 		const revisionStorage = new localRepository.RevisionStorage(apiBaseUrl);
 		messageUsecases
 			.handleFirstN(MESSAGE_BATCH_SIZE, {
-				messageDatabase: drizzleRepositories.messageDatabase,
+				messageBroker: drizzleRepositories.messageBroker,
 				workDatabase: drizzleRepositories.workDatabase,
 				revisionDatabase: drizzleRepositories.revisionDatabase,
 				revisionStorage,

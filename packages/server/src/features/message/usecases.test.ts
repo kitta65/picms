@@ -7,7 +7,7 @@ import type { Work } from "../../domains/work/entity";
 import { _TEST as WORK_REPOSITORY_TEST } from "../../domains/work/repository";
 import { _TEST as MESSAGE_USECASE_TEST } from "./usecases";
 
-const { FakeMessageDatabase } = MESSAGE_REPOSITORY_TEST;
+const { FakeMessageBroker } = MESSAGE_REPOSITORY_TEST;
 const { FakeWorkDatabase } = WORK_REPOSITORY_TEST;
 const { FakeRevisionDatabase } = REVISION_REPOSITORY_TEST;
 const { handleRevisionInserted } = MESSAGE_USECASE_TEST;
@@ -44,13 +44,11 @@ describe("handleRevisionCreated", () => {
 		);
 		const workDatabase = new FakeWorkDatabase();
 		spyOn(workDatabase, "findById").mockImplementation(() => VALID_WORK);
-		const messageDatabase = new FakeMessageDatabase();
-		const spy = spyOn(messageDatabase, "deleteById").mockImplementation(
-			() => {},
-		);
+		const messageBroker = new FakeMessageBroker();
+		const spy = spyOn(messageBroker, "deleteById").mockImplementation(() => {});
 
 		const di = {
-			messageDatabase,
+			messageBroker,
 			workDatabase,
 			revisionDatabase,
 		};
@@ -63,13 +61,11 @@ describe("handleRevisionCreated", () => {
 		const revisionDatabase = new FakeRevisionDatabase();
 		spyOn(revisionDatabase, "findById").mockImplementation(() => undefined);
 		const workDatabase = new FakeWorkDatabase();
-		const messageDatabase = new FakeMessageDatabase();
-		const spy = spyOn(messageDatabase, "deleteById").mockImplementation(
-			() => {},
-		);
+		const messageBroker = new FakeMessageBroker();
+		const spy = spyOn(messageBroker, "deleteById").mockImplementation(() => {});
 
 		const di = {
-			messageDatabase,
+			messageBroker,
 			workDatabase,
 			revisionDatabase,
 		};
@@ -89,14 +85,14 @@ describe("handleRevisionCreated", () => {
 		).mockImplementation(() => {});
 		const workDatabase = new FakeWorkDatabase();
 		spyOn(workDatabase, "findById").mockImplementation(() => undefined);
-		const messageDatabase = new FakeMessageDatabase();
+		const messageBroker = new FakeMessageBroker();
 		const messageDeleteSpy = spyOn(
-			messageDatabase,
+			messageBroker,
 			"deleteById",
 		).mockImplementation(() => {});
 
 		const di = {
-			messageDatabase,
+			messageBroker,
 			workDatabase,
 			revisionDatabase,
 		};

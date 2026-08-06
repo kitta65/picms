@@ -6,7 +6,7 @@ import type { Work } from "../../domains/work/entity";
 import {
 	configDatabase,
 	_TEST as DRIZZLE_REPOSITORY_TEST,
-	messageDatabase,
+	messageBroker,
 	workDatabase,
 } from "./repositories";
 import {
@@ -18,7 +18,7 @@ import {
 } from "./tables";
 
 const { DB, RevisionDatabase } = DRIZZLE_REPOSITORY_TEST;
-const { FakeMessageDatabase } = MESSAGE_REPOSITORY_TEST;
+const { FakeMessageBroker } = MESSAGE_REPOSITORY_TEST;
 
 describe("configDatabase", () => {
 	beforeEach(async () => {
@@ -149,11 +149,11 @@ const VALID_REVISION: Revision = {
 };
 
 describe("revisionDatabase", () => {
-	const messageDatabase = new FakeMessageDatabase();
-	spyOn(messageDatabase, "insert").mockImplementation((m) => m);
+	const messageBroker = new FakeMessageBroker();
+	spyOn(messageBroker, "insert").mockImplementation((m) => m);
 
 	const revisionDatabase = new RevisionDatabase({
-		messageDatabase,
+		messageBroker,
 	});
 
 	beforeEach(async () => {
@@ -257,24 +257,24 @@ const VALID_MESSAGE: Message = {
 	scheduledAt: new Date(),
 	createdAt: new Date(),
 };
-describe("messageDatabase", () => {
+describe("messageBroker", () => {
 	beforeEach(async () => {
 		await DB.delete(messageTable);
 	});
 
 	describe("insert", () => {
 		test("returns inserted value", async () => {
-			const inserted = await messageDatabase.insert(VALID_MESSAGE);
+			const inserted = await messageBroker.insert(VALID_MESSAGE);
 			expect(inserted).toStrictEqual(VALID_MESSAGE);
 		});
 	});
 
 	describe("attemptFirstN", () => {
 		test("expected columns are updated", async () => {
-			await messageDatabase.insert(VALID_MESSAGE);
+			await messageBroker.insert(VALID_MESSAGE);
 
 			const tsBeforeAttempt = Date.now();
-			const results = await messageDatabase.attemptFirstN({ limit: 1 });
+			const results = await messageBroker.attemptFirstN({ limit: 1 });
 			const tsAfterAttempt = Date.now();
 			expect(results.length).toBe(1);
 
@@ -304,11 +304,11 @@ describe("messageDatabase", () => {
 			};
 
 			// inserted in random order
-			await messageDatabase.insert(message1);
-			await messageDatabase.insert(message3);
-			await messageDatabase.insert(message2);
+			await messageBroker.insert(message1);
+			await messageBroker.insert(message3);
+			await messageBroker.insert(message2);
 
-			const results = await messageDatabase.attemptFirstN({ limit: 2 });
+			const results = await messageBroker.attemptFirstN({ limit: 2 });
 			expect(results.length).toBe(2);
 
 			// the results that has created (not inserted) earlier should exist
@@ -319,18 +319,18 @@ describe("messageDatabase", () => {
 		});
 
 		test("future messages are ignored", async () => {
-			await messageDatabase.insert({
+			await messageBroker.insert({
 				...VALID_MESSAGE,
 				scheduledAt: new Date(2100, 0, 1),
 			});
 
-			const results = await messageDatabase.attemptFirstN({ limit: 1 });
+			const results = await messageBroker.attemptFirstN({ limit: 1 });
 			expect(results.length).toBe(0);
 		});
 
 		test("retryIntervalMinutes option is respected", async () => {
-			await messageDatabase.insert(VALID_MESSAGE);
-			const results = await messageDatabase.attemptFirstN({
+			await messageBroker.insert(VALID_MESSAGE);
+			const results = await messageBroker.attemptFirstN({
 				retryIntervalMinutes: 100,
 			});
 			const tsAfterAttempt = Date.now();
@@ -341,25 +341,25 @@ describe("messageDatabase", () => {
 
 		test("maxAttempts option is respected", async () => {
 			const options = { maxAttempts: 2 };
-			await messageDatabase.insert(VALID_MESSAGE);
+			await messageBroker.insert(VALID_MESSAGE);
 
-			const results1 = await messageDatabase.attemptFirstN(options);
+			const results1 = await messageBroker.attemptFirstN(options);
 			expect(results1.length).toBe(1);
 
-			const results2 = await messageDatabase.attemptFirstN(options);
+			const results2 = await messageBroker.attemptFirstN(options);
 			expect(results2.length).toBe(1);
 
-			const results3 = await messageDatabase.attemptFirstN(options);
+			const results3 = await messageBroker.attemptFirstN(options);
 			expect(results3.length).toBe(0);
 		});
 
 		test("maxAttempts option is respected (default)", async () => {
-			await messageDatabase.insert(VALID_MESSAGE);
+			await messageBroker.insert(VALID_MESSAGE);
 
-			const results1 = await messageDatabase.attemptFirstN();
+			const results1 = await messageBroker.attemptFirstN();
 			expect(results1.length).toBe(1);
 
-			const results2 = await messageDatabase.attemptFirstN();
+			const results2 = await messageBroker.attemptFirstN();
 			expect(results2.length).toBe(0);
 		});
 	});
@@ -367,7 +367,7 @@ describe("messageDatabase", () => {
 	describe("deleteById", () => {
 		test("does not throw when unknown id is specified", () => {
 			expect(async () => {
-				await messageDatabase.deleteById(Bun.randomUUIDv7());
+				await messageBroker.deleteById(Bun.randomUUIDv7());
 			}).not.toThrow();
 		});
 	});
