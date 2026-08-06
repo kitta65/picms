@@ -1,3 +1,4 @@
+import { ERROR_CODE } from "../../constants";
 import { Revision } from "../../domains/revision/entity";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import * as RevisionService from "../../domains/revision/service";
@@ -10,11 +11,11 @@ export async function issueSignedUrl(
 	const revision = await di.revisionDatabase.findById(revisionId);
 
 	if (!revision) {
-		throw new Error("revision not found");
+		throw new Error(ERROR_CODE.NOT_FOUND);
 	}
 
 	if (!Revision.isWithinOrphanTtl(revision)) {
-		throw new Error("revision is too old");
+		throw new Error(ERROR_CODE.REQUEST_TIMEOUT);
 	}
 
 	// avoid duplicate upload (best effort)
@@ -22,7 +23,7 @@ export async function issueSignedUrl(
 		revisionStorage: di.revisionStorage,
 	});
 	if (!isAvailable) {
-		throw new Error("storage is not available");
+		throw new Error(ERROR_CODE.CONFLICT);
 	}
 
 	const url = await di.revisionStorage.issueSignedUrl(revisionId);
