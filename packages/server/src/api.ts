@@ -25,7 +25,7 @@ export const PRIVATE_API = new Hono()
 
 		// fire and forget!
 		// if you use cloudflare someday, see https://hono.dev/docs/api/context#executionctx
-		const apiBaseUrl = `${getRootUrl(c.req)}${STORAGE_API_BASE_PATH}`;
+		const apiBaseUrl = `${getRootUrl(c.req.raw)}${STORAGE_API_BASE_PATH}`;
 		const revisionStorage = new localRepository.RevisionStorage(apiBaseUrl);
 		messageUsecases
 			.handleFirstN(MESSAGE_BATCH_SIZE, {
@@ -68,7 +68,7 @@ export const STORAGE_API = new Hono()
 				return c.text("Not Found", 404);
 			}
 
-			const apiBaseUrl = `${getRootUrl(c.req)}${STORAGE_API_BASE_PATH}`;
+			const apiBaseUrl = `${getRootUrl(c.req.raw)}${STORAGE_API_BASE_PATH}`;
 			const storage = new localRepository.RevisionStorage(apiBaseUrl);
 
 			const token = c.req.query("token");
