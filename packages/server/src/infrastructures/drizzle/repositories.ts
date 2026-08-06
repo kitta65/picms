@@ -120,8 +120,8 @@ class RevisionDatabase implements IRevisionDatabase {
 			let insertedMessages: unknown[] = [];
 			if (this.messageBroker) {
 				insertedMessages = await Promise.all([
-					this.messageBroker.insert(revisionInsertedMessage),
-					this.messageBroker.insert(revisionSignedUrlExpiredMessage),
+					this.messageBroker.publish(revisionInsertedMessage),
+					this.messageBroker.publish(revisionSignedUrlExpiredMessage),
 				]);
 			} else {
 				insertedMessages = await tx
@@ -165,7 +165,7 @@ class RevisionDatabase implements IRevisionDatabase {
 export const revisionDatabase = new RevisionDatabase();
 
 export const messageBroker: IMessageBroker = {
-	insert: async (message: Message) => {
+	publish: async (message: Message) => {
 		const results = await DB.insert(messageTable).values(message).returning();
 		const inserted = results.at(0);
 
@@ -177,7 +177,7 @@ export const messageBroker: IMessageBroker = {
 		return parsed;
 	},
 
-	attemptFirstN: async (options?: {
+	pull: async (options?: {
 		limit?: number;
 		retryIntervalMinutes?: number;
 		maxAttempts?: number;
@@ -224,7 +224,7 @@ export const messageBroker: IMessageBroker = {
 		return messages;
 	},
 
-	deleteById: async (id: Message["id"]) => {
+	ack: async (id: Message["id"]) => {
 		await DB.delete(messageTable).where(and(eq(messageTable.id, id)));
 	},
 };

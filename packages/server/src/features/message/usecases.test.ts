@@ -37,7 +37,7 @@ const VALID_REVISION_INSERTED_MESSAGE: Message = {
 };
 
 describe("handleRevisionCreated", () => {
-	test("delete message if everything was found", async () => {
+	test("ack message if everything was found", async () => {
 		const revisionDatabase = new FakeRevisionDatabase();
 		spyOn(revisionDatabase, "findById").mockImplementation(
 			() => VALID_REVISION,
@@ -45,7 +45,7 @@ describe("handleRevisionCreated", () => {
 		const workDatabase = new FakeWorkDatabase();
 		spyOn(workDatabase, "findById").mockImplementation(() => VALID_WORK);
 		const messageBroker = new FakeMessageBroker();
-		const spy = spyOn(messageBroker, "deleteById").mockImplementation(() => {});
+		const spy = spyOn(messageBroker, "ack").mockImplementation(() => {});
 
 		const di = {
 			messageBroker,
@@ -57,12 +57,12 @@ describe("handleRevisionCreated", () => {
 		expect(spy).toBeCalledTimes(1);
 	});
 
-	test("delete message if revision was not found", async () => {
+	test("ack message if revision was not found", async () => {
 		const revisionDatabase = new FakeRevisionDatabase();
 		spyOn(revisionDatabase, "findById").mockImplementation(() => undefined);
 		const workDatabase = new FakeWorkDatabase();
 		const messageBroker = new FakeMessageBroker();
-		const spy = spyOn(messageBroker, "deleteById").mockImplementation(() => {});
+		const spy = spyOn(messageBroker, "ack").mockImplementation(() => {});
 
 		const di = {
 			messageBroker,
@@ -74,7 +74,7 @@ describe("handleRevisionCreated", () => {
 		expect(spy).toBeCalledTimes(1);
 	});
 
-	test("delete message and revision if work was not found", async () => {
+	test("ack message and delete revision if work was not found", async () => {
 		const revisionDatabase = new FakeRevisionDatabase();
 		spyOn(revisionDatabase, "findById").mockImplementation(
 			() => VALID_REVISION,
@@ -86,10 +86,9 @@ describe("handleRevisionCreated", () => {
 		const workDatabase = new FakeWorkDatabase();
 		spyOn(workDatabase, "findById").mockImplementation(() => undefined);
 		const messageBroker = new FakeMessageBroker();
-		const messageDeleteSpy = spyOn(
-			messageBroker,
-			"deleteById",
-		).mockImplementation(() => {});
+		const messageAckSpy = spyOn(messageBroker, "ack").mockImplementation(
+			() => {},
+		);
 
 		const di = {
 			messageBroker,
@@ -100,6 +99,6 @@ describe("handleRevisionCreated", () => {
 		await handleRevisionInserted(VALID_REVISION_INSERTED_MESSAGE, di);
 
 		expect(revisionDeleteSpy).toBeCalledTimes(1);
-		expect(messageDeleteSpy).toBeCalledTimes(1);
+		expect(messageAckSpy).toBeCalledTimes(1);
 	});
 });
