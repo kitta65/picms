@@ -23,10 +23,16 @@ runs:
       shell: bash
       run: echo "${{ inputs.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-    - name: build and push devcontainer
+    - name: build devcontainer
       shell: bash
+      # NOTE: devcontainer build does not support --push (or --platform) for docker-compose based devcontainers
+      # https://github.com/devcontainers/cli/blob/58be9705761d276b5076525438bbe73642f521d5/src/spec-node/devContainersSpecCLI.ts#L700-L702
       run: |
         devcontainer build \
         --cache-from ghcr.io/kitta65/picms/picms-devcontainer:latest \
-        --image-name ghcr.io/kitta65/picms/picms-devcontainer:latest \
-        --push ${{ inputs.push }}
+        --image-name ghcr.io/kitta65/picms/picms-devcontainer:latest
+
+    - name: push devcontainer
+      # if: ${{ inputs.push == 'true' }}
+      shell: bash
+      run: docker push ghcr.io/kitta65/picms/picms-devcontainer:latest
