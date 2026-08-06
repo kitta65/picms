@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-
+import { ERROR_CODE } from "../../constants";
 import * as LocalRepository from "./repositories";
 
 const TEMP_DIR_NAME = "local-repository-test";
@@ -99,20 +99,20 @@ describe("save", () => {
 		await storage.issueSignedUrl("foo");
 		TestStorage.sign.signedAt = new Date(0);
 
-		expect(async () => {
-			await storage.save(
+		await expect(
+			storage.save(
 				TestStorage.sign.resourceId,
 				TestStorage.sign.token,
 				new Blob(["dummy"]),
-			);
-		}).toThrow();
+			),
+		).rejects.toThrow(ERROR_CODE.UNAUTHORIZED.message);
 	});
 
 	test("cannot save using invalid token", async () => {
 		const storage = new TestStorage();
-		expect(async () => {
-			await storage.save("foo", "invalid token", new Blob(["dummy"]));
-		}).toThrow();
+		await expect(
+			storage.save("foo", "invalid token", new Blob(["dummy"])),
+		).rejects.toThrow(ERROR_CODE.UNAUTHORIZED.message);
 	});
 });
 
