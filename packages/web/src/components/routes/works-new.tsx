@@ -6,6 +6,7 @@ import type { PicmsApi } from "picms-server/api";
 import { useEffect, useState } from "react";
 // import * as workIo from "picms-server/features/work/io";
 
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Empty,
@@ -24,7 +25,6 @@ import {
 	FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Button } from "../ui/button";
 
 const CLIENT = hc<PicmsApi>(window.location.origin);
 

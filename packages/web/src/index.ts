@@ -1,5 +1,5 @@
 import { PICMS_API_PATH } from "picms-server/constants";
-import index from "./index.html";
+import index from "@/index.html";
 
 const { PICMS_PORT_MAIN, PICMS_PORT_WEB } = Bun.env;
 

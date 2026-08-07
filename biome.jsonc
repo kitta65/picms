@@ -77,6 +77,26 @@
 					}
 				}
 			}
+		},
+		// web
+		{
+			"includes": ["packages/web/src/**/*.ts", "packages/web/src/**/*.tsx"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["./**/*", "../**/*"]
+									}
+								]
+							}
+						}
+					}
+				}
+			}
 		}
 	]
 }

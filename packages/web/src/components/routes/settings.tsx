@@ -7,6 +7,7 @@ import {
 	type UpsertInput,
 } from "picms-server/features/config/io";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
 	Combobox,
 	ComboboxContent,
@@ -23,8 +24,6 @@ import {
 	FieldGroup,
 	FieldLabel,
 } from "@/components/ui/field";
-
-import { Button } from "../ui/button";
 
 const CLIENT = hc<PicmsApi>(window.location.origin);
 
