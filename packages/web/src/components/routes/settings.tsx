@@ -83,7 +83,6 @@ export function Settings() {
 		if (
 			!Intl.supportedValuesOf("timeZone").some((tz) => tz === config.timezone)
 		) {
-			console.log(config);
 			form.reset({ ...config, timezone: null });
 			return;
 		}

@@ -33,15 +33,12 @@ export const configDatabase: IConfigDatabase = {
 			.from(configTable)
 			.where(eq(configTable.id, CONFIG_ID));
 
-		if (configs.length === 0) {
+		const config = configs.at(0);
+		if (!config) {
 			return undefined;
 		}
 
-		if (configs.length !== 1) {
-			console.warn("found more than one config");
-		}
-
-		const parsed = CONFIG_SCHEMA.parse(configs.at(0));
+		const parsed = CONFIG_SCHEMA.parse(config);
 		return parsed;
 	},
 	upsert: async (config: Config) => {
@@ -149,15 +146,13 @@ class RevisionDatabase implements IRevisionDatabase {
 			.from(revisionTable)
 			.where(eq(revisionTable.id, id));
 
-		if (revisions.length === 0) {
+		const revision = revisions.at(0);
+
+		if (!revision) {
 			return undefined;
 		}
 
-		if (revisions.length !== 1) {
-			console.warn("found more than one revision");
-		}
-
-		const entity = REVISION_SCHEMA.parse(revisions.at(0));
+		const entity = REVISION_SCHEMA.parse(revision);
 		return entity;
 	}
 
