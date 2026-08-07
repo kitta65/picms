@@ -33,6 +33,6 @@ runs:
         --image-name ghcr.io/kitta65/picms/picms-devcontainer:latest
 
     - name: push devcontainer
-      # if: ${{ inputs.push == 'true' }}
+      if: ${{ inputs.push == 'true' }}
       shell: bash
       run: docker push ghcr.io/kitta65/picms/picms-devcontainer:latest
