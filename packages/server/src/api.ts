@@ -47,7 +47,7 @@ const PUBLIC_API = new Hono().post("/", (c) => {
 });
 
 const STORAGE_API = new Hono().put(
-	"/:dir/:id",
+	"/:directory/:id",
 	validator("param", (value) => {
 		const parsed = storageIo.STORAGE_POST_SCHEMA.safeParse(value);
 		if (!parsed.success) {
