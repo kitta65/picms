@@ -47,9 +47,9 @@ const PUBLIC_API = new Hono().post("/", (c) => {
 });
 
 const STORAGE_API = new Hono().put(
-	"/revision/:id",
+	"/:dir/:id",
 	validator("param", (value) => {
-		const parsed = storageIo.REVISION_POST_SCHEMA.safeParse(value);
+		const parsed = storageIo.STORAGE_POST_SCHEMA.safeParse(value);
 		if (!parsed.success) {
 			const { status, message } = ERROR_CODE.BAD_REQUEST;
 			throw new HTTPException(status, { message });
@@ -65,7 +65,10 @@ const STORAGE_API = new Hono().put(
 		}
 
 		const apiBaseUrl = `${getRootUrl(c.req.raw)}${PICMS_API_PATH}${STORAGE_API_PATH}`;
-		const storage = new localRepository.RevisionStorage(apiBaseUrl);
+		const storage = new localRepository.SharedStorage(
+			apiBaseUrl,
+			c.req.valid("param").directory,
+		);
 
 		const token = c.req.query("token");
 		if (!token) {

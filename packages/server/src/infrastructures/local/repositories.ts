@@ -6,6 +6,7 @@ import { ERROR_CODE, SIGNED_URL_TTL_MINUTES } from "../../constants";
 import type { ISharedStorage } from "../../domains/shared/repository";
 
 type Sign = {
+	directory: string;
 	resourceId: string;
 	token: string;
 	signedAt: Date;
@@ -22,25 +23,41 @@ const BASE_PATH = path.resolve(
 	"server", // "server" represents this package in monorepo
 );
 
-abstract class SharedStorage implements ISharedStorage {
+export class SharedStorage implements ISharedStorage {
 	apiBaseUrl: string;
-	abstract directory: string; // empty string may cause undefined behavior
+	directory: string;
 	options: Options;
 
 	// NOTE:
 	// currenty only one sign is rememberd.
 	// it is enough for local environment.
-	static sign: Sign = { resourceId: "", token: "", signedAt: new Date(0) };
+	static sign: Sign = {
+		directory: "",
+		resourceId: "",
+		token: "",
+		signedAt: new Date(0),
+	};
 
-	constructor(apiBaseUrl: string, options?: Options) {
+	constructor(apiBaseUrl: string, directory: string, options?: Options) {
+		if (!directory) {
+			// since empty string may cause undefined behavior, it is not allowed
+			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
+			throw new HTTPException(status, { message });
+		}
 		this.apiBaseUrl = apiBaseUrl;
+		this.directory = directory;
 		this.options = options ?? {};
 	}
 
 	async issueSignedUrl(id: string) {
 		const token = crypto.randomBytes(36).toString("hex");
 		const url = `${this.apiBaseUrl}/${this.directory}/${id}?token=${token}`;
-		SharedStorage.sign = { resourceId: id, token, signedAt: new Date() };
+		SharedStorage.sign = {
+			directory: this.directory,
+			resourceId: id,
+			token,
+			signedAt: new Date(),
+		};
 		return url;
 	}
 
@@ -56,6 +73,7 @@ abstract class SharedStorage implements ISharedStorage {
 		const signedTs = Number(SharedStorage.sign.signedAt);
 		const elapsedMinutes = (currTs - signedTs) / 1000 / 60;
 		const isValid =
+			SharedStorage.sign.directory === this.directory &&
 			SharedStorage.sign.resourceId === id &&
 			SharedStorage.sign.token === token &&
 			elapsedMinutes < SIGNED_URL_TTL_MINUTES;
@@ -81,10 +99,11 @@ abstract class SharedStorage implements ISharedStorage {
 }
 
 export class RevisionStorage extends SharedStorage {
-	directory = "revision";
+	constructor(apiBaseUrl: string, options?: Options) {
+		super(apiBaseUrl, "revisions", options);
+	}
 }
 
 export const _TEST = {
 	BASE_PATH, // for cleanup
-	SharedStorage,
 };
