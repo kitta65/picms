@@ -4,7 +4,7 @@
 		".": {},
 		"packages/*": {},
 		"packages/web": {
-			"entry": ["src/frontend.tsx", "src/index.ts"]
+			"entry": ["src/app/frontend.tsx", "src/index.ts"]
 		}
 	}
 }
