@@ -78,9 +78,12 @@
 				}
 			}
 		},
-		// web
+		// web/src/app
 		{
-			"includes": ["packages/web/src/**/*.ts", "packages/web/src/**/*.tsx"],
+			"includes": [
+				"packages/web/src/app/**/*.ts",
+				"packages/web/src/app/**/*.tsx"
+			],
 			"linter": {
 				"rules": {
 					"style": {
@@ -90,6 +93,111 @@
 								"patterns": [
 									{
 										"group": ["./**/*", "../**/*"]
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		// web/src/pages
+		{
+			"includes": [
+				"packages/web/src/pages/**/*.ts",
+				"packages/web/src/pages/**/*.tsx"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["./**/*", "../**/*", "@/app/**/*"]
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		// web/src/features
+		{
+			"includes": [
+				"packages/web/src/features/**/*.ts",
+				"packages/web/src/features/**/*.tsx"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["./**/*", "../**/*", "@/app/**/*", "@/pages/**/*"]
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		// web/src/entities
+		{
+			"includes": [
+				"packages/web/src/entities/**/*.ts",
+				"packages/web/src/entities/**/*.tsx"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": [
+											"./**/*",
+											"../**/*",
+											"@/app/**/*",
+											"@/pages/**/*",
+											"@/features/**/*"
+										]
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		// web/src/shared
+		{
+			"includes": [
+				"packages/web/src/shared/**/*.ts",
+				"packages/web/src/shared/**/*.tsx"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": [
+											"./**/*",
+											"../**/*",
+											"@/app/**/*",
+											"@/pages/**/*",
+											"@/features/**/*",
+											"@/entities/**/*"
+										]
 									}
 								]
 							}
