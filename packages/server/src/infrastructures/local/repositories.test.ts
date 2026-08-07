@@ -21,6 +21,12 @@ afterAll(async () => {
 });
 
 describe("issueSignedUrl", () => {
+	test("empty string directory is not allowed", () => {
+		expect(() => {
+			new SharedStorage("", "");
+		}).toThrow(ERROR_CODE.INTERNAL_SERVER_ERROR);
+	});
+
 	test("issued url is expected format", async () => {
 		const storage = new SharedStorage("https://example.com", TEMP_DIR_NAME);
 		const url = await storage.issueSignedUrl("foo");
@@ -37,8 +43,9 @@ describe("issueSignedUrl", () => {
 		const dateBeforeOperation = new Date();
 		await storage.issueSignedUrl("foo");
 		const dateAfterOperation = new Date();
-		const { resourceId, token, signedAt } = SharedStorage.sign;
+		const { directory, resourceId, token, signedAt } = SharedStorage.sign;
 
+		expect(directory).toBe("local-repository-test");
 		expect(resourceId).toBe("foo");
 		const tokenRegexp = /^[0-9a-f]{72}$/;
 		expect(tokenRegexp.test(token)).toBe(true);
@@ -106,6 +113,21 @@ describe("save", () => {
 		const storage = new SharedStorage("", TEMP_DIR_NAME);
 		await expect(
 			storage.save("foo", "invalid token", new Blob(["dummy"])),
+		).rejects.toThrow(ERROR_CODE.UNAUTHORIZED.message);
+	});
+
+	test("cannot save to directory B with token for directory A", async () => {
+		const storageA = new SharedStorage("", TEMP_DIR_NAME);
+		const storageB = new SharedStorage("", "local-repository-test-other");
+		await storageA.issueSignedUrl("foo");
+		SharedStorage.sign.signedAt = new Date(0);
+
+		await expect(
+			storageB.save(
+				SharedStorage.sign.resourceId,
+				SharedStorage.sign.token,
+				new Blob(["dummy"]),
+			),
 		).rejects.toThrow(ERROR_CODE.UNAUTHORIZED.message);
 	});
 });
