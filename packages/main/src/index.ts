@@ -1,5 +1,5 @@
 import { PICMS_API } from "picms-server/api";
-import { PICMS_API_PATH } from "picms-server/constants";
+import { SERVER_ROUTE } from "picms-shared/constants";
 import type { Awaitable } from "picms-shared/types";
 import index from "picms-web/dist/index.html";
 
@@ -22,7 +22,7 @@ function createServerOptions(
 			? index
 			: Response.redirect(`http://localhost:${PICMS_PORT_WEB}`),
 
-		[`${PICMS_API_PATH}/*`]: fn.apiFunc ?? fallbackFunc,
+		[`${SERVER_ROUTE}/*`]: fn.apiFunc ?? fallbackFunc,
 	};
 
 	// 0 means random port https://bun.com/docs/runtime/http/server#changing-the-port-and-hostname
