@@ -1,5 +1,5 @@
-import { PICMS_API_PATH } from "picms-server/constants";
-import index from "@/index.html";
+import { SERVER_ROUTE } from "picms-shared/constants";
+import index from "./index.html";
 
 const { PICMS_PORT_MAIN, PICMS_PORT_WEB } = Bun.env;
 
@@ -8,7 +8,7 @@ const server = Bun.serve({
 		"/*": index,
 
 		// delegate everything
-		[`${PICMS_API_PATH}/*`]: async (req) => {
+		[`${SERVER_ROUTE}/*`]: async (req) => {
 			const url = new URL(req.url);
 			return fetch(
 				`http://localhost:${PICMS_PORT_MAIN}${url.pathname}${url.search}`,
