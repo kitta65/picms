@@ -2,12 +2,11 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { validator } from "hono/validator";
 
-import { ERROR_CODE, PICMS_API_PATH, STORAGE_API_PATH } from "../constants";
+import { ERROR_CODE, PRIVATE_API_PATH, STORAGE_API_PATH } from "../constants";
 import * as revisionIo from "../features/revision/io";
 import * as revisionUsecase from "../features/revision/usecases";
 import * as drizzleRepositories from "../infrastructures/drizzle/repositories";
 import * as localRepository from "../infrastructures/local/repositories";
-import { getRootUrl } from "../utils";
 
 export const REVISION_API = new Hono()
 	.post(
@@ -63,8 +62,15 @@ export const REVISION_API = new Hono()
 		async (c) => {
 			const param = c.req.valid("param");
 			const revisionDatabase = drizzleRepositories.revisionDatabase;
-			const apiBaseUrl = `${getRootUrl(c.req.raw)}${PICMS_API_PATH}${STORAGE_API_PATH}`;
-			const revisionStorage = new localRepository.RevisionStorage(apiBaseUrl);
+			const splitted = c.req.url.split(PRIVATE_API_PATH);
+			const basePath = splitted.at(0);
+			if (splitted.length !== 2 || !basePath) {
+				const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
+				throw new HTTPException(status, { message });
+			}
+			const revisionStorage = new localRepository.RevisionStorage(
+				basePath + STORAGE_API_PATH,
+			);
 			const url = await revisionUsecase.issueSignedUrl(param.id, {
 				revisionDatabase,
 				revisionStorage,

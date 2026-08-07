@@ -2,7 +2,6 @@
 // don't import anything!
 // constants should not depend on other implementation.
 
-export const PICMS_API_PATH = "/api";
 export const PRIVATE_API_PATH = `/private`;
 export const PUBLIC_API_PATH = `/public`;
 export const STORAGE_API_PATH = `/storage`;
