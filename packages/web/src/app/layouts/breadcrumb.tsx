@@ -63,3 +63,7 @@ export function Breadcrumb({ className }: React.ComponentProps<"nav">) {
 		</Breadcrumb_>
 	);
 }
+
+export function TestComponent() {
+	return <span data-testid="my-first-test">foo</span>;
+}
