@@ -1,31 +1,36 @@
 import { describe, expect, test } from "bun:test";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { Breadcrumb } from "@/app/layouts/breadcrumb";
 
 describe("Breadcrumb", () => {
 	test("does not appear in /", () => {
 		window.happyDOM.setURL("http://localhost");
 		render(<Breadcrumb />);
-		const breadcrumb = screen.queryByLabelText("breadcrumb");
-		expect(breadcrumb).not.toBeInTheDocument();
+		const breadcrumb = screen.queryByRole("navigation", {
+			name: /breadcrumb/i,
+		});
+		expect(breadcrumb).toBe(null);
 	});
 
 	test("Home & Works appear in /works", () => {
 		window.happyDOM.setURL("http://localhost/works");
 		render(<Breadcrumb />);
 
-		const breadcrumb = screen.getByLabelText("breadcrumb");
+		const breadcrumb = screen.getByRole("navigation", { name: /breadcrumb/i });
 		expect(breadcrumb).toBeInTheDocument();
 
-		const links = screen.queryAllByRole("link");
+		const links = within(breadcrumb).getAllByRole("link");
 		expect(links.length).toBe(2);
 
-		const homeLink = links.at(0);
+		const [homeLink, worksLink] = links;
+		if (!homeLink || !worksLink) {
+			expect.unreachable();
+		}
+
 		expect(homeLink).toHaveTextContent("Home");
 		expect(homeLink).toHaveAttribute("href", "/");
 		expect(homeLink).toBeEnabled();
 
-		const worksLink = links.at(1);
 		expect(worksLink).toHaveTextContent("Works");
 		expect(worksLink).toHaveAttribute("aria-disabled", "true");
 	});
