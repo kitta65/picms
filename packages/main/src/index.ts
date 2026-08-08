@@ -36,7 +36,7 @@ function main() {
 		throw new Error("PICMS_PORT_MAIN is not specified");
 	}
 	const port = Number(PICMS_PORT_MAIN);
-	const isProduction = Bun.env.NODE_ENV === "production";
+	const isProduction = process.env.NODE_ENV === "production";
 	const options = createServerOptions(
 		{
 			apiFunc: (req) => PICMS_API.fetch(req),
