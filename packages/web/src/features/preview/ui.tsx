@@ -18,8 +18,9 @@ import {
 
 const Z = cn("z-50");
 const MERGIN = cn("m-4");
-// NOTE: this class does not work outside the group
+// this class is used either inside or outside the group
 const ANIMATION = cn(
+	"data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
 	"group-data-[state=closed]:animate-out group-data-[state=closed]:fade-out-0 group-data-[state=open]:animate-in group-data-[state=open]:fade-in-0",
 );
 
@@ -35,7 +36,7 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 			<Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
 			<Dialog.Portal>
 				<Dialog.Overlay
-					className={cn("group fixed inset-0 bg-black/90", ANIMATION, Z)}
+					className={cn("fixed inset-0 bg-black/90", ANIMATION, Z)}
 				/>
 				<Dialog.Content className="dark group">
 					<img
