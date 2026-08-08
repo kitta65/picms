@@ -10,9 +10,9 @@ import {
 	BreadcrumbSeparator,
 } from "@/shared/ui/shadcn/breadcrumb";
 
-const BASE_URL = window.location.origin;
+export function Breadcrumb(props: React.ComponentProps<"nav">) {
+	const baseUrl = window.location.origin;
 
-export function Breadcrumb({ className }: React.ComponentProps<"nav">) {
 	let [location] = useLocation();
 	if (location.endsWith("/")) {
 		// trailing slash does not matter in this application
@@ -26,7 +26,7 @@ export function Breadcrumb({ className }: React.ComponentProps<"nav">) {
 	}
 
 	return (
-		<Breadcrumb_ className={className}>
+		<Breadcrumb_ {...props}>
 			<BreadcrumbList>
 				{items.map((item, idx) => {
 					let to: string;
@@ -40,8 +40,8 @@ export function Breadcrumb({ className }: React.ComponentProps<"nav">) {
 						Object.values(ROUTE).find((route) => {
 							if (!route.label) return false; // maybe it's a dynamic link
 
-							const pattern = new URLPattern(route.pattern, BASE_URL);
-							return pattern.test(to, BASE_URL);
+							const pattern = new URLPattern(route.pattern, baseUrl);
+							return pattern.test(to, baseUrl);
 						})?.label ?? item;
 
 					return (
@@ -62,8 +62,4 @@ export function Breadcrumb({ className }: React.ComponentProps<"nav">) {
 			</BreadcrumbList>
 		</Breadcrumb_>
 	);
-}
-
-export function TestComponent() {
-	return <span data-testid="my-first-test">foo</span>;
 }
