@@ -4,7 +4,7 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"build": "bun build --production --outfile=dist/picms --compile src/index.ts",
+		"build": "bun build --production --outfile=dist/picms --compile --define NODE_ENV='\"production\"' src/index.ts",
 		"dev": "bun --inspect=0.0.0.0:${PICMS_PORT_INSPECT}/scripts-dev --hot src/index.ts",
 		"lint": "tsc --noEmit",
 		"test": "bun test"

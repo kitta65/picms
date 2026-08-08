@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
-import { ROUTE } from "@/app/config";
+import { ROUTE } from "@/app/routes";
 import {
 	Breadcrumb as Breadcrumb_,
 	BreadcrumbItem,
@@ -20,12 +20,8 @@ export function Breadcrumb({ className }: React.ComponentProps<"nav">) {
 	}
 	const items = location.split("/");
 
-	if (
-		// can't be
-		items.length < 2 ||
-		// root
-		items[1] === ""
-	) {
+	// root page does not need breadcrumb
+	if (items.length === 1) {
 		return;
 	}
 
