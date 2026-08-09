@@ -15,20 +15,51 @@ import { Versions } from "@/pages/versions";
 import { Works } from "@/pages/works";
 import { WorksEdit } from "@/pages/works-edit";
 import { WorksNew } from "@/pages/works-new";
+import { type ApiClient, ApiClientContext } from "@/shared/api";
 import { Separator } from "@/shared/ui/shadcn/separator";
 import { TooltipProvider } from "@/shared/ui/shadcn/tooltip";
 
 const queryClient = new QueryClient();
+const queryClientNoRetry = new QueryClient({
+	defaultOptions: { queries: { retry: false } },
+});
 
-function Wrapper({ children }: { children: React.ReactNode }) {
-	// add anything which should wrap entire app here!
-	return (
-		<StrictMode>
-			<QueryClientProvider client={queryClient}>
-				<TooltipProvider>{children}</TooltipProvider>
-			</QueryClientProvider>
-		</StrictMode>
+type WrapperProps = {
+	children: React.ReactNode;
+	options?: {
+		isStrict?: boolean;
+		apiClient?: ApiClient;
+		shouldRetry?: boolean;
+	};
+};
+// add anything which should wrap entire app here!
+function Wrapper({ children, options }: WrapperProps) {
+	let component = children;
+
+	const isStrict = options?.isStrict ?? true;
+	if (isStrict) {
+		component = <StrictMode>{component}</StrictMode>;
+	}
+
+	const shouldRetry = options?.shouldRetry ?? true;
+	component = (
+		<QueryClientProvider
+			client={shouldRetry ? queryClient : queryClientNoRetry}
+		>
+			{component}
+		</QueryClientProvider>
 	);
+
+	const apiClient = options?.apiClient;
+	if (apiClient) {
+		component = (
+			<ApiClientContext value={apiClient}>{component}</ApiClientContext>
+		);
+	}
+
+	component = <TooltipProvider>{component}</TooltipProvider>;
+
+	return component;
 }
 
 const ROUTE_TO_COMPONENT: { [k in RouteType]: React.ComponentType } = {
@@ -74,3 +105,7 @@ export function App() {
 		</Wrapper>
 	);
 }
+
+export const _TEST = {
+	Wrapper,
+};

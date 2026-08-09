@@ -112,7 +112,8 @@
 		{
 			"includes": [
 				"packages/web/src/pages/**/*.ts",
-				"packages/web/src/pages/**/*.tsx"
+				"packages/web/src/pages/**/*.tsx",
+				"!packages/web/src/pages/**/*.test.tsx"
 			],
 			"linter": {
 				"rules": {

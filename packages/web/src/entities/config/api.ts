@@ -8,7 +8,6 @@ function useConfigQuery() {
 	const client = useContext(ApiClientContext);
 
 	return useQuery({
-		// TODO: refactor
 		queryKey: ["private", "configs", "get"],
 		queryFn: async (): Promise<Config> => {
 			const res = await client.api.private.configs.$get();
