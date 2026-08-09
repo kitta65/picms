@@ -14,3 +14,9 @@ export const UpsertInput = {
 		return entity;
 	},
 };
+
+export const READ_SCHEMA = CONFIG_SCHEMA.pick({
+	timezone: true,
+});
+
+export type ReadSchema = z.infer<typeof READ_SCHEMA>;

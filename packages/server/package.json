@@ -1,7 +1,9 @@
 {
 	"name": "picms-server",
 	"exports": {
-		"./*": "./src/*.ts"
+		"./api": "./src/api.ts",
+		"./apis/*": "./src/apis/*.ts",
+		"./features/*": "./src/features/*.ts"
 	},
 	"type": "module",
 	"private": true,

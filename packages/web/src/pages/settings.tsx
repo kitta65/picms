@@ -1,12 +1,11 @@
 import { useForm } from "@tanstack/react-form";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { hc } from "hono/client";
-import type { PicmsApi } from "picms-server/api";
 import {
 	UPSERT_INPUT_SCHEMA,
 	type UpsertInput,
 } from "picms-server/features/config/io";
 import { useEffect } from "react";
+import { useConfigOperation } from "@/entities/config/api";
+import { SomethingWentWrong } from "@/shared/ui/custom/something-went-wrong";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
 	Combobox,
@@ -25,42 +24,8 @@ import {
 	FieldLabel,
 } from "@/shared/ui/shadcn/field";
 
-const CLIENT = hc<PicmsApi>(window.location.origin);
-
-function useConfigQuery() {
-	return useQuery({
-		// TODO: refactor
-		queryKey: ["config", "get"],
-		queryFn: async () => {
-			const res = await CLIENT.api.private.configs.$get();
-			return res.json();
-		},
-	});
-}
-
-function useConfigMutation(onSuccess?: () => void) {
-	return useMutation({
-		mutationFn: (config: UpsertInput) =>
-			CLIENT.api.private.configs.$post({ json: config }),
-		onSuccess,
-	});
-}
-
-function useConfigOperation() {
-	const { data, isLoading, refetch } = useConfigQuery();
-	const { mutate } = useConfigMutation(() => refetch());
-
-	return {
-		data,
-		isLoading,
-		refetch,
-		mutate,
-	};
-}
-
 export function Settings() {
-	// TODO: handle isError
-	const { data: config, isLoading, mutate } = useConfigOperation();
+	const { data: config, isBusy, isError, mutate } = useConfigOperation();
 	const defaultValues: UpsertInput = {
 		timezone: null,
 	} as const;
@@ -88,6 +53,10 @@ export function Settings() {
 
 		form.reset(config);
 	}, [config, form]);
+
+	if (isError) {
+		return <SomethingWentWrong />;
+	}
 
 	return (
 		<form
@@ -138,11 +107,11 @@ export function Settings() {
 						variant="outline"
 						type="button"
 						onClick={() => form.reset()}
-						disabled={isLoading}
+						disabled={isBusy}
 					>
 						Reset
 					</Button>
-					<Button type="submit" disabled={isLoading}>
+					<Button type="submit" disabled={isBusy}>
 						Submit
 					</Button>
 				</div>

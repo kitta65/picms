@@ -43,7 +43,11 @@ export function Header() {
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<Button asChild variant="outline" size="icon">
-							<a href="https://example.com">
+							<a
+								href="https://example.com"
+								target="_blank"
+								rel="noopnner noreferrer"
+							>
 								<BookOpen />
 							</a>
 						</Button>
