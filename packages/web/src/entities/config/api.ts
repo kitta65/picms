@@ -1,27 +1,28 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { hc } from "hono/client";
-import type { PicmsApi } from "picms-server/api";
 import type { UpsertInput } from "picms-server/features/config/io";
+import { useContext } from "react";
 import type { Config } from "@/entities/config/model";
-
-const CLIENT = hc<PicmsApi>(window.location.origin);
+import { ApiClientContext } from "@/shared/api";
 
 function useConfigQuery() {
+	const client = useContext(ApiClientContext);
+
 	return useQuery({
 		// TODO: refactor
 		queryKey: ["private", "configs", "get"],
 		queryFn: async (): Promise<Config> => {
-			const res = await CLIENT.api.private.configs.$get();
-			CLIENT.api.private.configs.$url;
+			const res = await client.api.private.configs.$get();
 			return res.json();
 		},
 	});
 }
 
 function useConfigMutation(onSuccess?: () => void) {
+	const client = useContext(ApiClientContext);
+
 	return useMutation({
 		mutationFn: (config: UpsertInput) =>
-			CLIENT.api.private.configs.$post({ json: config }),
+			client.api.private.configs.$post({ json: config }),
 		onSuccess,
 	});
 }
