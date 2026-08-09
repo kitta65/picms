@@ -62,7 +62,7 @@ export function Works() {
 					<ButtonGroup>
 						<Tooltip>
 							<Preview
-								data={data}
+								data={data.map((d) => ({ ...d, url: d.thumbnail }))}
 								baseIdx={row.index}
 								trigger={
 									<TooltipTrigger asChild>

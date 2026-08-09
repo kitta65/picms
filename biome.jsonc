@@ -13,6 +13,13 @@
 		"clientKind": "git",
 		"useIgnoreFile": true
 	},
+	"linter": {
+		"rules": {
+			"style": {
+				"useAtIndex": "error"
+			}
+		}
+	},
 	"overrides": [
 		// server/src/domains
 		{

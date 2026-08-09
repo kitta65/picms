@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
-import type { Version } from "@/entities/revision/model";
+import type { IPreviewable } from "@/features/preview/model";
 import { cn } from "@/shared/lib";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
@@ -23,7 +23,7 @@ const ANIMATION = cn(
 
 type PreviewProps = {
 	trigger: React.ReactNode;
-	data: Version[];
+	data: IPreviewable[];
 	baseIdx: number;
 };
 export function Preview({ trigger, data, baseIdx }: PreviewProps) {
@@ -42,7 +42,7 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 					)}
 				>
 					<img
-						src={data[idx]?.thumbnail}
+						src={data[idx]?.url}
 						alt=""
 						className={cn(
 							"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
@@ -84,6 +84,7 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 						<Button
 							size="icon"
 							disabled={idx <= 0}
+							aria-label="Previous"
 							onClick={() => setIdx(idx - 1)}
 						>
 							<MoveLeft />
@@ -93,6 +94,7 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 						<Button
 							size="icon"
 							disabled={data.length - 1 <= idx}
+							aria-label="Next"
 							onClick={() => setIdx(idx + 1)}
 						>
 							<MoveRight />

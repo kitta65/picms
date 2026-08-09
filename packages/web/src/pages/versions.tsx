@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Expand } from "lucide-react";
 import { useMemo } from "react";
-import type { Version } from "@/entities/revision/model";
+import type { Revision } from "@/entities/revision/model";
 import { Preview } from "@/features/preview/ui";
 import { DataTable } from "@/shared/ui/custom/data-table";
 import { Button } from "@/shared/ui/shadcn/button";
@@ -27,9 +27,9 @@ export function Versions() {
 			createdAt: new Date(),
 		},
 		// ...
-	] satisfies Version[];
+	] satisfies Revision[];
 
-	const columns: (ColumnDef<Version> & { accessorKey?: keyof Version })[] =
+	const columns: (ColumnDef<Revision> & { accessorKey?: keyof Revision })[] =
 		useMemo(
 			() => [
 				{
@@ -56,7 +56,7 @@ export function Versions() {
 								</Button>
 							}
 							baseIdx={row.index}
-							data={data}
+							data={data.map((d) => ({ ...d, url: d.thumbnail }))}
 						/>
 					),
 				},
