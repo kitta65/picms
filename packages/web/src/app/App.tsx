@@ -1,9 +1,7 @@
 import "@/app/styles/index.css";
 
-import { TanStackDevtools } from "@tanstack/react-devtools";
-import { formDevtoolsPlugin } from "@tanstack/react-form-devtools";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { StrictMode } from "react";
+import { lazy, StrictMode, Suspense } from "react";
 import { Redirect, Route, Switch } from "wouter";
 
 import { Breadcrumb } from "@/app/layouts/breadcrumb";
@@ -22,10 +20,16 @@ import { Separator } from "@/shared/ui/shadcn/separator";
 import { Toaster } from "@/shared/ui/shadcn/sonner";
 import { TooltipProvider } from "@/shared/ui/shadcn/tooltip";
 
-const queryClient = new QueryClient();
-const queryClientNoRetry = new QueryClient({
+const CLIENT = new QueryClient();
+const CLIENT_NO_RETRY = new QueryClient({
 	defaultOptions: { queries: { retry: false } },
 });
+
+// https://tanstack.com/devtools/latest/docs/production#excluding-devtools-from-production-on-non-vite-projects
+const DevTools =
+	process.env.NODE_ENV !== "production"
+		? lazy(() => import("@/app/dev-tools"))
+		: () => null;
 
 type WrapperProps = {
 	children: React.ReactNode;
@@ -49,9 +53,7 @@ function Wrapper({ children, options }: WrapperProps) {
 
 	const shouldRetry = options?.shouldRetry ?? true;
 	component = (
-		<QueryClientProvider
-			client={shouldRetry ? queryClient : queryClientNoRetry}
-		>
+		<QueryClientProvider client={shouldRetry ? CLIENT : CLIENT_NO_RETRY}>
 			{component}
 		</QueryClientProvider>
 	);
@@ -68,7 +70,9 @@ function Wrapper({ children, options }: WrapperProps) {
 		component = (
 			<>
 				{component}
-				<TanStackDevtools plugins={[formDevtoolsPlugin()]} />
+				<Suspense fallback={null}>
+					<DevTools />
+				</Suspense>
 			</>
 		);
 	}
