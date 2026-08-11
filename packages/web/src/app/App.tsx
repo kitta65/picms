@@ -1,5 +1,7 @@
 import "@/app/styles/index.css";
 
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import { formDevtoolsPlugin } from "@tanstack/react-form-devtools";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { Redirect, Route, Switch } from "wouter";
@@ -30,16 +32,12 @@ type WrapperProps = {
 		isStrict?: boolean;
 		apiClient?: ApiClient;
 		shouldRetry?: boolean;
+		showDevTools?: boolean;
 	};
 };
 // add anything which should wrap entire app here!
 function Wrapper({ children, options }: WrapperProps) {
 	let component = children;
-
-	const isStrict = options?.isStrict ?? true;
-	if (isStrict) {
-		component = <StrictMode>{component}</StrictMode>;
-	}
 
 	const shouldRetry = options?.shouldRetry ?? true;
 	component = (
@@ -57,7 +55,22 @@ function Wrapper({ children, options }: WrapperProps) {
 		);
 	}
 
+	const showDevTools = options?.showDevTools ?? false;
+	if (showDevTools) {
+		component = (
+			<>
+				{component}
+				<TanStackDevtools plugins={[formDevtoolsPlugin()]} />
+			</>
+		);
+	}
+
 	component = <TooltipProvider>{component}</TooltipProvider>;
+
+	const isStrict = options?.isStrict ?? true;
+	if (isStrict) {
+		component = <StrictMode>{component}</StrictMode>;
+	}
 
 	return component;
 }
@@ -75,7 +88,7 @@ const ROUTE_TO_COMPONENT: { [k in RouteType]: React.ComponentType } = {
 
 export function App() {
 	return (
-		<Wrapper>
+		<Wrapper options={{ isStrict: true, showDevTools: true }}>
 			<div className="mx-6 my-4">
 				<Header />
 				<Separator className="my-4" />
