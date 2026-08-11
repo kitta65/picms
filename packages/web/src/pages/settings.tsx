@@ -26,7 +26,7 @@ import {
 } from "@/shared/ui/shadcn/field";
 
 export function Settings() {
-	const { data: config, isBusy, isError, mutate } = useConfigOperation();
+	const { data: config, isBusy, isError, mutateAsync } = useConfigOperation();
 	const defaultValues: UpsertInput = {
 		timezone: null,
 	};
@@ -35,9 +35,14 @@ export function Settings() {
 		validators: {
 			onSubmit: UPSERT_INPUT_SCHEMA,
 		},
-		onSubmit: ({ value }) => {
-			mutate(value);
-			toast.success("Saved!");
+		onSubmit: async ({ value }) => {
+			await mutateAsync(value).then(
+				() => toast.success("Saved!"),
+				(e) => {
+					toast.error("Something Went Wrong.");
+					throw e;
+				},
+			);
 		},
 	});
 

@@ -28,7 +28,7 @@ function useConfigMutation(onSuccess?: () => void) {
 
 export function useConfigOperation() {
 	const { data, isError, isLoading, refetch } = useConfigQuery();
-	const { mutate, isPending } = useConfigMutation(() => refetch());
+	const { mutate, mutateAsync, isPending } = useConfigMutation(() => refetch());
 
 	return {
 		data,
@@ -36,5 +36,6 @@ export function useConfigOperation() {
 		isError,
 		refetch,
 		mutate,
+		mutateAsync,
 	};
 }
