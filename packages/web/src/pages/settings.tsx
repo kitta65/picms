@@ -4,6 +4,7 @@ import {
 	type UpsertInput,
 } from "picms-server/features/config/io";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { useConfigOperation } from "@/entities/config/api";
 import { SomethingWentWrong } from "@/shared/ui/custom/something-went-wrong";
 import { Button } from "@/shared/ui/shadcn/button";
@@ -36,6 +37,7 @@ export function Settings() {
 		},
 		onSubmit: ({ value }) => {
 			mutate(value);
+			toast.success("Saved!");
 		},
 	});
 

@@ -19,6 +19,7 @@ import { WorksEdit } from "@/pages/works-edit";
 import { WorksNew } from "@/pages/works-new";
 import { type ApiClient, ApiClientContext } from "@/shared/api";
 import { Separator } from "@/shared/ui/shadcn/separator";
+import { Toaster } from "@/shared/ui/shadcn/sonner";
 import { TooltipProvider } from "@/shared/ui/shadcn/tooltip";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,13 @@ type WrapperProps = {
 // add anything which should wrap entire app here!
 function Wrapper({ children, options }: WrapperProps) {
 	let component = children;
+
+	component = (
+		<>
+			{component}
+			<Toaster position="bottom-center" />
+		</>
+	);
 
 	const shouldRetry = options?.shouldRetry ?? true;
 	component = (
