@@ -47,12 +47,14 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 						className={cn(
 							"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
 							"object-contain max-w-[calc(100%-8rem)] max-h-[calc(100%-8rem)]",
+							"pointer-events-auto",
 						)}
 					/>
 					<div
 						className={cn(
 							"fixed top-0 left-0 text-foreground h-9",
 							"flex items-start justify-center flex-col",
+							"pointer-events-auto",
 							MERGIN,
 						)}
 					>
@@ -61,7 +63,9 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 							fuga
 						</Dialog.Description>
 					</div>
-					<ButtonGroup className={cn("fixed right-0 top-0", MERGIN)}>
+					<ButtonGroup
+						className={cn("fixed right-0 top-0", "pointer-events-auto", MERGIN)}
+					>
 						<Button size="icon">
 							<EyeClosed />
 						</Button>
@@ -80,7 +84,13 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 					</ButtonGroup>
 
 					{/* this div is required to prevent the dialog from closing when disabled button is clicked */}
-					<div className={cn("fixed top-1/2 left-0 -translate-y-1/2", MERGIN)}>
+					<div
+						className={cn(
+							"fixed top-1/2 left-0 -translate-y-1/2",
+							"pointer-events-auto",
+							MERGIN,
+						)}
+					>
 						<Button
 							size="icon"
 							disabled={idx <= 0}
@@ -90,7 +100,13 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 							<MoveLeft />
 						</Button>
 					</div>
-					<div className={cn("fixed top-1/2 right-0 -translate-y-1/2", MERGIN)}>
+					<div
+						className={cn(
+							"fixed top-1/2 right-0 -translate-y-1/2",
+							"pointer-events-auto",
+							MERGIN,
+						)}
+					>
 						<Button
 							size="icon"
 							disabled={data.length - 1 <= idx}
@@ -104,6 +120,8 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 					<span
 						className={cn(
 							"fixed bottom-0 left-1/2 -translate-x-1/2 h-9 text-foreground text-sm",
+
+							"pointer-events-auto",
 							MERGIN,
 						)}
 					>
