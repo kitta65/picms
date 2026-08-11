@@ -28,7 +28,7 @@ export function Settings() {
 	const { data: config, isBusy, isError, mutate } = useConfigOperation();
 	const defaultValues: UpsertInput = {
 		timezone: null,
-	} as const;
+	};
 	const form = useForm({
 		defaultValues,
 		validators: {
