@@ -117,7 +117,7 @@ describe("Settings", () => {
 			})
 			.post("/api/private/configs", (c) => {
 				submitCounter++;
-				return c.body(null, 200);
+				return c.json({});
 			})
 			.route("/*", FAKE_API) as PicmsApi;
 		const client = testClient(api);
@@ -141,6 +141,40 @@ describe("Settings", () => {
 		await userEvent.click(button);
 		await screen.findByText(/saved/i); // sonner
 		expect(submitCounter).toBe(1);
+	});
+
+	test("show error toast when server returns error", async () => {
+		const api = new Hono()
+			.get("/api/private/configs", (c) => {
+				return c.json({ timezone: "Asia/Tokyo" } satisfies UpsertInput);
+			})
+			.post("/api/private/configs", (c) => {
+				return c.body(null, 500);
+			})
+			.route("/*", FAKE_API) as PicmsApi;
+		const client = testClient(api);
+
+		await act(async () => {
+			render(
+				<Wrapper apiClient={client}>
+					<Settings />
+				</Wrapper>,
+			);
+		});
+
+		// fill form
+		const combobox = await screen.findByLabelText(/timezone/i);
+		await userEvent.click(combobox);
+		const option = await screen.findByRole("option", {
+			name: "Africa/Abidjan",
+		});
+		await userEvent.click(option);
+
+		// submit
+		const button = await screen.findByRole("button", { name: /submit/i });
+		await userEvent.click(button);
+		await screen.findByText(/something went wrong/i); // sonner
+		expect(combobox).toHaveValue("Africa/Abidjan"); // do not reset
 	});
 
 	test("cannot submit invalid value", async () => {

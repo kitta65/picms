@@ -38,10 +38,7 @@ export function Settings() {
 		onSubmit: async ({ value }) => {
 			await mutateAsync(value).then(
 				() => toast.success("Saved!"),
-				(e) => {
-					toast.error("Something Went Wrong.");
-					throw e;
-				},
+				() => toast.error("Something Went Wrong."),
 			);
 		},
 	});
