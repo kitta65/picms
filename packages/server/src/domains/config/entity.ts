@@ -8,10 +8,13 @@ export const CONFIG_SCHEMA = z.object({
 	// catch(null) handles future changes of supporetedValues
 	timezone: z
 		.string()
+		.min(1)
 		.nullable()
-		.transform(
-			(val) =>
-				Intl.supportedValuesOf("timeZone").find((tz) => tz === val) ?? null,
+		.pipe(
+			z.transform(
+				(val) =>
+					Intl.supportedValuesOf("timeZone").find((tz) => tz === val) ?? null,
+			),
 		),
 });
 

@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import type { Config } from "../../domains/config/entity";
 import { UPSERT_INPUT_SCHEMA, UpsertInput } from "./io";
 
 describe("UPSERT_INPUT_SCHEMA", () => {
@@ -13,24 +12,44 @@ describe("UPSERT_INPUT_SCHEMA", () => {
 	test("succeed to parse valid input (full)", () => {
 		const input = {
 			timezone: "Asia/Tokyo",
-		} satisfies Config;
+		} satisfies UpsertInput;
 		const result = UPSERT_INPUT_SCHEMA.parse(input);
 		expect(result).toStrictEqual(input);
 	});
 
-	test("invalid timezone (string) is transformed to null", () => {
+	test("invalid timezone (foo/bar) throws an error", () => {
 		const input = {
 			timezone: "foo/bar",
-		};
-		const result = UPSERT_INPUT_SCHEMA.parse(input);
+		} satisfies UpsertInput;
+		const result = UPSERT_INPUT_SCHEMA.safeParse(input);
 
-		expect(result.timezone).toBe(null);
+		expect(result.success).toBe(false);
 	});
 
-	test("invalid timezone (number) throw an error", () => {
+	test("invalid timezone (empty string) throws an error", () => {
 		const input = {
-			timezone: 0,
-		};
+			timezone: "",
+		} satisfies UpsertInput;
+		const result = UPSERT_INPUT_SCHEMA.safeParse(input);
+
+		expect(result.success).toBe(false);
+	});
+
+	test("invalid timezone (null) throws an error", () => {
+		const input = {
+			timezone: null,
+		} satisfies UpsertInput;
+		const result = UPSERT_INPUT_SCHEMA.safeParse(input);
+
+		expect(result.success).toBe(false);
+	});
+
+	test("invalid timezone (number) throws an error", () => {
+		// biome-ignore lint: intentional any
+		const timezone: any = 0;
+		const input = {
+			timezone,
+		} satisfies UpsertInput;
 		const result = UPSERT_INPUT_SCHEMA.safeParse(input);
 		expect(result.success).toBe(false);
 	});
@@ -46,7 +65,7 @@ describe("UPSERT_INPUT_SCHEMA", () => {
 
 describe("UpsertInput.toEntity", () => {
 	test("missing timezone is filled with default value", () => {
-		const input = {};
+		const input = {} satisfies UpsertInput;
 		const entity = UpsertInput.toEntity(input);
 		expect(entity).toStrictEqual({ timezone: null });
 	});
@@ -54,7 +73,7 @@ describe("UpsertInput.toEntity", () => {
 	test("full input is coverted as is", () => {
 		const input = {
 			timezone: "Asia/Tokyo",
-		} satisfies Config;
+		} satisfies UpsertInput;
 		const entity = UpsertInput.toEntity(input);
 		expect(entity).toStrictEqual(input);
 	});

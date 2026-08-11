@@ -2,3 +2,6 @@
 plugins = ["bun-plugin-tailwind"]
 # Disable automatic .env file loading
 env = false
+
+[test]
+preload = ["./happydom.ts", "./testing-library.ts"]

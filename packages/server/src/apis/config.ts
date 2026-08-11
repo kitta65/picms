@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { validator } from "hono/validator";
 import { ERROR_CODE } from "../constants";
+import { DEFAULT } from "../domains/config/entity";
 import * as configIo from "../features/config/io";
 import * as drizzleRepositories from "../infrastructures/drizzle/repositories";
 
@@ -10,11 +11,7 @@ export const CONFIG_API = new Hono()
 		const repo = drizzleRepositories.configDatabase;
 		const res = await repo.findFirst();
 
-		// FIXME:
-		// it has special meaning to return undefined.
-		// instead we should return default config
-		// see https://github.com/TanStack/query/discussions/6029
-		return c.json(res);
+		return c.json(res ?? DEFAULT);
 	})
 	.post(
 		"/",

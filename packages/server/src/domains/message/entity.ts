@@ -5,7 +5,6 @@ const MESSAGE_TYPES = [
 	"REVISION_SIGNED_URL_EXPIRED",
 	"WORK_DELETED",
 ] as const;
-export type MessageType = (typeof MESSAGE_TYPES)[number];
 
 export const MESSAGE_SCHEMA = z.object({
 	id: z.uuidv7(),
