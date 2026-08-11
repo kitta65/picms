@@ -80,12 +80,17 @@ export function Settings() {
 								</FieldContent>
 
 								<Combobox
+									id={field.name}
 									items={Intl.supportedValuesOf("timeZone")}
 									name={field.name}
 									value={field.state.value}
+									disabled={isBusy}
 									onValueChange={(val) => field.handleChange(val)}
 								>
-									<ComboboxInput placeholder="Select a timezone" />
+									<ComboboxInput
+										placeholder="Select a timezone"
+										aria-invalid={isInvalid}
+									/>
 									<ComboboxContent>
 										<ComboboxEmpty>No items found.</ComboboxEmpty>
 										<ComboboxList>
