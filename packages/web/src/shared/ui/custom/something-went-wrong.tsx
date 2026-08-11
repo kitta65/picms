@@ -27,7 +27,7 @@ export function SomethingWentWrong() {
 			</EmptyHeader>
 			<EmptyContent>
 				<Button asChild size="sm">
-					<a href={GITHUB_ISSUE_LINK} target="_blank" rel="noopnner noreferrer">
+					<a href={GITHUB_ISSUE_LINK} target="_blank" rel="noopner noreferrer">
 						Report Issue
 					</a>
 				</Button>
