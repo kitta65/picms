@@ -17,7 +17,10 @@
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
 		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
-	"postCreateCommand": "bun run setup && bun run build",
+	"postCreateCommand": {
+		"bun": "bun run setup && bun run build",
+		"env": "echo export BUN_CHROME_PATH=$(find ~/.cache/ms-playwright -maxdepth 3 -type f -name 'chrome-headless-shell') >> ~/.bashrc"
+	},
 	"customizations": {
 		"vscode": {
 			"extensions": [
