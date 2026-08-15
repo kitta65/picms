@@ -83,6 +83,8 @@ describe("e2e", async () => {
 		await using view = createWebView(counter);
 		await view.navigate(URL);
 		await view.click('a[href="/settings"]');
+
+		// wait until the button becomes clickable (it means the end of rendering)
 		await view.click('button[type="submit"]');
 
 		expect(counter.errorLog).toBe(0);
