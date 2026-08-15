@@ -9,12 +9,12 @@ import {
 import { Dialog } from "radix-ui";
 import { useState } from "react";
 import type { IPreviewable } from "@/features/preview/model";
-import { cn } from "@/shared/lib";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
 	ButtonGroup,
 	ButtonGroupSeparator,
 } from "@/shared/ui/shadcn/button-group";
+import { cn } from "@/shared/ui/shadcn/utils";
 
 const MERGIN = cn("m-4");
 const ANIMATION = cn(

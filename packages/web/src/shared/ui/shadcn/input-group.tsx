@@ -1,8 +1,8 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
-import { cn } from "@/shared/lib";
 import { Button } from "@/shared/ui/shadcn/button";
 import { Input } from "@/shared/ui/shadcn/input";
+import { cn } from "@/shared/ui/shadcn/utils";
 
 function InputGroup({ className, ...props }: React.ComponentProps<"fieldset">) {
 	return (
