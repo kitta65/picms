@@ -1,5 +1,9 @@
 {
 	"$schema": "https://unpkg.com/knip@6/schema.json",
+	"ignoreBinaries": [
+		// pre-installed in devcontainer
+		"pkill"
+	],
 	"workspaces": {
 		".": {},
 		"packages/*": {},
