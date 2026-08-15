@@ -17,7 +17,7 @@
 	"scripts": {
 		"setup": "bun install && bun run --filter '*' setup",
 		"dev": "bun run --filter '*' --parallel dev",
-		"start": "./packages/main/dist/picms",
+		"start": "./packages/main/dist/picms &",
 		"stop": "pkill -x picms",
 		"build": "bun run --filter '*' build",
 		"lint": "knip && biome check && bun run --filter '*' --parallel lint",
