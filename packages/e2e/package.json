@@ -1,0 +1,15 @@
+{
+	"name": "picms-e2e",
+	"version": "0.1.0",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"lint": "tsc --noEmit",
+		"e2e": "bun test"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"@types/bun": "catalog:",
+		"typescript": "catalog:"
+	}
+}

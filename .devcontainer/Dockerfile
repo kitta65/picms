@@ -12,3 +12,5 @@ ENV XDG_DATA_HOME=/home/vscode/.local/share
 RUN mkdir -p $XDG_DATA_HOME/bash-completion/completions && \
     curl -fsSL https://bun.com/install | bash -s "bun-v${BUN_VERSION}" && \
     mv $XDG_DATA_HOME/bash-completion/completions/bun.completion.bash $XDG_DATA_HOME/bash-completion/completions/bun.bash
+
+RUN $HOME/.bun/bin/bunx playwright install chromium --with-deps --only-shell

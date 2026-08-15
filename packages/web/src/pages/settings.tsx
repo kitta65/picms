@@ -25,6 +25,8 @@ import {
 	FieldLabel,
 } from "@/shared/ui/shadcn/field";
 
+const TIMEZONES = Intl.supportedValuesOf("timeZone");
+
 export function Settings() {
 	const { data: config, isBusy, isError, mutateAsync } = useConfigOperation();
 	const defaultValues: UpsertInput = {
@@ -48,9 +50,7 @@ export function Settings() {
 		if (!config) return;
 
 		// supported values may change in the future
-		if (
-			!Intl.supportedValuesOf("timeZone").some((tz) => tz === config.timezone)
-		) {
+		if (!TIMEZONES.some((tz) => tz === config.timezone)) {
 			form.reset({ ...config, timezone: null });
 			return;
 		}
@@ -85,7 +85,7 @@ export function Settings() {
 
 								<Combobox
 									id={field.name}
-									items={Intl.supportedValuesOf("timeZone")}
+									items={TIMEZONES}
 									name={field.name}
 									value={field.state.value}
 									disabled={isBusy}

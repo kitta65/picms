@@ -25,3 +25,6 @@ jobs:
       - run: devcontainer exec bun run lint
       - run: devcontainer exec bun run test
       - run: devcontainer exec bun run build
+      - run: devcontainer exec bun run start
+      - run: devcontainer exec bun run e2e
+      - run: devcontainer exec bun run stop

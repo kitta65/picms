@@ -9,6 +9,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    init: true # to prevent zombie processes
     environment:
       <<: *dev-constants
       PICMS_CACHE_DIR: /workspaces/picms/.cache
