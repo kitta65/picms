@@ -4,7 +4,7 @@ import { CREATE_INPUT_SCHEMA, CreateInput } from "./io";
 
 const VALID_INPUT = {
 	title: "foobar",
-	tags: [],
+	tags: ["foo", "bar"],
 	description: "",
 	public: true,
 } satisfies Partial<Work>;

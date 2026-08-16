@@ -16,6 +16,7 @@ type InputTagsProps = Omit<React.ComponentProps<"input">, "onChange"> & {
 	onChange: (s: string[]) => void;
 };
 
+// TODO: suggest tags from work_tag table
 export function InputTags({
 	className,
 	tags,

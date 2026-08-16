@@ -85,7 +85,7 @@ describe("configDatabase", () => {
 
 const VALID_WORK: Work = {
 	id: Bun.randomUUIDv7(),
-	tags: [],
+	tags: ["foo", "bar"],
 	description: "this is description",
 	title: "this is title",
 	public: true,
@@ -124,9 +124,25 @@ describe("workDatabase", () => {
 	});
 
 	describe("upsert", () => {
-		test("returns upserted value", async () => {
+		test("returns inserted value", async () => {
 			const result = await workDatabase.upsert(VALID_WORK);
 			expect(result).toStrictEqual(VALID_WORK);
+		});
+
+		test("returns inserted value (empty tags)", async () => {
+			const work = { ...VALID_WORK, tags: [] };
+			const result = await workDatabase.upsert(work);
+			expect(result).toStrictEqual(work);
+		});
+
+		test("returns updated value", async () => {
+			await workDatabase.upsert(VALID_WORK);
+			const modifiedWork: Work = {
+				...VALID_WORK,
+				tags: [...VALID_WORK.tags, "one more tag"],
+			};
+			const result = await workDatabase.upsert(modifiedWork);
+			expect(result).toStrictEqual(modifiedWork);
 		});
 
 		test("not null constraints are working", async () => {
