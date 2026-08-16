@@ -1,12 +1,10 @@
 import { useForm } from "@tanstack/react-form";
 import { useSelector } from "@tanstack/react-store";
-import { hc } from "hono/client";
 import { ImageIcon } from "lucide-react";
-import type { PicmsApi } from "picms-server/api";
-import * as workIo from "picms-server/features/work/io";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import * as z from "zod";
+import { handleSubmitWorksNewInput } from "@/pages/works-new/api";
+import { WORKS_NEW_INPUT_SCHEMA } from "@/pages/works-new/model";
 import { Button } from "@/shared/ui/shadcn/button";
 import { Checkbox } from "@/shared/ui/shadcn/checkbox";
 import {
@@ -27,11 +25,6 @@ import {
 } from "@/shared/ui/shadcn/field";
 import { Input } from "@/shared/ui/shadcn/input";
 
-const CLIENT = hc<PicmsApi>(window.location.origin);
-const WORKS_NEW_SCHEMA = workIo.CREATE_INPUT_SCHEMA.safeExtend({
-	file: z.instanceof(File).nullable(),
-});
-
 export function WorksNew() {
 	const form = useForm({
 		defaultValues: {
@@ -41,54 +34,13 @@ export function WorksNew() {
 			public: false,
 		},
 		validators: {
-			onSubmit: WORKS_NEW_SCHEMA,
+			onSubmit: WORKS_NEW_INPUT_SCHEMA,
 		},
 		onSubmit: async ({ value }) => {
-			const postWorkResp = await CLIENT.api.private.works.$post({
-				json: value,
+			await handleSubmitWorksNewInput(value, {
+				onSuccess: () => toast.success("Saved!"),
+				onError: () => toast.error("Something Went Wrong."),
 			});
-			if (!postWorkResp.ok) {
-				toast.error("Something Went Wrong.");
-				return;
-			}
-			const work = await postWorkResp.json();
-
-			if (!value.file) {
-				toast.success("Saved!");
-				return;
-			}
-
-			const postRevisionResp = await CLIENT.api.private.revisions.$post({
-				json: { workId: work.id },
-			});
-			if (!postRevisionResp.ok) {
-				toast.error("Something Went Wrong.");
-			}
-			const revision = await postRevisionResp.json();
-
-			const getSignedUrlResp = await CLIENT.api.private.revisions[":id"][
-				"signed-url"
-			].$get({
-				param: {
-					id: revision.id.toString(),
-				},
-			});
-			if (!getSignedUrlResp.ok) {
-				toast.error("Something Went Wrong.");
-				return;
-			}
-			const signedUrl = await getSignedUrlResp.text();
-
-			const putFileResp = await fetch(signedUrl, {
-				method: "PUT",
-				body: value.file,
-			});
-			if (!putFileResp.ok) {
-				toast.error("Something Went Wrong.");
-				return;
-			}
-
-			toast.success("Saved!");
 		},
 	});
 

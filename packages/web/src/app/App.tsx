@@ -14,7 +14,7 @@ import { Settings } from "@/pages/settings";
 import { Versions } from "@/pages/versions";
 import { Works } from "@/pages/works";
 import { WorksEdit } from "@/pages/works-edit";
-import { WorksNew } from "@/pages/works-new";
+import { WorksNew } from "@/pages/works-new/ui";
 import { type ApiClient, ApiClientContext } from "@/shared/api";
 import { Separator } from "@/shared/ui/shadcn/separator";
 import { Toaster } from "@/shared/ui/shadcn/sonner";
