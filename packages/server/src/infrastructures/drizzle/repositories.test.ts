@@ -85,6 +85,7 @@ describe("configDatabase", () => {
 
 const VALID_WORK: Work = {
 	id: Bun.randomUUIDv7(),
+	tags: [],
 	description: "this is description",
 	title: "this is title",
 	public: true,

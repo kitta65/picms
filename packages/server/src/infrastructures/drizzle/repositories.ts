@@ -1,4 +1,4 @@
-import { and, eq, inArray, lt, sql } from "drizzle-orm";
+import { and, eq, inArray, lt, notInArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/bun-sql";
 import { HTTPException } from "hono/http-exception";
 import {
@@ -14,7 +14,14 @@ import { REVISION_SCHEMA, type Revision } from "../../domains/revision/entity";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import type { Work } from "../../domains/work/entity";
 import type { IWorkDatabase } from "../../domains/work/repository";
-import { configTable, messageTable, revisionTable, workTable } from "./tables";
+import { RELATIONS } from "./relations";
+import {
+	configTable,
+	messageTable,
+	revisionTable,
+	workTable,
+	workTagTable,
+} from "./tables";
 
 const { PG_PASS, PG_USER, PG_PORT } = Bun.env;
 const DB = drizzle({
@@ -24,6 +31,7 @@ const DB = drizzle({
 		username: PG_USER,
 		port: PG_PORT,
 	},
+	relations: RELATIONS,
 });
 
 const CONFIG_ID = "019f9c30-51a0-7000-b96f-ab19bc1ceed2"; // currently only one config exists
@@ -59,24 +67,70 @@ export const configDatabase: IConfigDatabase = {
 
 export const workDatabase: IWorkDatabase = {
 	findById: async (id: Work["id"]) => {
-		const results = await DB.select()
-			.from(workTable)
-			.where(eq(workTable.id, id));
-		const found = results.at(0);
-		return found;
+		const result = await DB.query.workTable.findFirst({
+			with: {
+				tags: {
+					columns: {
+						name: true,
+					},
+				},
+			},
+			where: {
+				id,
+			},
+		});
+
+		if (!result) {
+			return;
+		}
+
+		return { ...result, tags: result.tags.map((t) => t.name) };
 	},
+
 	upsert: async (work: Work) => {
-		const results = await DB.insert(workTable)
-			.values(work)
-			.onConflictDoUpdate({ target: workTable.id, set: work })
-			.returning();
-		const upserted = results.at(0);
+		const dt = new Date();
+		const result = await DB.transaction(async (tx) => {
+			const workResult = await tx
+				.insert(workTable)
+				.values(work)
+				.onConflictDoUpdate({ target: workTable.id, set: work })
+				.returning();
+			// NOTE: drizzle does not support MERGE statement
+			let tagsResult: { name: string }[] = [];
+			if (work.tags.length !== 0) {
+				tagsResult = await tx
+					.insert(workTagTable)
+					.values(
+						work.tags.map((t) => ({
+							id: Bun.randomUUIDv7(),
+							workId: work.id,
+							name: t,
+							createdAt: dt,
+						})),
+					)
+					.onConflictDoNothing()
+					.returning();
+			}
+			await tx
+				.delete(workTagTable)
+				.where(
+					and(
+						eq(workTagTable.workId, work.id),
+						notInArray(workTagTable.name, work.tags),
+					),
+				);
+			return {
+				work: workResult.at(0),
+				tags: tagsResult,
+			};
+		});
+		const upserted = result.work;
 		if (!upserted) {
 			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
 			throw new HTTPException(status, { message });
 		}
 
-		return upserted;
+		return { ...upserted, tags: result.tags.map((t) => t.name) };
 	},
 };
 

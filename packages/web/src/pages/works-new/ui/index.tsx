@@ -25,6 +25,7 @@ export function WorksNew() {
 		defaultValues: {
 			file: null as File | null,
 			title: "",
+			tags: [] as string[],
 			description: "",
 			public: false,
 		},
@@ -128,7 +129,28 @@ export function WorksNew() {
 							);
 						}}
 					</form.Field>
-					<InputTags />
+					<form.Field name="tags">
+						{(field) => {
+							const isInvalid =
+								field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<FieldLabel htmlFor={field.name}>Tags</FieldLabel>
+									<InputTags
+										id={field.name}
+										name={field.name}
+										tags={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(tags) => field.handleChange(tags)}
+										aria-invalid={isInvalid}
+										placeholder="Enter the tag"
+										autoComplete="off"
+									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
+					</form.Field>
 				</FieldSet>
 				<FieldSet>
 					<FieldLegend variant="label">Visibility</FieldLegend>

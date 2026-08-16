@@ -4,6 +4,7 @@ import { WORK_SCHEMA, type Work } from "../../domains/work/entity";
 
 export const CREATE_INPUT_SCHEMA = WORK_SCHEMA.pick({
 	title: true,
+	tags: true,
 	description: true,
 	public: true,
 });

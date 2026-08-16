@@ -11,26 +11,30 @@ import {
 } from "@/shared/ui/shadcn/tooltip";
 import { cn } from "@/shared/ui/shadcn/utils";
 
+type InputTagsProps = Omit<React.ComponentProps<"input">, "onChange"> & {
+	tags: string[];
+	onChange: (s: string[]) => void;
+};
+
 export function InputTags({
 	className,
+	tags,
+	onChange,
 	...props
-}: React.ComponentProps<"input">) {
+}: InputTagsProps) {
 	const [value_, setValue] = useState("");
 	const value = value_.trim();
-	const tags = [
-		"aaa",
-		"bbb",
-		"あいう",
-		"too long long long tag name",
-		"too long long long long tag name",
-		"too long long long long long tag name",
-		"too long long long long long long tag name",
-		"too long long long long long long long tag name",
-	];
-
 	const handleEnter = () => {
 		setValue("");
-		console.warn("not implemented");
+		const newTags = [...tags];
+		if (tags.every((t) => t !== value)) {
+			newTags.push(value);
+		}
+		onChange(newTags);
+	};
+	const handleRemove = (tag: string) => {
+		const newTags = tags.filter((t) => t !== tag);
+		onChange(newTags);
 	};
 
 	return (
@@ -38,6 +42,7 @@ export function InputTags({
 			<ButtonGroup>
 				<Input
 					{...props}
+					value={value}
 					onChange={(e) => setValue(e.target.value)}
 					onKeyDown={(e) => {
 						if (e.key === "Enter" && !e.nativeEvent.isComposing) {
@@ -60,7 +65,7 @@ export function InputTags({
 			</ButtonGroup>
 			<div className="flex flex-wrap gap-x-1 gap-y-1">
 				{tags.map((t) => (
-					<TagBadge key={t} onClick={() => console.warn("not implemented")}>
+					<TagBadge key={t} onClick={() => handleRemove(t)}>
 						{t}
 					</TagBadge>
 				))}
