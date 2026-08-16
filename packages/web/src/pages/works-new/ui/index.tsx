@@ -1,19 +1,12 @@
 import { useForm } from "@tanstack/react-form";
 import { useSelector } from "@tanstack/react-store";
-import { ImageIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { handleSubmitWorksNewInput } from "@/pages/works-new/api";
 import { WORKS_NEW_INPUT_SCHEMA } from "@/pages/works-new/model";
+import { Preview } from "@/pages/works-new/ui/preview";
 import { Button } from "@/shared/ui/shadcn/button";
 import { Checkbox } from "@/shared/ui/shadcn/checkbox";
-import {
-	Empty,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from "@/shared/ui/shadcn/empty";
 import {
 	Field,
 	FieldDescription,
@@ -24,6 +17,7 @@ import {
 	FieldSet,
 } from "@/shared/ui/shadcn/field";
 import { Input } from "@/shared/ui/shadcn/input";
+import { Textarea } from "@/shared/ui/shadcn/textarea";
 
 export function WorksNew() {
 	const form = useForm({
@@ -118,7 +112,7 @@ export function WorksNew() {
 							return (
 								<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor={field.name}>Description</FieldLabel>
-									<Input
+									<Textarea
 										id={field.name}
 										name={field.name}
 										value={field.state.value}
@@ -174,28 +168,5 @@ export function WorksNew() {
 				</div>
 			</FieldSet>
 		</form>
-	);
-}
-
-type PreviewProps = {
-	url: string | null;
-};
-function Preview({ url }: PreviewProps) {
-	return (
-		<div className="flex item-center justify-center h-60">
-			{url ? (
-				<img src={url} alt={url} />
-			) : (
-				<Empty>
-					<EmptyHeader>
-						<EmptyMedia variant="icon">
-							<ImageIcon />
-						</EmptyMedia>
-						<EmptyTitle>No File</EmptyTitle>
-						<EmptyDescription>No file is selected</EmptyDescription>
-					</EmptyHeader>
-				</Empty>
-			)}
-		</div>
 	);
 }
