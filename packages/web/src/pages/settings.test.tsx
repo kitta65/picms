@@ -110,6 +110,7 @@ describe("Settings", () => {
 	});
 
 	test("can submit valid value", async () => {
+		const user = userEvent.setup();
 		let submitCounter = 0;
 		const api = new Hono()
 			.get("/api/private/configs", (c) => {
@@ -132,18 +133,19 @@ describe("Settings", () => {
 
 		// fill form
 		const combobox = await screen.findByLabelText(/timezone/i);
-		await userEvent.click(combobox);
+		await user.click(combobox);
 		const option = await screen.findByRole("option", { name: "Asia/Tokyo" });
-		await userEvent.click(option);
+		await user.click(option);
 
 		// submit
 		const button = await screen.findByRole("button", { name: /submit/i });
-		await userEvent.click(button);
+		await user.click(button);
 		await screen.findByText(/saved/i); // sonner
 		expect(submitCounter).toBe(1);
 	});
 
 	test("show error toast when server returns error", async () => {
+		const user = userEvent.setup();
 		const api = new Hono()
 			.get("/api/private/configs", (c) => {
 				return c.json({ timezone: "Asia/Tokyo" } satisfies UpsertInput);
@@ -164,20 +166,21 @@ describe("Settings", () => {
 
 		// fill form
 		const combobox = await screen.findByLabelText(/timezone/i);
-		await userEvent.click(combobox);
+		await user.click(combobox);
 		const option = await screen.findByRole("option", {
 			name: "Africa/Abidjan",
 		});
-		await userEvent.click(option);
+		await user.click(option);
 
 		// submit
 		const button = await screen.findByRole("button", { name: /submit/i });
-		await userEvent.click(button);
+		await user.click(button);
 		await screen.findByText(/something went wrong/i); // sonner
 		expect(combobox).toHaveValue("Africa/Abidjan"); // do not reset
 	});
 
 	test("cannot submit invalid value", async () => {
+		const user = userEvent.setup();
 		const api = new Hono()
 			.get("/api/private/configs", (c) => {
 				return c.json({ timezone: null } satisfies UpsertInput);
@@ -194,13 +197,14 @@ describe("Settings", () => {
 		});
 
 		const button = await screen.findByRole("button", { name: /submit/i });
-		await userEvent.click(button);
+		await user.click(button);
 
 		const alert = await screen.findByRole("alert");
 		expect(alert).toHaveTextContent(/invalid input/i);
 	});
 
 	test("focus combobox after label is clicked", async () => {
+		const user = userEvent.setup();
 		const api = new Hono()
 			.get("/api/private/configs", (c) => {
 				return c.json({ timezone: null } satisfies UpsertInput);
@@ -225,7 +229,7 @@ describe("Settings", () => {
 			expect.unreachable();
 		}
 
-		await userEvent.click(label);
+		await user.click(label);
 		expect(combobox).toHaveFocus();
 	});
 });

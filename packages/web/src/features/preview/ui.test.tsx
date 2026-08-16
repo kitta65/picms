@@ -19,10 +19,11 @@ const TRIGGER = (
 
 describe("Preview", () => {
 	test("buttons are enabled at the middle content", async () => {
+		const user = userEvent.setup();
 		render(<Preview baseIdx={1} data={VALID_PREVIEWABLES} trigger={TRIGGER} />);
 
 		const trigger = screen.getByTestId(TRIGGER_ID);
-		await userEvent.click(trigger);
+		await user.click(trigger);
 
 		const previous = await screen.findByRole("button", { name: /previous/i });
 		expect(previous).toBeEnabled();
@@ -31,10 +32,11 @@ describe("Preview", () => {
 		expect(next).toBeEnabled();
 	});
 	test("left button is disable at first content", async () => {
+		const user = userEvent.setup();
 		render(<Preview baseIdx={0} data={VALID_PREVIEWABLES} trigger={TRIGGER} />);
 
 		const trigger = screen.getByTestId(TRIGGER_ID);
-		await userEvent.click(trigger);
+		await user.click(trigger);
 
 		const previous = await screen.findByRole("button", { name: /previous/i });
 		expect(previous).toBeDisabled();
@@ -43,13 +45,14 @@ describe("Preview", () => {
 		expect(next).toBeEnabled();
 	});
 	test("right button is disable at last content", async () => {
+		const user = userEvent.setup();
 		const lastIdx = VALID_PREVIEWABLES.length - 1;
 		render(
 			<Preview baseIdx={lastIdx} data={VALID_PREVIEWABLES} trigger={TRIGGER} />,
 		);
 
 		const trigger = screen.getByTestId(TRIGGER_ID);
-		await userEvent.click(trigger);
+		await user.click(trigger);
 
 		const previous = await screen.findByRole("button", { name: /previous/i });
 		expect(previous).toBeEnabled();

@@ -34,6 +34,7 @@ export function WorksNew() {
 		},
 		onSubmit: async ({ value }) => {
 			await handleSubmitWorksNewInput(WORKS_NEW_INPUT_SCHEMA.parse(value), {
+				// TODO: navigate to /works
 				onSuccess: () => toast.success("Saved!"),
 				onError: () => toast.error("Something Went Wrong."),
 			});
