@@ -3,9 +3,10 @@ import { useSelector } from "@tanstack/react-store";
 import { hc } from "hono/client";
 import { ImageIcon } from "lucide-react";
 import type { PicmsApi } from "picms-server/api";
+import * as workIo from "picms-server/features/work/io";
 import { useEffect, useState } from "react";
-// import * as workIo from "picms-server/features/work/io";
-
+import { toast } from "sonner";
+import * as z from "zod";
 import { Button } from "@/shared/ui/shadcn/button";
 import { Checkbox } from "@/shared/ui/shadcn/checkbox";
 import {
@@ -27,6 +28,9 @@ import {
 import { Input } from "@/shared/ui/shadcn/input";
 
 const CLIENT = hc<PicmsApi>(window.location.origin);
+const WORKS_NEW_SCHEMA = workIo.CREATE_INPUT_SCHEMA.safeExtend({
+	file: z.instanceof(File).nullable(),
+});
 
 export function WorksNew() {
 	const form = useForm({
@@ -37,30 +41,57 @@ export function WorksNew() {
 			public: false,
 		},
 		validators: {
-			// onSubmit: workInputSchema,
+			onSubmit: WORKS_NEW_SCHEMA,
 		},
 		onSubmit: async ({ value }) => {
-			const work = await CLIENT.api.private.works
-				.$post({ json: value })
-				.then((res) => res.json());
-
-			if (value.file) {
-				const revision = await CLIENT.api.private.revisions
-					.$post({ json: { workId: work.id } })
-					.then((res) => res.json());
-				const signedUrl = await CLIENT.api.private.revisions[":id"][
-					"signed-url"
-				]
-					.$get({
-						param: {
-							id: revision.id.toString(),
-						},
-					})
-					.then((res) => res.text());
-				await fetch(signedUrl, { method: "PUT", body: value.file });
+			const postWorkResp = await CLIENT.api.private.works.$post({
+				json: value,
+			});
+			if (!postWorkResp.ok) {
+				toast.error("Something Went Wrong.");
+				return;
 			}
+			const work = await postWorkResp.json();
+
+			if (!value.file) {
+				toast.success("Saved!");
+				return;
+			}
+
+			const postRevisionResp = await CLIENT.api.private.revisions.$post({
+				json: { workId: work.id },
+			});
+			if (!postRevisionResp.ok) {
+				toast.error("Something Went Wrong.");
+			}
+			const revision = await postRevisionResp.json();
+
+			const getSignedUrlResp = await CLIENT.api.private.revisions[":id"][
+				"signed-url"
+			].$get({
+				param: {
+					id: revision.id.toString(),
+				},
+			});
+			if (!getSignedUrlResp.ok) {
+				toast.error("Something Went Wrong.");
+				return;
+			}
+			const signedUrl = await getSignedUrlResp.text();
+
+			const putFileResp = await fetch(signedUrl, {
+				method: "PUT",
+				body: value.file,
+			});
+			if (!putFileResp.ok) {
+				toast.error("Something Went Wrong.");
+				return;
+			}
+
+			toast.success("Saved!");
 		},
 	});
+
 	const file = useSelector(form.store, (state) => state.values.file);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	useEffect(() => {
@@ -72,6 +103,7 @@ export function WorksNew() {
 		setPreviewUrl(url);
 		return () => URL.revokeObjectURL(url);
 	}, [file]);
+
 	return (
 		<form
 			className="w-full max-w-200"
@@ -80,7 +112,7 @@ export function WorksNew() {
 				form.handleSubmit();
 			}}
 		>
-			<Preview source={previewUrl} />
+			<Preview url={previewUrl} />
 			<FieldSet className="grow">
 				<FieldGroup>
 					<form.Field name="file">
@@ -194,13 +226,13 @@ export function WorksNew() {
 }
 
 type PreviewProps = {
-	source: string | null;
+	url: string | null;
 };
-function Preview({ source }: PreviewProps) {
+function Preview({ url }: PreviewProps) {
 	return (
 		<div className="flex item-center justify-center h-60">
-			{source ? (
-				<img src={source} alt={source} />
+			{url ? (
+				<img src={url} alt={url} />
 			) : (
 				<Empty>
 					<EmptyHeader>

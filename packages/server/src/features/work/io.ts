@@ -2,10 +2,10 @@ import type * as z from "zod";
 
 import { WORK_SCHEMA, type Work } from "../../domains/work/entity";
 
-export const CREATE_INPUT_SCHEMA = WORK_SCHEMA.omit({
-	id: true,
-	createdAt: true,
-	updatedAt: true,
+export const CREATE_INPUT_SCHEMA = WORK_SCHEMA.pick({
+	title: true,
+	description: true,
+	public: true,
 });
 
 type CreateInput = z.infer<typeof CREATE_INPUT_SCHEMA>;
