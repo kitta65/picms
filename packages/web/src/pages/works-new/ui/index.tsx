@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { handleSubmitWorksNewInput } from "@/pages/works-new/api";
 import { WORKS_NEW_INPUT_SCHEMA } from "@/pages/works-new/model";
 import { Preview } from "@/pages/works-new/ui/preview";
+import { InputTags } from "@/shared/ui/custom/input-tags";
 import { Button } from "@/shared/ui/shadcn/button";
 import { Checkbox } from "@/shared/ui/shadcn/checkbox";
 import {
@@ -31,7 +32,7 @@ export function WorksNew() {
 			onSubmit: WORKS_NEW_INPUT_SCHEMA,
 		},
 		onSubmit: async ({ value }) => {
-			await handleSubmitWorksNewInput(value, {
+			await handleSubmitWorksNewInput(WORKS_NEW_INPUT_SCHEMA.parse(value), {
 				onSuccess: () => toast.success("Saved!"),
 				onError: () => toast.error("Something Went Wrong."),
 			});
@@ -59,14 +60,14 @@ export function WorksNew() {
 			}}
 		>
 			<Preview url={previewUrl} />
-			<FieldSet className="grow">
-				<FieldGroup>
+			<FieldGroup>
+				<FieldSet>
 					<form.Field name="file">
 						{(field) => {
 							const isInvalid =
 								field.state.meta.isTouched && !field.state.meta.isValid;
 							return (
-								<Field>
+								<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor={field.name}>File</FieldLabel>
 									<Input
 										id={field.name}
@@ -127,13 +128,14 @@ export function WorksNew() {
 							);
 						}}
 					</form.Field>
-				</FieldGroup>
-				<FieldGroup>
-					<FieldSet>
-						<FieldLegend variant="label">Visibility</FieldLegend>
-						<FieldDescription>
-							By making this public, anyone can access it via public API.
-						</FieldDescription>
+					<InputTags />
+				</FieldSet>
+				<FieldSet>
+					<FieldLegend variant="label">Visibility</FieldLegend>
+					<FieldDescription>
+						By making this public, anyone can access it via public API.
+					</FieldDescription>
+					<FieldGroup>
 						<form.Field name="public">
 							{(field) => {
 								const isInvalid =
@@ -158,15 +160,15 @@ export function WorksNew() {
 								);
 							}}
 						</form.Field>
-					</FieldSet>
-				</FieldGroup>
-				<div className="flex items-center justify-center gap-x-4">
-					<Button variant="outline" type="button" onClick={() => form.reset()}>
-						Reset
-					</Button>
-					<Button type="submit">Submit</Button>
-				</div>
-			</FieldSet>
+					</FieldGroup>
+				</FieldSet>
+			</FieldGroup>
+			<div className="flex items-center justify-center gap-x-4">
+				<Button variant="outline" type="button" onClick={() => form.reset()}>
+					Reset
+				</Button>
+				<Button type="submit">Submit</Button>
+			</div>
 		</form>
 	);
 }
