@@ -17,6 +17,7 @@ export function isRoute(route: string): route is Route {
 
 // NOTE: the order matters
 export const ROUTE: {
+	// TODO: since it is also used as concrete path, pattern should be renamed.
 	[k in Route]: { label: string; pattern: string };
 } = {
 	// NOTE:

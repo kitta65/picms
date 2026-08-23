@@ -1,10 +1,13 @@
 import { useForm } from "@tanstack/react-form";
 import { useSelector } from "@tanstack/react-store";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { navigate } from "wouter/use-browser-location";
 import { handleSubmitWorksNewInput } from "@/pages/works-new/api";
 import { WORKS_NEW_INPUT_SCHEMA } from "@/pages/works-new/model";
 import { Preview } from "@/pages/works-new/ui/preview";
+import { ApiClientContext } from "@/shared/api";
+import { ROUTE } from "@/shared/config";
 import { InputTags } from "@/shared/ui/custom/input-tags";
 import { Button } from "@/shared/ui/shadcn/button";
 import { Checkbox } from "@/shared/ui/shadcn/checkbox";
@@ -21,6 +24,7 @@ import { Input } from "@/shared/ui/shadcn/input";
 import { Textarea } from "@/shared/ui/shadcn/textarea";
 
 export function WorksNew() {
+	const client = useContext(ApiClientContext);
 	const form = useForm({
 		defaultValues: {
 			file: null as File | null,
@@ -34,8 +38,11 @@ export function WorksNew() {
 		},
 		onSubmit: async ({ value }) => {
 			await handleSubmitWorksNewInput(WORKS_NEW_INPUT_SCHEMA.parse(value), {
-				// TODO: navigate to /works
-				onSuccess: () => toast.success("Saved!"),
+				client,
+				onSuccess: () => {
+					toast.success("Saved!");
+					navigate(ROUTE.WORKS.pattern);
+				},
 				onError: () => toast.error("Something Went Wrong."),
 			});
 		},

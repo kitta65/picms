@@ -1,36 +1,40 @@
-import { hc } from "hono/client";
-import type { PicmsApi } from "picms-server/api";
 import type { WorksNewInput } from "@/pages/works-new/model";
+import type { ApiClient } from "@/shared/api";
 
-const CLIENT = hc<PicmsApi>(window.location.origin);
+type HandleSubmitWorksNewInputOptions = {
+	client: ApiClient;
+	onSuccess: () => void;
+	onError: () => void;
+};
 
 export async function handleSubmitWorksNewInput(
 	input: WorksNewInput,
-	cb: { onSuccess: () => void; onError: () => void },
+	{ client, onSuccess, onError }: HandleSubmitWorksNewInputOptions,
 ) {
-	const postWorkResp = await CLIENT.api.private.works.$post({
+	const postWorkResp = await client.api.private.works.$post({
 		json: input,
 	});
 	if (!postWorkResp.ok) {
-		cb.onError();
+		onError();
 		return;
 	}
 	const work = await postWorkResp.json();
 
 	if (!input.file) {
-		cb.onSuccess();
+		onSuccess();
 		return;
 	}
 
-	const postRevisionResp = await CLIENT.api.private.revisions.$post({
+	const postRevisionResp = await client.api.private.revisions.$post({
 		json: { workId: work.id },
 	});
 	if (!postRevisionResp.ok) {
-		cb.onError();
+		onError();
+		return;
 	}
 	const revision = await postRevisionResp.json();
 
-	const getSignedUrlResp = await CLIENT.api.private.revisions[":id"][
+	const getSignedUrlResp = await client.api.private.revisions[":id"][
 		"signed-url"
 	].$get({
 		param: {
@@ -38,7 +42,7 @@ export async function handleSubmitWorksNewInput(
 		},
 	});
 	if (!getSignedUrlResp.ok) {
-		cb.onError();
+		onError();
 		return;
 	}
 	const signedUrl = await getSignedUrlResp.text();
@@ -48,9 +52,9 @@ export async function handleSubmitWorksNewInput(
 		body: input.file,
 	});
 	if (!putFileResp.ok) {
-		cb.onError();
+		onError();
 		return;
 	}
 
-	cb.onSuccess();
+	onSuccess();
 }
