@@ -99,7 +99,12 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["./**/*", "../**/*"]
+										"group": ["./**/*", "../**/*"],
+										"message": "import path should start with `@/`"
+									},
+									{
+										"group": ["@testing-library/user-event"],
+										"message": "wrapper implementation exists"
 									}
 								]
 							}
@@ -123,7 +128,16 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["./**/*", "../**/*", "@/app/**/*"]
+										"group": ["./**/*", "../**/*"],
+										"message": "import path should start with `@/`"
+									},
+									{
+										"group": ["@/app/**/*"],
+										"message": "invalid dependency direction "
+									},
+									{
+										"group": ["@testing-library/user-event"],
+										"message": "wrapper implementation exists"
 									}
 								]
 							}
@@ -146,7 +160,16 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["./**/*", "../**/*", "@/app/**/*", "@/pages/**/*"]
+										"group": ["./**/*", "../**/*"],
+										"message": "import path should start with `@/`"
+									},
+									{
+										"group": ["@/app/**/*", "@/pages/**/*"],
+										"message": "invalid dependency direction "
+									},
+									{
+										"group": ["@testing-library/user-event"],
+										"message": "wrapper implementation exists"
 									}
 								]
 							}
@@ -169,13 +192,16 @@
 							"options": {
 								"patterns": [
 									{
-										"group": [
-											"./**/*",
-											"../**/*",
-											"@/app/**/*",
-											"@/pages/**/*",
-											"@/features/**/*"
-										]
+										"group": ["./**/*", "../**/*"],
+										"message": "import path should start with `@/`"
+									},
+									{
+										"group": ["@/app/**/*", "@/pages/**/*", "@/features/**/*"],
+										"message": "invalid dependency direction "
+									},
+									{
+										"group": ["@testing-library/user-event"],
+										"message": "wrapper implementation exists"
 									}
 								]
 							}
@@ -198,14 +224,21 @@
 							"options": {
 								"patterns": [
 									{
+										"group": ["./**/*", "../**/*"],
+										"message": "import path should start with `@/`"
+									},
+									{
 										"group": [
-											"./**/*",
-											"../**/*",
 											"@/app/**/*",
 											"@/pages/**/*",
 											"@/features/**/*",
 											"@/entities/**/*"
-										]
+										],
+										"message": "invalid dependency direction "
+									},
+									{
+										"group": ["@testing-library/user-event"],
+										"message": "wrapper implementation exists"
 									}
 								]
 							}

@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import { act, render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { Hono } from "hono";
 import { testClient } from "hono/testing";
 import type { PicmsApi } from "picms-server/api";
@@ -8,6 +7,7 @@ import type { UpsertInput } from "picms-server/features/config/io";
 import { _TEST as APP_TEST } from "@/app/App";
 import { Settings } from "@/pages/settings";
 import type { ApiClient } from "@/shared/api";
+import { setupComponentAsync } from "@/test-helpers";
 
 const FAKE_API = new Hono()
 	// mock implementation is required
@@ -110,7 +110,6 @@ describe("Settings", () => {
 	});
 
 	test("can submit valid value", async () => {
-		const user = userEvent.setup();
 		let submitCounter = 0;
 		const api = new Hono()
 			.get("/api/private/configs", (c) => {
@@ -123,29 +122,26 @@ describe("Settings", () => {
 			.route("/*", FAKE_API) as PicmsApi;
 		const client = testClient(api);
 
-		await act(async () => {
-			render(
-				<Wrapper apiClient={client}>
-					<Settings />
-				</Wrapper>,
-			);
-		});
+		const { component, user } = await setupComponentAsync(
+			<Wrapper apiClient={client}>
+				<Settings />
+			</Wrapper>,
+		);
 
 		// fill form
-		const combobox = await screen.findByLabelText(/timezone/i);
+		const combobox = await component.findByLabelText(/timezone/i);
 		await user.click(combobox);
-		const option = await screen.findByRole("option", { name: "Asia/Tokyo" });
+		const option = await component.findByRole("option", { name: "Asia/Tokyo" });
 		await user.click(option);
 
 		// submit
-		const button = await screen.findByRole("button", { name: /submit/i });
+		const button = await component.findByRole("button", { name: /submit/i });
 		await user.click(button);
 		await screen.findByText(/saved/i); // sonner
 		expect(submitCounter).toBe(1);
 	});
 
 	test("show error toast when server returns error", async () => {
-		const user = userEvent.setup();
 		const api = new Hono()
 			.get("/api/private/configs", (c) => {
 				return c.json({ timezone: "Asia/Tokyo" } satisfies UpsertInput);
@@ -156,31 +152,28 @@ describe("Settings", () => {
 			.route("/*", FAKE_API) as PicmsApi;
 		const client = testClient(api);
 
-		await act(async () => {
-			render(
-				<Wrapper apiClient={client}>
-					<Settings />
-				</Wrapper>,
-			);
-		});
+		const { user, component } = await setupComponentAsync(
+			<Wrapper apiClient={client}>
+				<Settings />
+			</Wrapper>,
+		);
 
 		// fill form
-		const combobox = await screen.findByLabelText(/timezone/i);
+		const combobox = await component.findByLabelText(/timezone/i);
 		await user.click(combobox);
-		const option = await screen.findByRole("option", {
+		const option = await component.findByRole("option", {
 			name: "Africa/Abidjan",
 		});
 		await user.click(option);
 
 		// submit
-		const button = await screen.findByRole("button", { name: /submit/i });
+		const button = await component.findByRole("button", { name: /submit/i });
 		await user.click(button);
 		await screen.findByText(/something went wrong/i); // sonner
 		expect(combobox).toHaveValue("Africa/Abidjan"); // do not reset
 	});
 
 	test("cannot submit invalid value", async () => {
-		const user = userEvent.setup();
 		const api = new Hono()
 			.get("/api/private/configs", (c) => {
 				return c.json({ timezone: null } satisfies UpsertInput);
@@ -188,23 +181,20 @@ describe("Settings", () => {
 			.route("/*", FAKE_API) as PicmsApi;
 		const client = testClient(api);
 
-		await act(async () => {
-			render(
-				<Wrapper apiClient={client}>
-					<Settings />
-				</Wrapper>,
-			);
-		});
+		const { user, component } = await setupComponentAsync(
+			<Wrapper apiClient={client}>
+				<Settings />
+			</Wrapper>,
+		);
 
-		const button = await screen.findByRole("button", { name: /submit/i });
+		const button = await component.findByRole("button", { name: /submit/i });
 		await user.click(button);
 
-		const alert = await screen.findByRole("alert");
+		const alert = await component.findByRole("alert");
 		expect(alert).toHaveTextContent(/invalid input/i);
 	});
 
 	test("focus combobox after label is clicked", async () => {
-		const user = userEvent.setup();
 		const api = new Hono()
 			.get("/api/private/configs", (c) => {
 				return c.json({ timezone: null } satisfies UpsertInput);
@@ -212,16 +202,15 @@ describe("Settings", () => {
 			.route("/*", FAKE_API) as PicmsApi;
 		const client = testClient(api);
 
-		await act(async () => {
-			render(
-				<Wrapper apiClient={client}>
-					<Settings />
-				</Wrapper>,
-			);
-		});
+		const { user, component } = await setupComponentAsync(
+			<Wrapper apiClient={client}>
+				<Settings />
+			</Wrapper>,
+		);
 
-		const combobox: HTMLInputElement =
-			await screen.findByLabelText(/timezone/i);
+		const combobox = (await component.findByLabelText(
+			/timezone/i,
+		)) as HTMLInputElement;
 		expect(combobox).not.toHaveFocus();
 
 		const label = combobox.labels?.[0];

@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { render } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { InputTags } from "@/shared/ui/custom/input-tags";
+import { setupComponent } from "@/test-helpers";
 
 describe("InputTags", () => {
 	test("add button is disabled by default", async () => {
@@ -13,26 +13,28 @@ describe("InputTags", () => {
 	});
 
 	test("add button is still disabled when value is only space", async () => {
-		const user = userEvent.setup();
-		const methods = render(<InputTags onChange={() => {}} tags={[]} />);
+		const { user, component } = setupComponent(
+			<InputTags onChange={() => {}} tags={[]} />,
+		);
 
-		const textbox = methods.getByRole("textbox");
+		const textbox = component.getByRole("textbox");
 		await user.click(textbox);
 		await user.keyboard(" ");
 
-		const button = methods.getByRole("button", { name: /add/i });
+		const button = component.getByRole("button", { name: /add/i });
 		expect(button).toBeDisabled();
 	});
 
 	test("add button is enabled when value is not empty", async () => {
-		const user = userEvent.setup();
-		const methods = render(<InputTags onChange={() => {}} tags={[]} />);
+		const { user, component } = setupComponent(
+			<InputTags onChange={() => {}} tags={[]} />,
+		);
 
-		const textbox = methods.getByRole("textbox");
+		const textbox = component.getByRole("textbox");
 		await user.click(textbox);
 		await user.keyboard("foo");
 
-		const button = methods.getByRole("button", { name: /add/i });
+		const button = component.getByRole("button", { name: /add/i });
 		expect(button).toBeEnabled();
 	});
 
@@ -50,17 +52,16 @@ describe("InputTags", () => {
 			const [tags, setTags] = useState<string[]>([]);
 			return <InputTags onChange={setTags} tags={tags} />;
 		}
-		const user = userEvent.setup();
-		const methods = render(<InputTagsWithNoTag />);
+		const { user, component } = setupComponent(<InputTagsWithNoTag />);
 
-		const textbox = methods.getByRole("textbox");
+		const textbox = component.getByRole("textbox");
 		await user.click(textbox);
 		await user.keyboard("foo");
-		const button = methods.getByRole("button", { name: /add/i });
+		const button = component.getByRole("button", { name: /add/i });
 		await user.click(button);
 
 		try {
-			await methods.findByRole("button", { name: "foo" });
+			await component.findByRole("button", { name: "foo" });
 		} catch {
 			expect.unreachable();
 		}
@@ -71,15 +72,14 @@ describe("InputTags", () => {
 			const [tags, setTags] = useState<string[]>([]);
 			return <InputTags onChange={setTags} tags={tags} />;
 		}
-		const user = userEvent.setup();
-		const methods = render(<InputTagsWithNoTag />);
+		const { user, component } = setupComponent(<InputTagsWithNoTag />);
 
-		const textbox = methods.getByRole("textbox");
+		const textbox = component.getByRole("textbox");
 		await user.click(textbox);
 		await user.keyboard("{f}{o}{o}{Enter}");
 
 		try {
-			await methods.findByRole("button", { name: "foo" });
+			await component.findByRole("button", { name: "foo" });
 		} catch {
 			expect.unreachable();
 		}
@@ -91,9 +91,8 @@ describe("InputTags", () => {
 			return <InputTags onChange={setTags} tags={tags} />;
 		}
 
-		const user = userEvent.setup();
-		const methods = render(<InputTagsWithSingleTag />);
-		const tag = methods.getByRole("button", { name: "foo" });
+		const { user, component } = setupComponent(<InputTagsWithSingleTag />);
+		const tag = component.getByRole("button", { name: "foo" });
 
 		expect(tag).toBeInTheDocument();
 		await user.click(tag);
