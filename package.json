@@ -34,5 +34,5 @@
 		"knip": "^6.11.0",
 		"typescript": "catalog:"
 	},
-	"trustedDependencies": []
+	"trustedDependencies": ["husky"]
 }

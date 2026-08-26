@@ -96,6 +96,9 @@
       },
     },
   },
+  "trustedDependencies": [
+    "husky",
+  ],
   "catalog": {
     "@types/bun": "latest",
     "hono": "^4.2.16",
