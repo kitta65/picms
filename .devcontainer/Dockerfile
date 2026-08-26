@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/devcontainers/base:2-noble
 
 # SSOT
-ARG BUN_VERSION=1.3.14
+ARG BUN_VERSION=1.4.0
 
 USER vscode
 
