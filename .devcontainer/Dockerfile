@@ -6,11 +6,14 @@ ARG BUN_VERSION=1.4.0
 
 USER vscode
 
+ENV BUN_INSTALL=/home/vscode/.bun
 ENV XDG_DATA_HOME=/home/vscode/.local/share
+ENV PATH="${BUN_INSTALL}/bin:${PATH}"
 
 # NOTE: since bun.completion.bash is not auto loaded, it is required to rename
 RUN mkdir -p $XDG_DATA_HOME/bash-completion/completions && \
     curl -fsSL https://bun.com/install | bash -s "bun-v${BUN_VERSION}" && \
-    mv $XDG_DATA_HOME/bash-completion/completions/bun.completion.bash $XDG_DATA_HOME/bash-completion/completions/bun.bash
+    mv $XDG_DATA_HOME/bash-completion/completions/bun.completion.bash $XDG_DATA_HOME/bash-completion/completions/bun.bash && \
+    ln -sf "$BUN_INSTALL/bin/bun" "$BUN_INSTALL/bin/node"
 
 RUN $HOME/.bun/bin/bunx playwright install chromium --with-deps --only-shell
