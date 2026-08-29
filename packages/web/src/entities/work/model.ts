@@ -1,8 +1,3 @@
-export type Work = {
-	id: string;
-	thumbnail: string;
-	title: string;
-	tags: string[];
-	createdAt: Date;
-	updatedAt: Date;
-};
+import type { FindOneOutput } from "picms-server/features/work/io";
+
+export type Work = FindOneOutput;

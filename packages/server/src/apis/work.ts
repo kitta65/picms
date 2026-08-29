@@ -28,7 +28,7 @@ export const WORK_API = new Hono()
 	)
 	.get(
 		"/",
-		validator("json", (value) => {
+		validator("query", (value) => {
 			const parsed = workIo.FIND_MANY_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
 				const { status, message } = ERROR_CODE.BAD_REQUEST;
@@ -37,7 +37,7 @@ export const WORK_API = new Hono()
 			return parsed.data;
 		}),
 		async (c) => {
-			const input = c.req.valid("json");
+			const input = c.req.valid("query");
 			const view = drizzleViews.workView;
 			const result = await view.findMany(input);
 			return c.json(result, 200);

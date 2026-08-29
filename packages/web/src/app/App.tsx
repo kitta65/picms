@@ -8,10 +8,10 @@ import { Breadcrumb } from "@/app/layouts/breadcrumb";
 import { Footer } from "@/app/layouts/footer";
 import { Header } from "@/app/layouts/header";
 import { Home } from "@/pages/home";
+import { Revisions } from "@/pages/revisions";
 import { Series } from "@/pages/series";
 import { Settings } from "@/pages/settings";
-import { Versions } from "@/pages/versions";
-import { Works } from "@/pages/works";
+import { Works } from "@/pages/works/ui";
 import { WorksEdit } from "@/pages/works-edit";
 import { WorksNew } from "@/pages/works-new/ui";
 import { type ApiClient, ApiClientContext } from "@/shared/api";
@@ -93,7 +93,7 @@ const ROUTE_TO_COMPONENT: { [k in RouteType]: React.ComponentType } = {
 	WORKS_WITH_ID: Works,
 	WORKS_NEW: WorksNew,
 	WORKS_EDIT: WorksEdit,
-	VERSIONS: Versions,
+	REVISIONS: Revisions,
 	SERIES: Series,
 	SETTINGS: Settings,
 };

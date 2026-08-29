@@ -1,9 +1,10 @@
-// https://v3.shadcn.com/docs/components/data-table
+// https://ui.shadcn.com/docs/components/radix/data-table
 import {
 	type ColumnDef,
-	flexRender,
-	getCoreRowModel,
-	useReactTable,
+	createColumnHelper as createColumnHelper_,
+	type RowData,
+	tableFeatures,
+	useTable,
 } from "@tanstack/react-table";
 
 import {
@@ -15,19 +16,25 @@ import {
 	TableRow,
 } from "@/shared/ui/shadcn/table";
 
-interface DataTableProps<TData, TValue> {
-	columns: ColumnDef<TData, TValue>[];
+const features = tableFeatures({});
+
+export function createColumnHelper<TValue extends RowData>() {
+	return createColumnHelper_<typeof features, TValue>();
+}
+
+interface DataTableProps<TData extends RowData> {
+	columns: ColumnDef<typeof features, TData>[];
 	data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends RowData>({
 	columns,
 	data,
-}: DataTableProps<TData, TValue>) {
-	const table = useReactTable({
-		data,
+}: DataTableProps<TData>) {
+	const table = useTable({
+		features,
 		columns,
-		getCoreRowModel: getCoreRowModel(),
+		data,
 	});
 
 	return (
@@ -39,12 +46,9 @@ export function DataTable<TData, TValue>({
 							{headerGroup.headers.map((header) => {
 								return (
 									<TableHead key={header.id}>
-										{header.isPlaceholder
-											? null
-											: flexRender(
-													header.column.columnDef.header,
-													header.getContext(),
-												)}
+										{header.isPlaceholder ? null : (
+											<table.FlexRender header={header} />
+										)}
 									</TableHead>
 								);
 							})}
@@ -54,13 +58,10 @@ export function DataTable<TData, TValue>({
 				<TableBody>
 					{table.getRowModel().rows?.length ? (
 						table.getRowModel().rows.map((row) => (
-							<TableRow
-								key={row.id}
-								data-state={row.getIsSelected() && "selected"}
-							>
-								{row.getVisibleCells().map((cell) => (
+							<TableRow key={row.id}>
+								{row.getAllCells().map((cell) => (
 									<TableCell key={cell.id}>
-										{flexRender(cell.column.columnDef.cell, cell.getContext())}
+										<table.FlexRender cell={cell} />
 									</TableCell>
 								))}
 							</TableRow>

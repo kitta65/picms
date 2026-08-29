@@ -7,7 +7,6 @@ import {
 	X,
 } from "lucide-react";
 import { Dialog } from "radix-ui";
-import { useState } from "react";
 import type { IPreviewable } from "@/features/preview/model";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
@@ -23,11 +22,20 @@ const ANIMATION = cn(
 
 type PreviewProps = {
 	trigger: React.ReactNode;
-	data: IPreviewable[];
-	baseIdx: number;
+	data: IPreviewable;
+	currPage: number;
+	lastPage: number;
+	onPrev?: () => void;
+	onNext?: () => void;
 };
-export function Preview({ trigger, data, baseIdx }: PreviewProps) {
-	const [idx, setIdx] = useState(baseIdx);
+export function Preview({
+	trigger,
+	data,
+	currPage,
+	lastPage,
+	onPrev,
+	onNext,
+}: PreviewProps) {
 	return (
 		<Dialog.Root>
 			<Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
@@ -42,7 +50,7 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 					)}
 				>
 					<img
-						src={data[idx]?.url}
+						src={data.url}
 						alt=""
 						className={cn(
 							"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
@@ -93,9 +101,9 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 					>
 						<Button
 							size="icon"
-							disabled={idx <= 0}
+							disabled={!onPrev}
 							aria-label="Previous"
-							onClick={() => setIdx(idx - 1)}
+							onClick={onPrev}
 						>
 							<MoveLeft />
 						</Button>
@@ -109,9 +117,9 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 					>
 						<Button
 							size="icon"
-							disabled={data.length - 1 <= idx}
+							disabled={!onNext}
 							aria-label="Next"
-							onClick={() => setIdx(idx + 1)}
+							onClick={onNext}
 						>
 							<MoveRight />
 						</Button>
@@ -125,7 +133,7 @@ export function Preview({ trigger, data, baseIdx }: PreviewProps) {
 							MERGIN,
 						)}
 					>
-						{`${idx + 1} / ${data.length}`}
+						{`${currPage} / ${lastPage}`}
 					</span>
 				</Dialog.Content>
 			</Dialog.Portal>

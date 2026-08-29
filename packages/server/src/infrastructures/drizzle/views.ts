@@ -34,13 +34,11 @@ export const workView: IWorkView = {
 			return [];
 		}
 
-		const works = result.map((r) => {
-			return {
-				...r,
-				tags: r.tags.map((t) => t.name),
-				revisionId: r.revisions.map((r) => r.id).at(0) ?? null,
-			};
-		});
+		const works = result.map((r) => ({
+			...r,
+			tags: r.tags.map((t) => t.name),
+			revisionId: r.revisions.map((r) => r.id).at(0) ?? null,
+		}));
 
 		return works;
 	},

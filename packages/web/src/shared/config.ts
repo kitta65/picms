@@ -4,7 +4,7 @@ const ROUTES = [
 	"WORKS_WITH_ID",
 	"WORKS_NEW",
 	"WORKS_EDIT",
-	"VERSIONS",
+	"REVISIONS",
 	"SERIES",
 	"SETTINGS",
 ] as const;
@@ -24,7 +24,7 @@ export const ROUTE: {
 	// currently label is used by header and breadcrumb.
 	// I have to prepare dedicated labels for each purpose maybe someday.
 	HOME: { label: "Home", pattern: "/" },
-	VERSIONS: { label: "Versions", pattern: "/works/:id/versions" },
+	REVISIONS: { label: "Versions", pattern: "/works/:id/versions" },
 	WORKS_NEW: { label: "New", pattern: "/works/new" },
 	WORKS_EDIT: { label: "", pattern: "/works/:id/edit" },
 	WORKS_WITH_ID: { label: "", pattern: "/works/:id" },
