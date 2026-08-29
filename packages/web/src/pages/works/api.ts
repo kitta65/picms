@@ -7,7 +7,7 @@ export function useWorkQuery() {
 	const client = useContext(ApiClientContext);
 
 	return useQuery({
-		queryKey: ["private", "configs", "get"],
+		queryKey: ["private", "works", "get"],
 		queryFn: async (): Promise<Work[]> => {
 			const resp = await client.api.private.works.$get({ query: {} });
 			const json = await resp.json();

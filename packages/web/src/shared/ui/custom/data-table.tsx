@@ -22,21 +22,29 @@ export function createColumnHelper<TValue extends RowData>() {
 	return createColumnHelper_<typeof features, TValue>();
 }
 
-interface DataTableProps<TData extends RowData> {
-	columns: ColumnDef<typeof features, TData>[];
-	data: TData[];
-}
-
-export function DataTable<TData extends RowData>({
+export function useDataTable<TData extends RowData>({
 	columns,
 	data,
-}: DataTableProps<TData>) {
+}: {
+	columns: ColumnDef<typeof features, TData>[];
+	data: TData[];
+}) {
 	const table = useTable({
 		features,
 		columns,
 		data,
 	});
 
+	function Render() {
+		return DataTable(table);
+	}
+
+	return { table, Render };
+}
+
+function DataTable<TData extends RowData>(
+	table: ReturnType<typeof useTable<typeof features, TData>>,
+) {
 	return (
 		<div className="rounded-md border w-full">
 			<Table>
@@ -68,7 +76,10 @@ export function DataTable<TData extends RowData>({
 						))
 					) : (
 						<TableRow>
-							<TableCell colSpan={columns.length} className="h-24 text-center">
+							<TableCell
+								colSpan={table.getAllColumns().length}
+								className="h-24 text-center"
+							>
 								No results.
 							</TableCell>
 						</TableRow>

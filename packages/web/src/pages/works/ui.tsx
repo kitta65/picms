@@ -1,10 +1,15 @@
 import { Clock, Expand, ImageOffIcon } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useLocation, useParams } from "wouter";
+import { useConfigQuery } from "@/entities/config/api";
 import type { Work } from "@/entities/work/model";
 import { Preview } from "@/features/preview/ui";
 import { useWorkQuery } from "@/pages/works/api";
-import { createColumnHelper, DataTable } from "@/shared/ui/custom/data-table";
+import {
+	createColumnHelper,
+	useDataTable,
+} from "@/shared/ui/custom/data-table";
+import { DateWithTz } from "@/shared/ui/custom/date-with-tz";
 import { Button } from "@/shared/ui/shadcn/button";
 import { ButtonGroup } from "@/shared/ui/shadcn/button-group";
 import {
@@ -16,7 +21,7 @@ import {
 const columnHelper = createColumnHelper<Work>();
 const columns = columnHelper.columns([
 	columnHelper.accessor("revisionId", {
-		header: "Thumbnail",
+		header: "",
 		cell: ({ row }) => {
 			if (!row.original.revisionId) {
 				return <ImageOffIcon />;
@@ -25,14 +30,19 @@ const columns = columnHelper.columns([
 			return <img className="size-12" src={row.original.revisionId} alt="" />;
 		},
 	}),
-	columnHelper.accessor("id", { header: "Id" }),
 	columnHelper.accessor("title", { header: "Title" }),
 	columnHelper.accessor("tags", { header: "Tags" }),
-	columnHelper.accessor("createdAt", { header: "Created At" }),
-	columnHelper.accessor("updatedAt", { header: "Updated At" }),
+	columnHelper.accessor("createdAt", {
+		header: "Created At",
+		cell: (info) => <DateCell date={info.getValue()} />,
+	}),
+	columnHelper.accessor("updatedAt", {
+		header: "Updated At",
+		cell: (info) => <DateCell date={info.getValue()} />,
+	}),
 	columnHelper.display({
 		id: "actions",
-		cell: ({ row }) => {
+		cell: ({ row }) => (
 			<ButtonGroup>
 				<Tooltip>
 					<Preview
@@ -51,7 +61,7 @@ const columns = columnHelper.columns([
 							...row.original,
 							url: row.original.revisionId ?? "https://example.com",
 						}}
-						currPage={1}
+						currPage={row.index + 1}
 						lastPage={1}
 					/>
 					<TooltipContent>
@@ -70,8 +80,8 @@ const columns = columnHelper.columns([
 						<p>View versions</p>
 					</TooltipContent>
 				</Tooltip>
-			</ButtonGroup>;
-		},
+			</ButtonGroup>
+		),
 	}),
 ]);
 
@@ -89,7 +99,9 @@ function useWorkId() {
 
 export function Works() {
 	useWorkId();
-	const { data } = useWorkQuery();
+	const { data, isLoading } = useWorkQuery();
+	const dataTable = useDataTable({ columns, data: data ?? [] });
+
 	return (
 		<>
 			<div className="flex justify-center items-center my-2 w-full">
@@ -97,7 +109,18 @@ export function Works() {
 					<Link to={`/works/new`}>New</Link>
 				</Button>
 			</div>
-			<DataTable columns={columns} data={data ?? []} />
+			{/* TODO: use skeleton */}
+			{isLoading ? null : <dataTable.Render />}
 		</>
 	);
+}
+
+type DateCellProps = {
+	date: Date;
+};
+function DateCell({ date }: DateCellProps) {
+	const { data, isLoading } = useConfigQuery();
+	// TODO: use skeleton
+	if (isLoading) return null;
+	return <DateWithTz date={date} timezone={data?.timezone} />;
 }
