@@ -23,15 +23,19 @@
 	},
 	"customizations": {
 		"vscode": {
+			// publisher.extension@version
 			"extensions": [
-				"anthropic.claude-code",
-				"biomejs.biome",
-				"bradlc.vscode-tailwindcss",
-				"GitHub.vscode-github-actions",
-				"oven.bun-vscode",
-				"tamasfe.even-better-toml"
+				"anthropic.claude-code@2.1.246",
+				"biomejs.biome@3.7.1",
+				"bradlc.vscode-tailwindcss@0.16.0",
+				"GitHub.vscode-github-actions@0.32.3",
+				"oven.bun-vscode@0.0.32",
+				"tamasfe.even-better-toml@0.21.2"
 			],
 			"settings": {
+				// prevent pinned extensions from auto-updating
+				"extensions.autoCheckUpdates": false,
+				"extensions.autoUpdate": false,
 				"editor.defaultFormatter": "biomejs.biome",
 				// recommended by tailwind https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
 				"editor.quickSuggestions": {
