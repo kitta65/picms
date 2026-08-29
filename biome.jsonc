@@ -45,9 +45,9 @@
 				}
 			}
 		},
-		// server/src/infrastuctures
+		// server/src/features
 		{
-			"includes": ["packages/server/src/infrastructures/**/*.ts"],
+			"includes": ["packages/server/src/features/**/*.ts"],
 			"linter": {
 				"rules": {
 					"style": {
@@ -56,7 +56,7 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["**/features/**/*", "**/apis/**/*"]
+										"group": ["**/infrastructures/**/*", "**/apis/**/*"]
 									}
 								]
 							}
@@ -65,9 +65,9 @@
 				}
 			}
 		},
-		// server/src/features
+		// server/src/infrastructures
 		{
-			"includes": ["packages/server/src/features/**/*.ts"],
+			"includes": ["packages/server/src/infrastructures/**/*.ts"],
 			"linter": {
 				"rules": {
 					"style": {

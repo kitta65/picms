@@ -1,5 +1,4 @@
 import { and, eq, inArray, lt, notInArray, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/bun-sql";
 import { HTTPException } from "hono/http-exception";
 import {
 	ERROR_CODE,
@@ -14,7 +13,7 @@ import { REVISION_SCHEMA, type Revision } from "../../domains/revision/entity";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import type { Work } from "../../domains/work/entity";
 import type { IWorkDatabase } from "../../domains/work/repository";
-import { RELATIONS } from "./relations";
+import { DB } from "./configs";
 import {
 	configTable,
 	messageTable,
@@ -22,17 +21,6 @@ import {
 	workTable,
 	workTagTable,
 } from "./tables";
-
-const { PG_PASS, PG_USER, PG_PORT } = Bun.env;
-const DB = drizzle({
-	connection: {
-		hostname: "postgres",
-		password: PG_PASS,
-		username: PG_USER,
-		port: PG_PORT,
-	},
-	relations: RELATIONS,
-});
 
 const CONFIG_ID = "019f9c30-51a0-7000-b96f-ab19bc1ceed2"; // currently only one config exists
 export const configDatabase: IConfigDatabase = {

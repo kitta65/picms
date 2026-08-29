@@ -1,5 +1,6 @@
-import type * as z from "zod";
+import * as z from "zod";
 
+import { REVISION_SCHEMA } from "../../domains/revision/entity";
 import { WORK_SCHEMA, type Work } from "../../domains/work/entity";
 
 export const CREATE_INPUT_SCHEMA = WORK_SCHEMA.pick({
@@ -21,6 +22,21 @@ export const CreateInput = {
 	},
 };
 
-// TODO: DTO
-// although this is named READ_XXX_OUTPUT_SCHEMA, it is also used in other usecases
-// export const READ_WORK_OUTPUT_SCHEMA = ...
+export const FIND_ONE_OUTPUT_SCHEMA = WORK_SCHEMA.extend({
+	revisionId: REVISION_SCHEMA.shape.id.nullable(),
+});
+export type FindOneOutput = z.infer<typeof FIND_ONE_OUTPUT_SCHEMA>;
+
+export const FIND_MANY_INPUT_SCHEMA = z.object({
+	limit: z.int().optional(),
+	orderBy: z
+		.record(
+			z.enum(["createdAt"] satisfies (keyof Work)[]),
+			z.enum(["asc", "desc"]),
+		)
+		.optional(),
+});
+export type FindManyInput = z.infer<typeof FIND_MANY_INPUT_SCHEMA>;
+
+export const FIND_MANY_OUTPUT_SCHEMA = z.array(FIND_ONE_OUTPUT_SCHEMA);
+export type FindManyOutput = z.infer<typeof FIND_MANY_OUTPUT_SCHEMA>;
