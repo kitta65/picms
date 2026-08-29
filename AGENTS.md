@@ -1,3 +1,3 @@
 # Agent instructions
 
-Write all human-visible project artifacts in English. For writing others will not see, use the language the requester uses or requests.
+Write in English wherever others may read it. For writing others will not see, use the language the requester uses or requests.
