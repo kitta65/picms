@@ -33,7 +33,7 @@ export const ISSUE_SIGNED_URL_INPUT_SCHEMA = REVISION_SCHEMA.pick({
 
 const DISPLAY_SIZE_REGEX = /^(\d*)x(\d*)$/;
 export const DISPLAY_INPUT_SCHEMA = z.object({
-	id: REVISION_SCHEMA.shape.id,
+	revisionId: REVISION_SCHEMA.shape.id,
 	mode: z.enum(DISPLAY_MODES),
 	size: z.string().regex(DISPLAY_SIZE_REGEX),
 });

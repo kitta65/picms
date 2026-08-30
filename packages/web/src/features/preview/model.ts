@@ -1,6 +1,5 @@
 export interface IPreviewable {
-	id: string; // used as key while rendering
+	revisionId: string | null;
 	title?: string;
 	description?: string;
-	url: string;
 }

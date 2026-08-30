@@ -80,7 +80,7 @@ export const REVISION_API = new Hono()
 		},
 	)
 	.get(
-		"/:id/:mode/:size",
+		"/:revisionId/:mode/:size",
 		validator("param", async (value) => {
 			const parsed = revisionIo.DISPLAY_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
@@ -103,7 +103,7 @@ export const REVISION_API = new Hono()
 				basePath + STORAGE_API_PATH,
 			);
 
-			const revision = await revisionDatabase.findById(param.id);
+			const revision = await revisionDatabase.findById(param.revisionId);
 			if (!revision) {
 				const { status, message } = ERROR_CODE.NOT_FOUND;
 				throw new HTTPException(status, { message });

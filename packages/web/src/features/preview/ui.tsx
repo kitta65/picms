@@ -7,6 +7,7 @@ import {
 	X,
 } from "lucide-react";
 import { Dialog } from "radix-ui";
+import { RevisionImage } from "@/entities/revision/ui";
 import type { IPreviewable } from "@/features/preview/model";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
@@ -21,24 +22,25 @@ const ANIMATION = cn(
 );
 
 type PreviewProps = {
-	trigger: React.ReactNode;
 	data: IPreviewable;
+	isOpen: boolean;
+	setIsOpen: (isOpen: boolean) => void;
 	currPage: number;
 	lastPage: number;
 	onPrev?: () => void;
 	onNext?: () => void;
 };
 export function Preview({
-	trigger,
 	data,
+	isOpen,
+	setIsOpen,
 	currPage,
 	lastPage,
 	onPrev,
 	onNext,
 }: PreviewProps) {
 	return (
-		<Dialog.Root>
-			<Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+		<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
 			<Dialog.Portal>
 				<Dialog.Overlay
 					className={cn("fixed inset-0 bg-black/90", ANIMATION)}
@@ -49,15 +51,23 @@ export function Preview({
 						ANIMATION,
 					)}
 				>
-					<img
-						src={data.url}
-						alt=""
+					<div
 						className={cn(
 							"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-							"object-contain max-w-[calc(100%-8rem)] max-h-[calc(100%-8rem)]",
 							"pointer-events-auto",
 						)}
-					/>
+					>
+						{data.revisionId ? (
+							<RevisionImage
+								revisionId={data.revisionId}
+								size="1200x1200"
+								mode="contain"
+								className="object-contain max-h-[calc(100vh-8rem)] max-w-[calc(100vw-8rem)]"
+							/>
+						) : (
+							<span className="text-foreground">Not found</span>
+						)}
+					</div>
 					<div
 						className={cn(
 							"fixed top-0 left-0 text-foreground h-9",

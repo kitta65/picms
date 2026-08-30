@@ -150,7 +150,8 @@
 		{
 			"includes": [
 				"packages/web/src/features/**/*.ts",
-				"packages/web/src/features/**/*.tsx"
+				"packages/web/src/features/**/*.tsx",
+				"!packages/web/src/features/**/*.test.tsx"
 			],
 			"linter": {
 				"rules": {

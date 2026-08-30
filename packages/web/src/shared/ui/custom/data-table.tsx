@@ -68,7 +68,7 @@ function DataTable<TData extends RowData>(
 						table.getRowModel().rows.map((row) => (
 							<TableRow key={row.id}>
 								{row.getAllCells().map((cell) => (
-									<TableCell key={cell.id}>
+									<TableCell key={cell.id} className="h-16">
 										<table.FlexRender cell={cell} />
 									</TableCell>
 								))}
@@ -78,7 +78,7 @@ function DataTable<TData extends RowData>(
 						<TableRow>
 							<TableCell
 								colSpan={table.getAllColumns().length}
-								className="h-24 text-center"
+								className="h-16 text-center"
 							>
 								No results.
 							</TableCell>
