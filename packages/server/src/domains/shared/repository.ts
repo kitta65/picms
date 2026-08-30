@@ -5,6 +5,7 @@ import { ERROR_CODE } from "../../constants";
 export interface ISharedStorage {
 	issueSignedUrl: (id: string) => Awaitable<string>;
 	checkAvailability: (id: string) => Awaitable<boolean>;
+	readById: (id: string) => Awaitable<Buffer>;
 	deleteById: (id: string) => Awaitable<void>;
 }
 
@@ -14,6 +15,10 @@ class FakeSharedStorage implements ISharedStorage {
 		throw new HTTPException(status, { message });
 	}
 	checkAvailability(_: string): Awaitable<boolean> {
+		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
+		throw new HTTPException(status, { message });
+	}
+	readById(_: string): Awaitable<Buffer> {
 		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
 		throw new HTTPException(status, { message });
 	}

@@ -1,7 +1,8 @@
-import { Clock, Expand, ImageOffIcon } from "lucide-react";
+import { Clock, Expand, ImageIcon } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { useConfigQuery } from "@/entities/config/api";
+import { RevisionImage, type RevisionImageProps } from "@/entities/revision/ui";
 import type { Work } from "@/entities/work/model";
 import { Preview } from "@/features/preview/ui";
 import { useWorkQuery } from "@/pages/works/api";
@@ -17,18 +18,13 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/shared/ui/shadcn/tooltip";
+import { cn } from "@/shared/ui/shadcn/utils";
 
 const columnHelper = createColumnHelper<Work>();
 const columns = columnHelper.columns([
 	columnHelper.accessor("revisionId", {
 		header: "",
-		cell: ({ row }) => {
-			if (!row.original.revisionId) {
-				return <ImageOffIcon />;
-			}
-
-			return <img className="size-12" src={row.original.revisionId} alt="" />;
-		},
+		cell: (info) => <ThumbnailCell revisionId={info.getValue()} />,
 	}),
 	columnHelper.accessor("title", { header: "Title" }),
 	columnHelper.accessor("tags", { header: "Tags" }),
@@ -123,4 +119,22 @@ function DateCell({ date }: DateCellProps) {
 	// TODO: use skeleton
 	if (isLoading) return null;
 	return <DateWithTz date={date} timezone={data?.timezone} />;
+}
+
+type ThumbnailCellProps = {
+	revisionId?: string | null;
+};
+function ThumbnailCell({ revisionId }: ThumbnailCellProps) {
+	let image = <ImageIcon className="text-muted-foreground" />;
+
+	if (revisionId) {
+		const props: RevisionImageProps = {
+			id: revisionId,
+			mode: "contain",
+			size: "36x36",
+		};
+		image = <RevisionImage {...props} />;
+	}
+
+	return <div className={cn("flex justify-center items-center")}>{image}</div>;
 }

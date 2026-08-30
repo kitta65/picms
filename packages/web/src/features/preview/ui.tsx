@@ -66,9 +66,9 @@ export function Preview({
 							MERGIN,
 						)}
 					>
-						<Dialog.Title className="text-sm">foo</Dialog.Title>
+						<Dialog.Title className="text-sm">{data.title}</Dialog.Title>
 						<Dialog.Description className="text-muted-foreground text-xs">
-							fuga
+							{data.description}
 						</Dialog.Description>
 					</div>
 					<ButtonGroup

@@ -87,6 +87,11 @@ export class SharedStorage implements ISharedStorage {
 		await fs.writeFile(fullPath, data.stream());
 	}
 
+	async readById(id: string) {
+		const fullPath = this.#buildFullPath(id);
+		return fs.readFile(fullPath);
+	}
+
 	async deleteById(id: string) {
 		const fullPath = this.#buildFullPath(id);
 		await fs.rm(fullPath, { force: true });
