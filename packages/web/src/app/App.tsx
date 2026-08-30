@@ -101,7 +101,7 @@ const ROUTE_TO_COMPONENT: { [k in RouteType]: React.ComponentType } = {
 export function App() {
 	return (
 		<Wrapper options={{ isStrict: true, showDevTools: true }}>
-			<div className="mx-6 my-4">
+			<div className="px-6 py-4">
 				<Header />
 				<Separator className="my-4" />
 				<main className="">
