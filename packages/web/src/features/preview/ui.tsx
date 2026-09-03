@@ -61,7 +61,7 @@ export function Preview({
 							<RevisionImage
 								revisionId={data.revisionId}
 								size="1200x1200"
-								mode="contain"
+								mode="inside"
 								className="object-contain max-h-[calc(100vh-8rem)] max-w-[calc(100vw-8rem)]"
 							/>
 						) : (

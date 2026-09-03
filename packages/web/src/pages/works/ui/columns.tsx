@@ -80,7 +80,7 @@ function ThumbnailCell({ revisionId }: ThumbnailCellProps) {
 	if (revisionId) {
 		const props: RevisionImageProps = {
 			revisionId,
-			mode: "contain",
+			mode: "inside",
 			size: "42x42",
 		};
 		image = <RevisionImage {...props} />;

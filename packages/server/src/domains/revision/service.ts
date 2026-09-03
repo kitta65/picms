@@ -13,15 +13,14 @@ export async function checkStorageAvailability(
 	return isAvailable;
 }
 
-// use the values of object-fit CSS property, if possible
-export const DISPLAY_MODES = ["contain"] as const;
+export const DISPLAY_MODES = ["inside"] as const;
 
 export type DisplayOptions = {
 	resize: {
 		mode: (typeof DISPLAY_MODES)[number];
 		size: {
-			height: number;
-			width: number;
+			width?: number;
+			height?: number;
 		};
 	};
 };
@@ -37,10 +36,14 @@ export async function display(
 	const storage = di.revisionStorage;
 	const buff = await storage.readById(revision.id);
 	const image = new Bun.Image(buff);
-	const { height, width } = options.resize.size;
+	const { width, height } = options.resize.size;
 	const mode = options.resize.mode;
 	switch (mode) {
-		case "contain":
+		case "inside":
+			if (!width || !height) {
+				const { status, message } = ERROR_CODE.BAD_REQUEST;
+				throw new HTTPException(status, { message });
+			}
 			return await image.resize(width, height, { fit: "inside" }).blob();
 		default: {
 			const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;

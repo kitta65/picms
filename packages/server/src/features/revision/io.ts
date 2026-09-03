@@ -48,12 +48,13 @@ export const DisplayInput = {
 			throw new HTTPException(status, { message });
 		}
 
-		const width = Number(parsed.at(1));
-		const height = Number(parsed.at(2));
-
-		if (!width || !height) {
-			const { status, message } = ERROR_CODE.BAD_REQUEST;
-			throw new HTTPException(status, { message });
+		let width: number | undefined;
+		let height: number | undefined;
+		if (parsed.at(1)) {
+			width = Number(parsed.at(1));
+		}
+		if (parsed.at(2)) {
+			height = Number(parsed.at(2));
 		}
 
 		const options: DisplayOptions = {
