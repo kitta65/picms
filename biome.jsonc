@@ -215,7 +215,8 @@
 		{
 			"includes": [
 				"packages/web/src/shared/**/*.ts",
-				"packages/web/src/shared/**/*.tsx"
+				"packages/web/src/shared/**/*.tsx",
+				"!packages/web/src/shared/**/*.test.tsx"
 			],
 			"linter": {
 				"rules": {

@@ -8,7 +8,7 @@ import {
 } from "@/shared/ui/shadcn/tooltip";
 
 // see https://date-fns.org/v4.4.0/docs/format
-const DATE_FORMAT = "yyyy-MM-dd";
+const DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 const DATE_FORMAT_TOOLTIP = "yyyy-MM-dd HH:mm:ss xxx";
 
 type DateWithTzProps = {
