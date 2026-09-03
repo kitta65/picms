@@ -20,7 +20,7 @@ export function TextWithTooltip({ children, ...props_ }: TextWithTooltipProps) {
 	useEffect(() => {
 		const el = ref.current;
 		if (el) {
-			setIsTruncated(el.scrollWidth > el.clientWidth);
+			setIsTruncated(el.clientWidth < el.scrollWidth);
 		}
 	}, []);
 
