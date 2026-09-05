@@ -7,15 +7,15 @@ import { Redirect, Route, Switch } from "wouter";
 import { Breadcrumb } from "@/app/layouts/breadcrumb";
 import { Footer } from "@/app/layouts/footer";
 import { Header } from "@/app/layouts/header";
-import { isRoute, ROUTE, type Route as RouteType } from "@/app/routes";
 import { Home } from "@/pages/home";
+import { Revisions } from "@/pages/revisions";
 import { Series } from "@/pages/series";
 import { Settings } from "@/pages/settings";
-import { Versions } from "@/pages/versions";
-import { Works } from "@/pages/works";
+import { Works } from "@/pages/works/ui";
 import { WorksEdit } from "@/pages/works-edit";
-import { WorksNew } from "@/pages/works-new";
+import { WorksNew } from "@/pages/works-new/ui";
 import { type ApiClient, ApiClientContext } from "@/shared/api";
+import { isRoute, ROUTE, type Route as RouteType } from "@/shared/config";
 import { Separator } from "@/shared/ui/shadcn/separator";
 import { Toaster } from "@/shared/ui/shadcn/sonner";
 import { TooltipProvider } from "@/shared/ui/shadcn/tooltip";
@@ -93,7 +93,7 @@ const ROUTE_TO_COMPONENT: { [k in RouteType]: React.ComponentType } = {
 	WORKS_WITH_ID: Works,
 	WORKS_NEW: WorksNew,
 	WORKS_EDIT: WorksEdit,
-	VERSIONS: Versions,
+	REVISIONS: Revisions,
 	SERIES: Series,
 	SETTINGS: Settings,
 };
@@ -101,7 +101,7 @@ const ROUTE_TO_COMPONENT: { [k in RouteType]: React.ComponentType } = {
 export function App() {
 	return (
 		<Wrapper options={{ isStrict: true, showDevTools: true }}>
-			<div className="mx-6 my-4">
+			<div className="px-6 py-4">
 				<Header />
 				<Separator className="my-4" />
 				<main className="">

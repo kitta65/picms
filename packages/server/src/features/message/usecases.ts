@@ -72,8 +72,11 @@ async function handleRevisionSignedUrlExpired(
 		revisionStorage: ISharedStorage;
 	},
 ) {
-	await di.revisionDatabase.deleteById(message.targetId);
-	await di.revisionStorage.deleteById(message.id);
+	// if the data does not exist in storage until this message is handled, it means the revision is broken.
+	const notFound = await di.revisionStorage.checkAvailability(message.targetId);
+	if (notFound) {
+		await di.revisionDatabase.deleteById(message.targetId);
+	}
 	await di.messageBroker.ack(message.id);
 }
 

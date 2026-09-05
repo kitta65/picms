@@ -2,9 +2,15 @@ import { HTTPException } from "hono/http-exception";
 import type { Awaitable } from "picms-shared/types";
 import { ERROR_CODE } from "../../constants";
 
+type StreamWithSize = {
+	stream: ReadableStream;
+	size: number; // size in bytes
+};
+
 export interface ISharedStorage {
 	issueSignedUrl: (id: string) => Awaitable<string>;
 	checkAvailability: (id: string) => Awaitable<boolean>;
+	readById: (id: string) => Awaitable<StreamWithSize>;
 	deleteById: (id: string) => Awaitable<void>;
 }
 
@@ -14,6 +20,10 @@ class FakeSharedStorage implements ISharedStorage {
 		throw new HTTPException(status, { message });
 	}
 	checkAvailability(_: string): Awaitable<boolean> {
+		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
+		throw new HTTPException(status, { message });
+	}
+	readById(_: string): Awaitable<StreamWithSize> {
 		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
 		throw new HTTPException(status, { message });
 	}

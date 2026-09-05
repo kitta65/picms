@@ -110,21 +110,21 @@ export function Settings() {
 						);
 					}}
 				</form.Field>
-
-				<div className="flex items-center justify-center gap-x-4">
-					<Button
-						variant="outline"
-						type="button"
-						onClick={() => form.reset()}
-						disabled={isBusy}
-					>
-						Reset
-					</Button>
-					<Button type="submit" disabled={isBusy}>
-						Submit
-					</Button>
-				</div>
 			</FieldGroup>
+
+			<div className="flex items-center justify-center gap-x-4">
+				<Button
+					variant="outline"
+					type="button"
+					onClick={() => form.reset()}
+					disabled={isBusy}
+				>
+					Reset
+				</Button>
+				<Button type="submit" disabled={isBusy}>
+					Submit
+				</Button>
+			</div>
 		</form>
 	);
 }

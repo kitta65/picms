@@ -51,6 +51,7 @@ export const workTagTable = pgTable(
 			.notNull()
 			.references(() => workTable.id),
 		name: varchar("name", { length: 255 }).notNull(),
+		createdAt: timestamp("created_at").notNull(),
 	},
 	(table) => [index("work_id__idx").on(table.workId)],
 );

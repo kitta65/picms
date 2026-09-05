@@ -45,9 +45,9 @@
 				}
 			}
 		},
-		// server/src/infrastuctures
+		// server/src/features
 		{
-			"includes": ["packages/server/src/infrastructures/**/*.ts"],
+			"includes": ["packages/server/src/features/**/*.ts"],
 			"linter": {
 				"rules": {
 					"style": {
@@ -56,7 +56,7 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["**/features/**/*", "**/apis/**/*"]
+										"group": ["**/infrastructures/**/*", "**/apis/**/*"]
 									}
 								]
 							}
@@ -65,9 +65,9 @@
 				}
 			}
 		},
-		// server/src/features
+		// server/src/infrastructures
 		{
-			"includes": ["packages/server/src/features/**/*.ts"],
+			"includes": ["packages/server/src/infrastructures/**/*.ts"],
 			"linter": {
 				"rules": {
 					"style": {
@@ -99,7 +99,12 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["./**/*", "../**/*"]
+										"group": ["./**/*", "../**/*"],
+										"message": "import path should start with `@/`"
+									},
+									{
+										"group": ["@testing-library/user-event"],
+										"message": "wrapper implementation exists"
 									}
 								]
 							}
@@ -123,7 +128,16 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["./**/*", "../**/*", "@/app/**/*"]
+										"group": ["./**/*", "../**/*"],
+										"message": "import path should start with `@/`"
+									},
+									{
+										"group": ["@/app/**/*"],
+										"message": "this layer must not depend on that"
+									},
+									{
+										"group": ["@testing-library/user-event"],
+										"message": "wrapper implementation exists"
 									}
 								]
 							}
@@ -136,7 +150,8 @@
 		{
 			"includes": [
 				"packages/web/src/features/**/*.ts",
-				"packages/web/src/features/**/*.tsx"
+				"packages/web/src/features/**/*.tsx",
+				"!packages/web/src/features/**/*.test.tsx"
 			],
 			"linter": {
 				"rules": {
@@ -146,7 +161,16 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["./**/*", "../**/*", "@/app/**/*", "@/pages/**/*"]
+										"group": ["./**/*", "../**/*"],
+										"message": "import path should start with `@/`"
+									},
+									{
+										"group": ["@/app/**/*", "@/pages/**/*"],
+										"message": "this layer must not depend on that"
+									},
+									{
+										"group": ["@testing-library/user-event"],
+										"message": "wrapper implementation exists"
 									}
 								]
 							}
@@ -169,13 +193,16 @@
 							"options": {
 								"patterns": [
 									{
-										"group": [
-											"./**/*",
-											"../**/*",
-											"@/app/**/*",
-											"@/pages/**/*",
-											"@/features/**/*"
-										]
+										"group": ["./**/*", "../**/*"],
+										"message": "import path should start with `@/`"
+									},
+									{
+										"group": ["@/app/**/*", "@/pages/**/*", "@/features/**/*"],
+										"message": "this layer must not depend on that"
+									},
+									{
+										"group": ["@testing-library/user-event"],
+										"message": "wrapper implementation exists"
 									}
 								]
 							}
@@ -188,7 +215,8 @@
 		{
 			"includes": [
 				"packages/web/src/shared/**/*.ts",
-				"packages/web/src/shared/**/*.tsx"
+				"packages/web/src/shared/**/*.tsx",
+				"!packages/web/src/shared/**/*.test.tsx"
 			],
 			"linter": {
 				"rules": {
@@ -198,14 +226,21 @@
 							"options": {
 								"patterns": [
 									{
+										"group": ["./**/*", "../**/*"],
+										"message": "import path should start with `@/`"
+									},
+									{
 										"group": [
-											"./**/*",
-											"../**/*",
 											"@/app/**/*",
 											"@/pages/**/*",
 											"@/features/**/*",
 											"@/entities/**/*"
-										]
+										],
+										"message": "this layer must not depend on that"
+									},
+									{
+										"group": ["@testing-library/user-event"],
+										"message": "wrapper implementation exists"
 									}
 								]
 							}

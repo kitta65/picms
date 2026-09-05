@@ -1,20 +1,16 @@
 import { useForm } from "@tanstack/react-form";
 import { useSelector } from "@tanstack/react-store";
-import { hc } from "hono/client";
-import { ImageIcon } from "lucide-react";
-import type { PicmsApi } from "picms-server/api";
-import { useEffect, useState } from "react";
-// import * as workIo from "picms-server/features/work/io";
-
+import { useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { navigate } from "wouter/use-browser-location";
+import { handleSubmitWorksNewInput } from "@/pages/works-new/api";
+import { WORKS_NEW_INPUT_SCHEMA } from "@/pages/works-new/model";
+import { Preview } from "@/pages/works-new/ui/preview";
+import { ApiClientContext } from "@/shared/api";
+import { ROUTE } from "@/shared/config";
+import { InputTags } from "@/shared/ui/custom/input-tags";
 import { Button } from "@/shared/ui/shadcn/button";
 import { Checkbox } from "@/shared/ui/shadcn/checkbox";
-import {
-	Empty,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from "@/shared/ui/shadcn/empty";
 import {
 	Field,
 	FieldDescription,
@@ -25,42 +21,33 @@ import {
 	FieldSet,
 } from "@/shared/ui/shadcn/field";
 import { Input } from "@/shared/ui/shadcn/input";
-
-const CLIENT = hc<PicmsApi>(window.location.origin);
+import { Textarea } from "@/shared/ui/shadcn/textarea";
 
 export function WorksNew() {
+	const client = useContext(ApiClientContext);
 	const form = useForm({
 		defaultValues: {
 			file: null as File | null,
 			title: "",
+			tags: [] as string[],
 			description: "",
 			public: false,
 		},
 		validators: {
-			// onSubmit: workInputSchema,
+			onSubmit: WORKS_NEW_INPUT_SCHEMA,
 		},
 		onSubmit: async ({ value }) => {
-			const work = await CLIENT.api.private.works
-				.$post({ json: value })
-				.then((res) => res.json());
-
-			if (value.file) {
-				const revision = await CLIENT.api.private.revisions
-					.$post({ json: { workId: work.id } })
-					.then((res) => res.json());
-				const signedUrl = await CLIENT.api.private.revisions[":id"][
-					"signed-url"
-				]
-					.$get({
-						param: {
-							id: revision.id.toString(),
-						},
-					})
-					.then((res) => res.text());
-				await fetch(signedUrl, { method: "PUT", body: value.file });
-			}
+			await handleSubmitWorksNewInput(WORKS_NEW_INPUT_SCHEMA.parse(value), {
+				client,
+				onSuccess: () => {
+					toast.success("Saved!");
+					navigate(ROUTE.WORKS.pattern);
+				},
+				onError: () => toast.error("Something Went Wrong."),
+			});
 		},
 	});
+
 	const file = useSelector(form.store, (state) => state.values.file);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	useEffect(() => {
@@ -72,23 +59,24 @@ export function WorksNew() {
 		setPreviewUrl(url);
 		return () => URL.revokeObjectURL(url);
 	}, [file]);
+
 	return (
 		<form
-			className="w-full max-w-200"
+			className="w-full min-w-0 max-w-200"
 			onSubmit={(e) => {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
 		>
-			<Preview source={previewUrl} />
-			<FieldSet className="grow">
-				<FieldGroup>
+			<Preview url={previewUrl} />
+			<FieldGroup>
+				<FieldSet>
 					<form.Field name="file">
 						{(field) => {
 							const isInvalid =
 								field.state.meta.isTouched && !field.state.meta.isValid;
 							return (
-								<Field>
+								<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor={field.name}>File</FieldLabel>
 									<Input
 										id={field.name}
@@ -134,7 +122,7 @@ export function WorksNew() {
 							return (
 								<Field data-invalid={isInvalid}>
 									<FieldLabel htmlFor={field.name}>Description</FieldLabel>
-									<Input
+									<Textarea
 										id={field.name}
 										name={field.name}
 										value={field.state.value}
@@ -149,13 +137,35 @@ export function WorksNew() {
 							);
 						}}
 					</form.Field>
-				</FieldGroup>
-				<FieldGroup>
-					<FieldSet>
-						<FieldLegend variant="label">Visibility</FieldLegend>
-						<FieldDescription>
-							By making this public, anyone can access it via public API.
-						</FieldDescription>
+					<form.Field name="tags">
+						{(field) => {
+							const isInvalid =
+								field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<FieldLabel htmlFor={field.name}>Tags</FieldLabel>
+									<InputTags
+										id={field.name}
+										name={field.name}
+										tags={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(tags) => field.handleChange(tags)}
+										aria-invalid={isInvalid}
+										placeholder="Enter the tag"
+										autoComplete="off"
+									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
+					</form.Field>
+				</FieldSet>
+				<FieldSet>
+					<FieldLegend variant="label">Visibility</FieldLegend>
+					<FieldDescription>
+						By making this public, anyone can access it via public API.
+					</FieldDescription>
+					<FieldGroup>
 						<form.Field name="public">
 							{(field) => {
 								const isInvalid =
@@ -180,38 +190,15 @@ export function WorksNew() {
 								);
 							}}
 						</form.Field>
-					</FieldSet>
-				</FieldGroup>
-				<div className="flex items-center justify-center gap-x-4">
-					<Button variant="outline" type="button" onClick={() => form.reset()}>
-						Reset
-					</Button>
-					<Button type="submit">Submit</Button>
-				</div>
-			</FieldSet>
+					</FieldGroup>
+				</FieldSet>
+			</FieldGroup>
+			<div className="flex items-center justify-center gap-x-4">
+				<Button variant="outline" type="button" onClick={() => form.reset()}>
+					Reset
+				</Button>
+				<Button type="submit">Submit</Button>
+			</div>
 		</form>
-	);
-}
-
-type PreviewProps = {
-	source: string | null;
-};
-function Preview({ source }: PreviewProps) {
-	return (
-		<div className="flex item-center justify-center h-60">
-			{source ? (
-				<img src={source} alt={source} />
-			) : (
-				<Empty>
-					<EmptyHeader>
-						<EmptyMedia variant="icon">
-							<ImageIcon />
-						</EmptyMedia>
-						<EmptyTitle>No File</EmptyTitle>
-						<EmptyDescription>No file is selected</EmptyDescription>
-					</EmptyHeader>
-				</Empty>
-			)}
-		</div>
 	);
 }

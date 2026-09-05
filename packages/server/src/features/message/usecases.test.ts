@@ -14,6 +14,7 @@ const { handleRevisionInserted } = MESSAGE_USECASE_TEST;
 
 const VALID_WORK: Work = {
 	id: Bun.randomUUIDv7(),
+	tags: ["foo", "bar"],
 	title: "foobar",
 	description: "",
 	public: true,
