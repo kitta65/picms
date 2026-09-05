@@ -35,6 +35,30 @@ const VALID_PREVIEWABLE = {
 } satisfies IPreviewable;
 
 describe("Preview", () => {
+	test("Not found message appears when revsionId is null", () => {
+		const previewable: IPreviewable = {
+			...VALID_PREVIEWABLE,
+			revisionId: null,
+		};
+		const { component } = setupComponent(
+			<Wrapper>
+				<Preview
+					data={previewable}
+					isOpen={true}
+					setIsOpen={() => {}}
+					currPage={1}
+					lastPage={1}
+				/>
+			</Wrapper>,
+		);
+
+		try {
+			component.getByText(/not found/i);
+		} catch {
+			expect.unreachable();
+		}
+	});
+
 	test("left button is disable if onPrev is not specified", async () => {
 		const { component } = setupComponent(
 			<Wrapper>

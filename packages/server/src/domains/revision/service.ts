@@ -44,6 +44,7 @@ export async function display(
 				const { status, message } = ERROR_CODE.BAD_REQUEST;
 				throw new HTTPException(status, { message });
 			}
+			// TODO: test returned blob type (perhaps, I have to specify explicitly)
 			return await image.resize(width, height, { fit: "inside" }).blob();
 		default: {
 			const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
