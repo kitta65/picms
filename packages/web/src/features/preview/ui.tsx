@@ -1,6 +1,7 @@
 import { Download, ExternalLink, MoveLeft, MoveRight, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { RevisionImage } from "@/entities/revision/ui";
+import { useDownloadUrl } from "@/features/download/api";
 import type { IPreviewable } from "@/features/preview/model";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
@@ -37,6 +38,8 @@ export function Preview({
 	onPrev,
 	onNext,
 }: PreviewProps) {
+	const downloadUrl = useDownloadUrl(data);
+
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
 			<Dialog.Portal>
@@ -78,11 +81,14 @@ export function Preview({
 							"fixed top-0 left-0 text-foreground h-9",
 							"flex items-start justify-center flex-col",
 							"pointer-events-auto",
+							"max-w-1/2",
 							MERGIN,
 						)}
 					>
-						<Dialog.Title className="text-sm">{data.title}</Dialog.Title>
-						<Dialog.Description className="text-muted-foreground text-xs">
+						<Dialog.Title className="text-sm block truncate max-w-full">
+							{data.title}
+						</Dialog.Title>
+						<Dialog.Description className="text-muted-foreground text-xs max-w-full truncate">
 							{data.description}
 						</Dialog.Description>
 					</div>
@@ -99,8 +105,14 @@ export function Preview({
 						</Tooltip>
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<Button size="icon">
-									<Download />
+								<Button size="icon" asChild disabled={!downloadUrl}>
+									{downloadUrl ? (
+										<a href={downloadUrl}>
+											<Download />
+										</a>
+									) : (
+										<Download />
+									)}
 								</Button>
 							</TooltipTrigger>
 							<TooltipContent>Download</TooltipContent>

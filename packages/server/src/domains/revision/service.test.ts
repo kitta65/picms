@@ -1,4 +1,6 @@
 import { describe, expect, spyOn, test } from "bun:test";
+import { ReadStream } from "node:fs";
+import { Readable } from "node:stream";
 import { ERROR_CODE } from "../../constants";
 import * as revisionService from "../revision/service";
 import { _TEST as SHARED_REPOSITORY_TEST } from "../shared/repository";
@@ -13,7 +15,11 @@ const WHITE_PNG = Buffer.from(
 	"base64",
 );
 const WHITE_JPEG = await new Bun.Image(WHITE_PNG).jpeg().toBuffer();
-spyOn(revisionStorage, "readById").mockImplementation(() => WHITE_JPEG);
+spyOn(revisionStorage, "readById").mockImplementation(() => ({
+	// avoiding type error (I know that ReadableStream.from() is more straightforward)
+	stream: Readable.toWeb(ReadStream.from(WHITE_JPEG)),
+	size: WHITE_JPEG.length,
+}));
 
 const VALID_REVISION: Revision = {
 	id: Bun.randomUUIDv7(),

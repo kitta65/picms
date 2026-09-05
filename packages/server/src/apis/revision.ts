@@ -80,6 +80,36 @@ export const REVISION_API = new Hono()
 		},
 	)
 	.get(
+		"/:id/download",
+		validator("param", async (value) => {
+			const parsed = revisionIo.DOWNLOAD_INPUT_SCHEMA.safeParse(value);
+			if (!parsed.success) {
+				const { status, message } = ERROR_CODE.BAD_REQUEST;
+				throw new HTTPException(status, { message });
+			}
+
+			return parsed.data;
+		}),
+		async (c) => {
+			const param = c.req.valid("param");
+			const revisionDatabase = drizzleRepositories.revisionDatabase;
+			const splitted = c.req.url.split(PRIVATE_API_PATH);
+			const basePath = splitted.at(0);
+			if (splitted.length !== 2 || !basePath) {
+				const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
+				throw new HTTPException(status, { message });
+			}
+			const revisionStorage = new localRepository.RevisionStorage(
+				basePath + STORAGE_API_PATH,
+			);
+
+			return revisionUsecase.download(param.id, {
+				revisionStorage,
+				revisionDatabase,
+			});
+		},
+	)
+	.get(
 		"/:revisionId/:mode/:size",
 		validator("param", async (value) => {
 			const parsed = revisionIo.DISPLAY_INPUT_SCHEMA.safeParse(value);

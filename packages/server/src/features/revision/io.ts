@@ -31,6 +31,10 @@ export const ISSUE_SIGNED_URL_INPUT_SCHEMA = REVISION_SCHEMA.pick({
 	id: true,
 });
 
+export const DOWNLOAD_INPUT_SCHEMA = REVISION_SCHEMA.pick({
+	id: true,
+});
+
 const DISPLAY_SIZE_REGEX = /^(\d*)x(\d*)$/;
 export const DISPLAY_INPUT_SCHEMA = z.object({
 	revisionId: REVISION_SCHEMA.shape.id,

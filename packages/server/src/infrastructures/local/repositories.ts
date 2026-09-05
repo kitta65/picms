@@ -84,12 +84,15 @@ export class SharedStorage implements ISharedStorage {
 
 		const fullPath = this.#buildFullPath(id);
 		await fs.mkdir(path.dirname(fullPath), { recursive: true });
-		await fs.writeFile(fullPath, data.stream());
+		// do not overwrite
+		// https://nodejs.org/api/fs.html#file-system-flags
+		await fs.writeFile(fullPath, data.stream(), { flag: "wx" });
 	}
 
 	async readById(id: string) {
 		const fullPath = this.#buildFullPath(id);
-		return fs.readFile(fullPath);
+		const file = Bun.file(fullPath);
+		return { stream: file.stream(), size: file.size };
 	}
 
 	async deleteById(id: string) {

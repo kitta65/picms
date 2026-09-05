@@ -62,7 +62,7 @@ export function WorksNew() {
 
 	return (
 		<form
-			className="w-full max-w-200"
+			className="w-full min-w-0 max-w-200"
 			onSubmit={(e) => {
 				e.preventDefault();
 				form.handleSubmit();

@@ -1,3 +1,4 @@
+import { buffer } from "node:stream/consumers";
 import { HTTPException } from "hono/http-exception";
 import { ERROR_CODE } from "../../constants";
 import type { ISharedStorage } from "../shared/repository";
@@ -34,7 +35,8 @@ export async function display(
 	di: { revisionStorage: ISharedStorage },
 ) {
 	const storage = di.revisionStorage;
-	const buff = await storage.readById(revision.id);
+	const { stream } = await storage.readById(revision.id);
+	const buff = await buffer(stream);
 	const image = new Bun.Image(buff);
 	const { width, height } = options.resize.size;
 	const mode = options.resize.mode;
@@ -51,4 +53,24 @@ export async function display(
 			throw new HTTPException(status, { message });
 		}
 	}
+}
+
+const FILE_TYPES = ["jpg"] as const; // intended to be used as file extension
+export type FileType = (typeof FILE_TYPES)[number];
+type Metadata = {
+	fileType: FileType;
+	fileSize: number; // size in bytes
+};
+export async function readWithMetadata(
+	revision: Revision,
+	di: { revisionStorage: ISharedStorage },
+) {
+	const storage = di.revisionStorage;
+	const { stream, size } = await storage.readById(revision.id);
+	const metadata: Metadata = {
+		fileType: "jpg", // TODO: detect fileType from data
+		fileSize: size,
+	};
+
+	return { stream, metadata };
 }
