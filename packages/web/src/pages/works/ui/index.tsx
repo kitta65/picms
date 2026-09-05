@@ -57,7 +57,7 @@ export function Works() {
 					data={model.original}
 					isOpen={isPreviewOpen}
 					setIsOpen={setIsPreviewOpen}
-					currPage={previewIdx}
+					currPage={previewIdx + 1}
 					lastPage={dataTable.table.getCoreRowModel().rows.length}
 					onPrev={onPrev}
 					onNext={onNext}

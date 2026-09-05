@@ -7,6 +7,7 @@ import { createColumnHelper } from "@/shared/ui/custom/data-table";
 import { DateWithTz } from "@/shared/ui/custom/date-with-tz";
 import { TagBadge } from "@/shared/ui/custom/tag-badge";
 import { TextWithTooltip } from "@/shared/ui/custom/text";
+import { Badge } from "@/shared/ui/shadcn/badge";
 import { Button } from "@/shared/ui/shadcn/button";
 import { ButtonGroup } from "@/shared/ui/shadcn/button-group";
 import {
@@ -40,12 +41,16 @@ export function createColumns({
 			header: "Tags",
 			cell: (info) => <TagsCell tags={info.getValue()} />,
 		}),
+		columnHelper.accessor("public", {
+			header: "Visibility",
+			cell: (info) => <VisibilityCell isPublic={info.getValue()} />,
+		}),
 		columnHelper.accessor("createdAt", {
-			header: "Created At",
+			header: "Created at",
 			cell: (info) => <DateCell date={info.getValue()} />,
 		}),
 		columnHelper.accessor("updatedAt", {
-			header: "Updated At",
+			header: "Updated at",
 			cell: (info) => <DateCell date={info.getValue()} />,
 		}),
 		columnHelper.display({
@@ -117,6 +122,17 @@ function TextCell({ children }: React.ComponentProps<"span">) {
 	);
 }
 
+type VisibilityCellProps = {
+	isPublic: boolean;
+};
+function VisibilityCell({ isPublic }: VisibilityCellProps) {
+	if (isPublic) {
+		return <Badge>public</Badge>;
+	} else {
+		return <Badge variant="secondary">private</Badge>;
+	}
+}
+
 type ActionCellProps = {
 	workId: string;
 	isDisabledPreview: boolean;
@@ -126,14 +142,16 @@ function ActionCell({ workId, isDisabledPreview, onPreview }: ActionCellProps) {
 	return (
 		<ButtonGroup>
 			<Tooltip>
-				<Button
-					variant="ghost"
-					size="icon"
-					disabled={isDisabledPreview}
-					onClick={onPreview}
-				>
-					<Expand />
-				</Button>
+				<TooltipTrigger asChild>
+					<Button
+						variant="ghost"
+						size="icon"
+						disabled={isDisabledPreview}
+						onClick={onPreview}
+					>
+						<Expand />
+					</Button>
+				</TooltipTrigger>
 				<TooltipContent>
 					<p>Expand</p>
 				</TooltipContent>

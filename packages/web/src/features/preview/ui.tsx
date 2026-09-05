@@ -1,11 +1,4 @@
-import {
-	Download,
-	ExternalLink,
-	EyeClosed,
-	MoveLeft,
-	MoveRight,
-	X,
-} from "lucide-react";
+import { Download, ExternalLink, MoveLeft, MoveRight, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { RevisionImage } from "@/entities/revision/ui";
 import type { IPreviewable } from "@/features/preview/model";
@@ -14,6 +7,11 @@ import {
 	ButtonGroup,
 	ButtonGroupSeparator,
 } from "@/shared/ui/shadcn/button-group";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/shared/ui/shadcn/tooltip";
 import { cn } from "@/shared/ui/shadcn/utils";
 
 const MERGIN = cn("m-4");
@@ -50,6 +48,13 @@ export function Preview({
 						"dark group fixed inset-0 pointer-events-none!",
 						ANIMATION,
 					)}
+					// https://github.com/radix-ui/primitives/discussions/935#discussioncomment-1537512
+					onOpenAutoFocus={(e) => {
+						e.preventDefault();
+						if (e.currentTarget instanceof HTMLElement) {
+							e.currentTarget.focus();
+						}
+					}}
 				>
 					<div
 						className={cn(
@@ -84,15 +89,22 @@ export function Preview({
 					<ButtonGroup
 						className={cn("fixed right-0 top-0", "pointer-events-auto", MERGIN)}
 					>
-						<Button size="icon">
-							<EyeClosed />
-						</Button>
-						<Button size="icon">
-							<ExternalLink />
-						</Button>
-						<Button size="icon">
-							<Download />
-						</Button>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button size="icon">
+									<ExternalLink />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Open in new tab</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button size="icon">
+									<Download />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Download</TooltipContent>
+						</Tooltip>
 						<ButtonGroupSeparator className={cn("bg-transparent")} />
 						<Dialog.Close asChild>
 							<Button size="icon">
