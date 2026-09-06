@@ -36,18 +36,22 @@ export async function display(
 ) {
 	const storage = di.revisionStorage;
 	const { stream } = await storage.readById(revision.id);
-	const buff = await buffer(stream);
-	const image = new Bun.Image(buff);
 	const { width, height } = options.resize.size;
 	const mode = options.resize.mode;
 	switch (mode) {
-		case "inside":
-			if (!width || !height) {
+		case "inside": {
+			if ((width && !height) || (!width && height)) {
 				const { status, message } = ERROR_CODE.BAD_REQUEST;
 				throw new HTTPException(status, { message });
 			}
+			if (!width || !height) {
+				return stream;
+			}
+			const buff = await buffer(stream);
+			const image = new Bun.Image(buff);
 			// TODO: test returned blob type (perhaps, I have to specify explicitly)
 			return await image.resize(width, height, { fit: "inside" }).blob();
+		}
 		default: {
 			const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
 			throw new HTTPException(status, { message });

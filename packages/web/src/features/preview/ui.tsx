@@ -1,8 +1,11 @@
 import { Download, ExternalLink, MoveLeft, MoveRight, X } from "lucide-react";
+import type { DisplayInput } from "picms-server/features/revision/io";
 import { Dialog } from "radix-ui";
+import { useContext } from "react";
 import { RevisionImage } from "@/entities/revision/ui";
 import { useDownloadUrl } from "@/features/download/api";
 import type { IPreviewable } from "@/features/preview/model";
+import { ApiClientContext } from "@/shared/api";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
 	ButtonGroup,
@@ -39,6 +42,19 @@ export function Preview({
 	onNext,
 }: PreviewProps) {
 	const downloadUrl = useDownloadUrl(data);
+	const client = useContext(ApiClientContext);
+	let displayUrl: string | undefined;
+	if (data.revisionId) {
+		displayUrl = client.api.private.revisions[":revisionId"][":mode"][":size"]
+			.$url({
+				param: {
+					mode: "inside",
+					revisionId: data.revisionId,
+					size: "x", // original
+				} satisfies DisplayInput,
+			})
+			.toString();
+	}
 
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -97,8 +113,18 @@ export function Preview({
 					>
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<Button size="icon">
-									<ExternalLink />
+								<Button size="icon" asChild disabled={!displayUrl}>
+									{displayUrl ? (
+										<a
+											href={displayUrl}
+											target="_blank"
+											rel="noopner noreferrer"
+										>
+											<ExternalLink />
+										</a>
+									) : (
+										<ExternalLink />
+									)}
 								</Button>
 							</TooltipTrigger>
 							<TooltipContent>Open in new tab</TooltipContent>
