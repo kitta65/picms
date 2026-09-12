@@ -1,19 +1,26 @@
 import { HTTPException } from "hono/http-exception";
-import type { Awaitable } from "picms-shared/types";
+import type { AtLeast, Awaitable } from "picms-shared/types";
 import { ERROR_CODE } from "../../constants";
 import type { Work } from "./entity";
 
 export interface IWorkDatabase {
+	update: (work: AtLeast<Work, "id" | "updatedAt">) => Awaitable<Work>;
 	upsert: (work: Work) => Awaitable<Work>;
 	findById: (id: Work["id"]) => Awaitable<Work | undefined>;
 }
 
 class FakeWorkDatabase implements IWorkDatabase {
-	upsert(_: Work): Awaitable<Work> {
+	update(
+		_: AtLeast<Work, "id" | "updatedAt">,
+	): ReturnType<IWorkDatabase["update"]> {
 		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
 		throw new HTTPException(status, { message });
 	}
-	findById(_: Work["id"]): Awaitable<Work | undefined> {
+	upsert(_: Work): ReturnType<IWorkDatabase["upsert"]> {
+		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
+		throw new HTTPException(status, { message });
+	}
+	findById(_: Work["id"]): ReturnType<IWorkDatabase["findById"]> {
 		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
 		throw new HTTPException(status, { message });
 	}

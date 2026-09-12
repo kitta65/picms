@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from "wouter";
 import { Preview } from "@/features/preview/ui";
 import { useWorkQuery } from "@/pages/works/api";
 import { createColumns } from "@/pages/works/ui/columns";
+import { ROUTE } from "@/shared/config";
 import { useDataTable } from "@/shared/ui/custom/data-table";
 import { Button } from "@/shared/ui/shadcn/button";
 
@@ -47,7 +48,7 @@ export function Works() {
 		<>
 			<div className="flex justify-center items-center my-2 w-full">
 				<Button size="sm" className="ml-auto" asChild>
-					<Link to={`/works/new`}>New</Link>
+					<Link to={ROUTE.WORKS_NEW.getLink()}>New</Link>
 				</Button>
 			</div>
 			{/* TODO: use skeleton */}

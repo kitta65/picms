@@ -91,7 +91,7 @@ const VALID_WORK: Work = {
 	public: true,
 	createdAt: new Date(),
 	updatedAt: new Date(),
-};
+} as const;
 
 describe("workDatabase", () => {
 	beforeEach(async () => {

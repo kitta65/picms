@@ -2,11 +2,12 @@
 import {
 	type ColumnDef,
 	createColumnHelper as createColumnHelper_,
+	metaHelper,
 	type RowData,
 	tableFeatures,
 	useTable,
 } from "@tanstack/react-table";
-
+import type { ClassValue } from "clsx";
 import {
 	Table,
 	TableBody,
@@ -15,8 +16,12 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/shared/ui/shadcn/table";
+import { cn } from "@/shared/ui/shadcn/utils";
 
-const features = tableFeatures({});
+// see https://tanstack.com/table/latest/docs/guide/table-and-column-meta
+const features = tableFeatures({
+	columnMeta: metaHelper<{ cellClassName?: ClassValue }>(),
+});
 
 export function createColumnHelper<TValue extends RowData>() {
 	return createColumnHelper_<typeof features, TValue>();
@@ -68,7 +73,13 @@ function DataTable<TData extends RowData>(
 						table.getRowModel().rows.map((row) => (
 							<TableRow key={row.id}>
 								{row.getAllCells().map((cell) => (
-									<TableCell key={cell.id} className="h-16">
+									<TableCell
+										key={cell.id}
+										className={cn(
+											"h-16",
+											cell.column.columnDef.meta?.cellClassName,
+										)}
+									>
 										<table.FlexRender cell={cell} />
 									</TableCell>
 								))}

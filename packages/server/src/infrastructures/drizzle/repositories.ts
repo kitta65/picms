@@ -75,18 +75,20 @@ export const workDatabase: IWorkDatabase = {
 		return { ...result, tags: result.tags.map((t) => t.name) };
 	},
 
-	upsert: async (work: Work) => {
+	update: async (work: Parameters<IWorkDatabase["update"]>[0]) => {
 		const dt = new Date();
-		const result = await DB.transaction(async (tx) => {
-			const workResult = await tx
-				.insert(workTable)
-				.values(work)
-				.onConflictDoUpdate({ target: workTable.id, set: work })
+		await DB.transaction(async (tx) => {
+			await tx
+				.update(workTable)
+				.set(work)
+				.where(eq(workTable.id, work.id))
 				.returning();
+			if (!work.tags) {
+				return;
+			}
 			// NOTE: drizzle does not support MERGE statement
-			let tagsResult: { name: string }[] = [];
 			if (work.tags.length !== 0) {
-				tagsResult = await tx
+				await tx
 					.insert(workTagTable)
 					.values(
 						work.tags.map((t) => ({
@@ -107,18 +109,54 @@ export const workDatabase: IWorkDatabase = {
 						notInArray(workTagTable.name, work.tags),
 					),
 				);
-			return {
-				work: workResult.at(0),
-				tags: tagsResult,
-			};
 		});
-		const upserted = result.work;
-		if (!upserted) {
+
+		const found = await workDatabase.findById(work.id);
+		if (!found) {
 			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
 			throw new HTTPException(status, { message });
 		}
+		return found;
+	},
 
-		return { ...upserted, tags: result.tags.map((t) => t.name) };
+	upsert: async (work: Work) => {
+		const dt = new Date();
+		await DB.transaction(async (tx) => {
+			await tx
+				.insert(workTable)
+				.values(work)
+				.onConflictDoUpdate({ target: workTable.id, set: work })
+				.returning();
+			// NOTE: drizzle does not support MERGE statement
+			if (work.tags.length !== 0) {
+				await tx
+					.insert(workTagTable)
+					.values(
+						work.tags.map((t) => ({
+							id: Bun.randomUUIDv7(),
+							workId: work.id,
+							name: t,
+							createdAt: dt,
+						})),
+					)
+					.onConflictDoNothing()
+					.returning();
+			}
+			await tx
+				.delete(workTagTable)
+				.where(
+					and(
+						eq(workTagTable.workId, work.id),
+						notInArray(workTagTable.name, work.tags),
+					),
+				);
+		});
+		const found = await workDatabase.findById(work.id);
+		if (!found) {
+			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
+			throw new HTTPException(status, { message });
+		}
+		return found;
 	},
 };
 

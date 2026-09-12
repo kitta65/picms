@@ -1,5 +1,8 @@
 import { NotImplemented } from "@/shared/ui/custom/not-implemented";
 
-export function Revisions() {
+type RevisionsProps = {
+	workId: string;
+};
+export function Revisions({ workId: _ }: RevisionsProps) {
 	return <NotImplemented />;
 }

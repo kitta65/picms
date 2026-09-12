@@ -42,4 +42,39 @@ export const WORK_API = new Hono()
 			const result = await view.findMany(input);
 			return c.json(result, 200);
 		},
+	)
+	.get(
+		"/:id",
+		validator("param", (value) => {
+			const parsed = workIo.FIND_BY_ID_INPUT_SCHEMA.safeParse(value);
+			if (!parsed.success) {
+				const { status, message } = ERROR_CODE.BAD_REQUEST;
+				throw new HTTPException(status, { message });
+			}
+			return parsed.data;
+		}),
+		async (c) => {
+			const param = c.req.valid("param");
+			const view = drizzleViews.workView;
+			const result = await view.findById({ id: param.id });
+			return c.json(result, 200);
+		},
+	)
+	.post(
+		"/:id",
+		validator("json", (value) => {
+			const parsed = workIo.UPDATE_INPUT_SCHEMA.safeParse(value);
+			if (!parsed.success) {
+				const { status, message } = ERROR_CODE.BAD_REQUEST;
+				throw new HTTPException(status, { message });
+			}
+			return parsed.data;
+		}),
+		async (c) => {
+			const input = c.req.valid("json");
+			const repo = drizzleRepositories.workDatabase;
+			const work = workIo.UpdateInput.forRepository(input);
+			const result = await repo.update(work);
+			return c.json(result, 200);
+		},
 	);

@@ -1,8 +1,9 @@
-import { Clock, Expand, ImageIcon } from "lucide-react";
+import { Clock, Expand, ImageIcon, Pencil, TagIcon } from "lucide-react";
 import { Link } from "wouter";
 import { useConfigQuery } from "@/entities/config/api";
 import { RevisionImage, type RevisionImageProps } from "@/entities/revision/ui";
 import type { Work } from "@/entities/work/model";
+import { ROUTE } from "@/shared/config";
 import { createColumnHelper } from "@/shared/ui/custom/data-table";
 import { DateWithTz } from "@/shared/ui/custom/date-with-tz";
 import { TagBadge } from "@/shared/ui/custom/tag-badge";
@@ -10,6 +11,13 @@ import { TextWithTooltip } from "@/shared/ui/custom/text";
 import { Badge } from "@/shared/ui/shadcn/badge";
 import { Button } from "@/shared/ui/shadcn/button";
 import { ButtonGroup } from "@/shared/ui/shadcn/button-group";
+import {
+	Popover,
+	PopoverContent,
+	PopoverHeader,
+	PopoverTitle,
+	PopoverTrigger,
+} from "@/shared/ui/shadcn/popover";
 import {
 	Tooltip,
 	TooltipContent,
@@ -40,6 +48,8 @@ export function createColumns({
 		columnHelper.accessor("tags", {
 			header: "Tags",
 			cell: (info) => <TagsCell tags={info.getValue()} />,
+			// prevent the row height from being stretched by 1px
+			meta: { cellClassName: "py-0" },
 		}),
 		columnHelper.accessor("public", {
 			header: "Visibility",
@@ -91,7 +101,7 @@ function ThumbnailCell({ revisionId }: ThumbnailCellProps) {
 		image = <RevisionImage {...props} />;
 	}
 
-	return <div className={cn("flex justify-center items-center")}>{image}</div>;
+	return <div className="flex justify-center items-center">{image}</div>;
 }
 
 type TagsCellProps = {
@@ -99,16 +109,32 @@ type TagsCellProps = {
 };
 function TagsCell({ tags }: TagsCellProps) {
 	const maxTagsToShow = 2;
-	const length = tags.length;
 	return (
-		<div className="flex gap-x-1 items-center">
+		<div className="flex items-center gap-x-1">
 			<div className="flex flex-col gap-1">
-				{tags.slice(0, 2).map((t) => (
+				{tags.slice(0, maxTagsToShow).map((t) => (
 					<TagBadge key={t}>{t}</TagBadge>
 				))}
 			</div>
-			{maxTagsToShow < length && (
-				<span className="text-muted-foreground">{`+${length - maxTagsToShow} more`}</span>
+			{maxTagsToShow < tags.length && (
+				<Popover>
+					<PopoverTrigger asChild>
+						<Button variant="ghost" size="xs">
+							+{tags.length - maxTagsToShow} More
+							<TagIcon data-icon="inline-end" />
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent>
+						<PopoverHeader>
+							<PopoverTitle>All tags</PopoverTitle>
+						</PopoverHeader>
+						<div className="gap-1 flex flex-wrap mt-2">
+							{tags.map((t) => (
+								<TagBadge key={t}>{t}</TagBadge>
+							))}
+						</div>
+					</PopoverContent>
+				</Popover>
 			)}
 		</div>
 	);
@@ -116,7 +142,7 @@ function TagsCell({ tags }: TagsCellProps) {
 
 function TextCell({ children }: React.ComponentProps<"span">) {
 	return (
-		<TextWithTooltip className="max-w-40 inline-block">
+		<TextWithTooltip className={cn("max-w-40 inline-block")}>
 			{children}
 		</TextWithTooltip>
 	);
@@ -159,7 +185,19 @@ function ActionCell({ workId, isDisabledPreview, onPreview }: ActionCellProps) {
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<Button asChild variant="ghost" size="icon">
-						<Link to={`/works/${workId}/versions`}>
+						<Link to={ROUTE.WORKS_EDIT.getLink({ workId })}>
+							<Pencil />
+						</Link>
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>Edit</p>
+				</TooltipContent>
+			</Tooltip>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button asChild variant="ghost" size="icon">
+						<Link to={ROUTE.REVISIONS.getLink({ workId })}>
 							<Clock />
 						</Link>
 					</Button>

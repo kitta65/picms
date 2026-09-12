@@ -3,11 +3,16 @@ import { useSelector } from "@tanstack/react-store";
 import { useContext, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { navigate } from "wouter/use-browser-location";
-import { handleSubmitWorksNewInput } from "@/pages/works-new/api";
-import { WORKS_NEW_INPUT_SCHEMA } from "@/pages/works-new/model";
-import { Preview } from "@/pages/works-new/ui/preview";
+import { RevisionImage } from "@/entities/revision/ui";
+import { useWorkQuery } from "@/entities/work/api";
+import { handleSubmitWorksEditInput } from "@/pages/works-edit/api";
+import {
+	WORKS_EDIT_INPUT_SCHEMA,
+	type WorksEditInput,
+} from "@/pages/works-edit/model";
 import { ApiClientContext } from "@/shared/api";
 import { ROUTE } from "@/shared/config";
+import { ContextualHelp } from "@/shared/ui/custom/contextual-help";
 import { InputTags } from "@/shared/ui/custom/input-tags";
 import { Button } from "@/shared/ui/shadcn/button";
 import { Checkbox } from "@/shared/ui/shadcn/checkbox";
@@ -23,30 +28,46 @@ import {
 import { Input } from "@/shared/ui/shadcn/input";
 import { Textarea } from "@/shared/ui/shadcn/textarea";
 
-export function WorksNew() {
+type WorksEditProps = {
+	workId: string;
+};
+export function WorksEdit({ workId }: WorksEditProps) {
+	const { data: work, isLoading } = useWorkQuery(workId);
 	const client = useContext(ApiClientContext);
+	const defaultValues: WorksEditInput = {
+		id: workId,
+		file: null,
+		title: "",
+		tags: [],
+		description: "",
+		public: false,
+	};
 	const form = useForm({
-		defaultValues: {
-			file: null as File | null,
-			title: "",
-			tags: [] as string[],
-			description: "",
-			public: false,
-		},
+		defaultValues,
 		validators: {
-			onSubmit: WORKS_NEW_INPUT_SCHEMA,
+			onSubmit: WORKS_EDIT_INPUT_SCHEMA,
 		},
 		onSubmit: async ({ value }) => {
-			await handleSubmitWorksNewInput(WORKS_NEW_INPUT_SCHEMA.parse(value), {
-				client,
-				onSuccess: () => {
-					toast.success("Saved!");
-					navigate(ROUTE.WORKS.pattern);
+			await handleSubmitWorksEditInput(
+				workId,
+				WORKS_EDIT_INPUT_SCHEMA.parse(value),
+				{
+					client,
+					onSuccess: () => {
+						toast.success("Saved!");
+						navigate(ROUTE.WORKS.getLink());
+					},
+					onError: () => toast.error("Something Went Wrong."),
 				},
-				onError: () => toast.error("Something Went Wrong."),
-			});
+			);
 		},
 	});
+	useEffect(() => {
+		if (!work || isLoading) {
+			return;
+		}
+		form.reset({ ...work, file: null });
+	}, [work, isLoading, form]);
 
 	const file = useSelector(form.store, (state) => state.values.file);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,7 +93,19 @@ export function WorksNew() {
 				form.handleSubmit();
 			}}
 		>
-			<Preview url={previewUrl} />
+			<div className="flex justify-center items-center h-60">
+				{previewUrl ? (
+					<img src={previewUrl} alt={previewUrl} className="max-h-full" />
+				) : work?.revisionId ? (
+					<RevisionImage
+						revisionId={work.revisionId}
+						mode="inside"
+						size="9999x240"
+					/>
+				) : (
+					<span className="text-foreground">Image not found</span>
+				)}
+			</div>
 			<FieldGroup>
 				<FieldSet>
 					<form.Field name="file">
@@ -81,7 +114,13 @@ export function WorksNew() {
 								field.state.meta.isTouched && !field.state.meta.isValid;
 							return (
 								<Field data-invalid={isInvalid}>
-									<FieldLabel htmlFor={field.name}>File</FieldLabel>
+									<div className="flex items-center gap-x-1">
+										<FieldLabel htmlFor={field.name}>File</FieldLabel>
+										<ContextualHelp
+											title="Not required"
+											description="Choose a file only if you want to upload a new file."
+										/>
+									</div>
 									<Input
 										ref={fileInputRef}
 										id={field.name}
@@ -152,7 +191,7 @@ export function WorksNew() {
 									<InputTags
 										id={field.name}
 										name={field.name}
-										tags={field.state.value}
+										tags={field.state.value ?? []}
 										onBlur={field.handleBlur}
 										onChange={(tags) => field.handleChange(tags)}
 										aria-invalid={isInvalid}
@@ -201,10 +240,17 @@ export function WorksNew() {
 				</FieldSet>
 			</FieldGroup>
 			<div className="flex items-center justify-center gap-x-4">
-				<Button variant="outline" type="button" onClick={() => form.reset()}>
+				<Button
+					variant="outline"
+					type="button"
+					onClick={() => form.reset()}
+					disabled={isLoading}
+				>
 					Reset
 				</Button>
-				<Button type="submit">Submit</Button>
+				<Button type="submit" disabled={isLoading}>
+					Submit
+				</Button>
 			</div>
 		</form>
 	);

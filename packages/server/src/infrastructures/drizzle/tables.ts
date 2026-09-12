@@ -4,6 +4,7 @@ import {
 	integer,
 	pgTable,
 	timestamp,
+	unique,
 	uuid,
 	varchar,
 } from "drizzle-orm/pg-core";
@@ -53,7 +54,10 @@ export const workTagTable = pgTable(
 		name: varchar("name", { length: 255 }).notNull(),
 		createdAt: timestamp("created_at").notNull(),
 	},
-	(table) => [index("work_id__idx").on(table.workId)],
+	(table) => [
+		index("work_id__idx").on(table.workId),
+		unique().on(table.workId, table.name),
+	],
 );
 
 export const revisionTable = pgTable("work_revision", {

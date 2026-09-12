@@ -89,7 +89,7 @@ export function Preview({
 								className="object-contain max-h-[calc(100vh-8rem)] max-w-[calc(100vw-8rem)]"
 							/>
 						) : (
-							<span className="text-foreground">Not found</span>
+							<span className="text-foreground">Image not found</span>
 						)}
 					</div>
 					<div

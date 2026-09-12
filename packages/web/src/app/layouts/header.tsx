@@ -17,14 +17,14 @@ import {
 	TooltipTrigger,
 } from "@/shared/ui/shadcn/tooltip";
 
-const LINKS = [ROUTE.WORKS, ROUTE.SERIES, ROUTE.SETTINGS];
+const LINKS = [ROUTE.WORKS, ROUTE.SERIES, ROUTE.SETTINGS] as const;
 
 export function Header() {
 	return (
 		<header className="w-full flex items-center justify-left">
-			<a href="/">
+			<Link to={ROUTE.HOME.getLink()}>
 				<img src={logo} alt="logo" className="mr-4 h-8" />
-			</a>
+			</Link>
 			<NavigationMenu>
 				<NavigationMenuList>
 					{LINKS.map((link) => (
@@ -33,7 +33,7 @@ export function Header() {
 								className={navigationMenuTriggerStyle()}
 								asChild
 							>
-								<Link to={link.pattern}> {link.label} </Link>
+								<Link to={link.getLink()}>{link.label}</Link>
 							</NavigationMenuLink>
 						</NavigationMenuItem>
 					))}

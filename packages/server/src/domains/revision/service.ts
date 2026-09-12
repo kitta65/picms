@@ -33,7 +33,7 @@ export async function display(
 	revision: Revision,
 	options: DisplayOptions,
 	di: { revisionStorage: ISharedStorage },
-) {
+): Promise<ReadableStream | Blob> {
 	const storage = di.revisionStorage;
 	const { stream } = await storage.readById(revision.id);
 	const { width, height } = options.resize.size;

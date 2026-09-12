@@ -1,17 +1,19 @@
-import type { WorksNewInput } from "@/pages/works-new/model";
+import type { WorksEditInput } from "@/pages/works-edit/model";
 import type { ApiClient } from "@/shared/api";
 
-type HandleSubmitWorksNewInputOptions = {
+type HandleSubmitWorksEditInputOptions = {
 	client: ApiClient;
 	onSuccess: () => void;
 	onError: () => void;
 };
 
-export async function handleSubmitWorksNewInput(
-	input: WorksNewInput,
-	{ client, onSuccess, onError }: HandleSubmitWorksNewInputOptions,
+export async function handleSubmitWorksEditInput(
+	workId: string,
+	input: WorksEditInput,
+	{ client, onSuccess, onError }: HandleSubmitWorksEditInputOptions,
 ) {
-	const postWorkResp = await client.api.private.works.$post({
+	const postWorkResp = await client.api.private.works[":id"].$post({
+		param: { id: workId },
 		json: input,
 	});
 	if (!postWorkResp.ok) {
@@ -19,6 +21,11 @@ export async function handleSubmitWorksNewInput(
 		return;
 	}
 	const work = await postWorkResp.json();
+
+	if (!input.file) {
+		onSuccess();
+		return;
+	}
 
 	const postRevisionResp = await client.api.private.revisions.$post({
 		json: { workId: work.id },
