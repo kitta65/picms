@@ -1,12 +1,19 @@
 import { useSelector } from "@tanstack/react-store";
+import { ImageIcon } from "lucide-react";
 import { useCreateWorkForm } from "@/features/upsert-work/api";
 import {
-	SelectedFilePreview,
 	UPSERT_WORK_FIELDS,
 	UpsertWorkFields,
-	useObjectUrl,
 } from "@/features/upsert-work/ui";
+import { useObjectUrl } from "@/shared/lib/object-url";
 import { Button } from "@/shared/ui/shadcn/button";
+import {
+	Empty,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle,
+} from "@/shared/ui/shadcn/empty";
 
 export function WorksNew() {
 	const form = useCreateWorkForm();
@@ -30,5 +37,28 @@ export function WorksNew() {
 				<Button type="submit">Submit</Button>
 			</div>
 		</form>
+	);
+}
+
+type SelectedFilePreviewProps = {
+	url: string | null;
+};
+function SelectedFilePreview({ url }: SelectedFilePreviewProps) {
+	return (
+		<div className="flex item-center justify-center h-60">
+			{url ? (
+				<img src={url} alt={url} />
+			) : (
+				<Empty>
+					<EmptyHeader>
+						<EmptyMedia variant="icon">
+							<ImageIcon />
+						</EmptyMedia>
+						<EmptyTitle>No File</EmptyTitle>
+						<EmptyDescription>No file is selected</EmptyDescription>
+					</EmptyHeader>
+				</Empty>
+			)}
+		</div>
 	);
 }

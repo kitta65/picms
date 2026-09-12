@@ -1,17 +1,9 @@
-import { ImageIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { withFieldGroup } from "@/features/upsert-work/api";
 import type { CommonPart } from "@/features/upsert-work/model";
 import { ContextualHelp } from "@/shared/ui/custom/contextual-help";
 import { InputTags } from "@/shared/ui/custom/input-tags";
 import { Checkbox } from "@/shared/ui/shadcn/checkbox";
-import {
-	Empty,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from "@/shared/ui/shadcn/empty";
 import {
 	Field,
 	FieldDescription,
@@ -39,20 +31,6 @@ export const UPSERT_WORK_FIELDS = {
 	tags: "tags",
 	public: "public",
 } as const;
-
-export function useObjectUrl(file: File | null) {
-	const [url, setUrl] = useState<string | null>(null);
-	useEffect(() => {
-		if (!file) {
-			setUrl(null);
-			return;
-		}
-		const next = URL.createObjectURL(file);
-		setUrl(next);
-		return () => URL.revokeObjectURL(next);
-	}, [file]);
-	return url;
-}
 
 function ClearFileInputOnReset({
 	file,
@@ -222,26 +200,3 @@ export const UpsertWorkFields = withFieldGroup({
 		);
 	},
 });
-
-type SelectedFilePreviewProps = {
-	url: string | null;
-};
-export function SelectedFilePreview({ url }: SelectedFilePreviewProps) {
-	return (
-		<div className="flex item-center justify-center h-60">
-			{url ? (
-				<img src={url} alt={url} />
-			) : (
-				<Empty>
-					<EmptyHeader>
-						<EmptyMedia variant="icon">
-							<ImageIcon />
-						</EmptyMedia>
-						<EmptyTitle>No File</EmptyTitle>
-						<EmptyDescription>No file is selected</EmptyDescription>
-					</EmptyHeader>
-				</Empty>
-			)}
-		</div>
-	);
-}

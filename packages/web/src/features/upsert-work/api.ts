@@ -3,10 +3,10 @@ import { useContext } from "react";
 import { toast } from "sonner";
 import { navigate } from "wouter/use-browser-location";
 import {
-	WORKS_EDIT_INPUT_SCHEMA,
-	WORKS_NEW_INPUT_SCHEMA,
-	type WorksEditInput,
-	type WorksNewInput,
+	CREATE_WORK_INPUT_SCHEMA,
+	type CreateWorkInput,
+	UPDATE_WORK_INPUT_SCHEMA,
+	type UpdateWorkInput,
 } from "@/features/upsert-work/model";
 import { type ApiClient, ApiClientContext } from "@/shared/api";
 import { ROUTE } from "@/shared/config";
@@ -28,17 +28,15 @@ type HandleSubmitOptions = {
 };
 
 async function uploadFileToNewRevision(
-	client: ApiClient,
 	workId: string,
 	file: File,
-	onError: () => void,
+	{ client }: Pick<HandleSubmitOptions, "client">,
 ) {
 	const postRevisionResp = await client.api.private.revisions.$post({
 		json: { workId },
 	});
 	if (!postRevisionResp.ok) {
-		onError();
-		return false;
+		throw new Error("Failed to create revision");
 	}
 	const revision = await postRevisionResp.json();
 
@@ -50,8 +48,7 @@ async function uploadFileToNewRevision(
 		},
 	});
 	if (!getSignedUrlResp.ok) {
-		onError();
-		return false;
+		throw new Error("Failed to get signed URL");
 	}
 	const signedUrl = await getSignedUrlResp.text();
 
@@ -60,15 +57,12 @@ async function uploadFileToNewRevision(
 		body: file,
 	});
 	if (!putFileResp.ok) {
-		onError();
-		return false;
+		throw new Error("Failed to upload file");
 	}
-
-	return true;
 }
 
 async function handleSubmitWorksNewInput(
-	input: WorksNewInput,
+	input: CreateWorkInput,
 	{ client, onSuccess, onError }: HandleSubmitOptions,
 ) {
 	const postWorkResp = await client.api.private.works.$post({
@@ -80,13 +74,12 @@ async function handleSubmitWorksNewInput(
 	}
 	const work = await postWorkResp.json();
 
-	const uploaded = await uploadFileToNewRevision(
-		client,
-		work.id,
-		input.file,
-		onError,
-	);
-	if (!uploaded) {
+	try {
+		await uploadFileToNewRevision(work.id, input.file, {
+			client,
+		});
+	} catch {
+		onError();
 		return;
 	}
 
@@ -104,10 +97,10 @@ export function useCreateWorkForm() {
 			public: false,
 		},
 		validators: {
-			onSubmit: WORKS_NEW_INPUT_SCHEMA,
+			onSubmit: CREATE_WORK_INPUT_SCHEMA,
 		},
 		onSubmit: async ({ value }) => {
-			await handleSubmitWorksNewInput(WORKS_NEW_INPUT_SCHEMA.parse(value), {
+			await handleSubmitWorksNewInput(CREATE_WORK_INPUT_SCHEMA.parse(value), {
 				client,
 				onSuccess: () => {
 					toast.success("Saved!");
@@ -120,13 +113,12 @@ export function useCreateWorkForm() {
 	return form;
 }
 
-async function handleSubmitWorksEditInput(
-	workId: string,
-	input: WorksEditInput,
+async function handleSubmitUpdateWorkInput(
+	input: UpdateWorkInput,
 	{ client, onSuccess, onError }: HandleSubmitOptions,
 ) {
 	const postWorkResp = await client.api.private.works[":id"].$post({
-		param: { id: workId },
+		param: { id: input.id },
 		json: input,
 	});
 	if (!postWorkResp.ok) {
@@ -140,13 +132,12 @@ async function handleSubmitWorksEditInput(
 		return;
 	}
 
-	const uploaded = await uploadFileToNewRevision(
-		client,
-		work.id,
-		input.file,
-		onError,
-	);
-	if (!uploaded) {
+	try {
+		await uploadFileToNewRevision(work.id, input.file, {
+			client,
+		});
+	} catch {
+		onError();
 		return;
 	}
 
@@ -155,7 +146,7 @@ async function handleSubmitWorksEditInput(
 
 export function useUpdateWorkForm(workId: string) {
 	const client = useContext(ApiClientContext);
-	const defaultValues: WorksEditInput = {
+	const defaultValues: UpdateWorkInput = {
 		id: workId,
 		file: null,
 		title: "",
@@ -166,21 +157,17 @@ export function useUpdateWorkForm(workId: string) {
 	const form = useAppForm({
 		defaultValues,
 		validators: {
-			onSubmit: WORKS_EDIT_INPUT_SCHEMA,
+			onSubmit: UPDATE_WORK_INPUT_SCHEMA,
 		},
 		onSubmit: async ({ value }) => {
-			await handleSubmitWorksEditInput(
-				workId,
-				WORKS_EDIT_INPUT_SCHEMA.parse(value),
-				{
-					client,
-					onSuccess: () => {
-						toast.success("Saved!");
-						navigate(ROUTE.WORKS.getLink());
-					},
-					onError: () => toast.error("Something Went Wrong."),
+			await handleSubmitUpdateWorkInput(UPDATE_WORK_INPUT_SCHEMA.parse(value), {
+				client,
+				onSuccess: () => {
+					toast.success("Saved!");
+					navigate(ROUTE.WORKS.getLink());
 				},
-			);
+				onError: () => toast.error("Something Went Wrong."),
+			});
 		},
 	});
 	return form;

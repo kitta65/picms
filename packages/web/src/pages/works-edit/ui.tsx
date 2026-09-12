@@ -6,8 +6,8 @@ import { useUpdateWorkForm } from "@/features/upsert-work/api";
 import {
 	UPSERT_WORK_FIELDS,
 	UpsertWorkFields,
-	useObjectUrl,
 } from "@/features/upsert-work/ui";
+import { useObjectUrl } from "@/shared/lib/object-url";
 import { Button } from "@/shared/ui/shadcn/button";
 
 type WorksEditProps = {
