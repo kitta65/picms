@@ -1,4 +1,4 @@
-import { BookOpen } from "lucide-react";
+import { BookOpenIcon } from "lucide-react";
 import { Link } from "wouter";
 
 import { ROUTE } from "@/shared/routes";
@@ -48,7 +48,7 @@ export function Header() {
 								target="_blank"
 								rel="noopnner noreferrer"
 							>
-								<BookOpen />
+								<BookOpenIcon />
 							</a>
 						</Button>
 					</TooltipTrigger>

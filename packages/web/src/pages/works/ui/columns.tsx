@@ -1,9 +1,19 @@
-import { Clock, Expand, ImageIcon, Pencil, TagIcon } from "lucide-react";
+import {
+	ClockIcon,
+	EllipsisIcon,
+	ExpandIcon,
+	ImageIcon,
+	PencilIcon,
+	TagIcon,
+	TrashIcon,
+} from "lucide-react";
+import type { ReactNode } from "react";
 import { Link } from "wouter";
 import { useConfigQuery } from "@/entities/config/api";
 import { RevisionImage, type RevisionImageProps } from "@/entities/revision/ui";
 import type { Work } from "@/entities/work/model";
 import { ROUTE } from "@/shared/routes";
+import { ConfirmDialog } from "@/shared/ui/custom/confirm-dialog";
 import { createColumnHelper } from "@/shared/ui/custom/data-table";
 import { DateWithTz } from "@/shared/ui/custom/date-with-tz";
 import { TagBadge } from "@/shared/ui/custom/tag-badge";
@@ -11,6 +21,12 @@ import { TextWithTooltip } from "@/shared/ui/custom/text";
 import { Badge } from "@/shared/ui/shadcn/badge";
 import { Button } from "@/shared/ui/shadcn/button";
 import { ButtonGroup } from "@/shared/ui/shadcn/button-group";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/shared/ui/shadcn/dropdown-menu";
 import {
 	Popover,
 	PopoverContent,
@@ -175,7 +191,7 @@ function ActionCell({ workId, isDisabledPreview, onPreview }: ActionCellProps) {
 						disabled={isDisabledPreview}
 						onClick={onPreview}
 					>
-						<Expand />
+						<ExpandIcon />
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
@@ -186,7 +202,7 @@ function ActionCell({ workId, isDisabledPreview, onPreview }: ActionCellProps) {
 				<TooltipTrigger asChild>
 					<Button asChild variant="ghost" size="icon">
 						<Link to={ROUTE.WORKS_EDIT.getLink({ workId })}>
-							<Pencil />
+							<PencilIcon />
 						</Link>
 					</Button>
 				</TooltipTrigger>
@@ -198,7 +214,7 @@ function ActionCell({ workId, isDisabledPreview, onPreview }: ActionCellProps) {
 				<TooltipTrigger asChild>
 					<Button asChild variant="ghost" size="icon">
 						<Link to={ROUTE.REVISIONS.getLink({ workId })}>
-							<Clock />
+							<ClockIcon />
 						</Link>
 					</Button>
 				</TooltipTrigger>
@@ -206,6 +222,46 @@ function ActionCell({ workId, isDisabledPreview, onPreview }: ActionCellProps) {
 					<p>View versions</p>
 				</TooltipContent>
 			</Tooltip>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<ActionDropdown asChild>
+						<Button variant="ghost" size="icon">
+							<EllipsisIcon />
+						</Button>
+					</ActionDropdown>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>More</p>
+				</TooltipContent>
+			</Tooltip>
 		</ButtonGroup>
+	);
+}
+
+type ActionDropdownProps = {
+	children: ReactNode;
+	asChild: boolean;
+};
+function ActionDropdown({ children, asChild }: ActionDropdownProps) {
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild={asChild}>{children}</DropdownMenuTrigger>
+			<DropdownMenuContent>
+				<ConfirmDialog
+					asChild
+					title="Are you sure you want to delete this?"
+					description="This action cannot be undone."
+					onSelectYes={() => console.log("TODO: not implemented")}
+				>
+					<DropdownMenuItem
+						variant="destructive"
+						// do not close when clicked
+						onSelect={(e) => e.preventDefault()}
+					>
+						<TrashIcon /> Delete
+					</DropdownMenuItem>
+				</ConfirmDialog>
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 }

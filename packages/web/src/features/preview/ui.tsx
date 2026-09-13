@@ -1,4 +1,10 @@
-import { Download, ExternalLink, MoveLeft, MoveRight, X } from "lucide-react";
+import {
+	DownloadIcon,
+	ExternalLinkIcon,
+	MoveLeftIcon,
+	MoveRightIcon,
+	XIcon,
+} from "lucide-react";
 import type { DisplayInput } from "picms-server/features/revision/io";
 import { Dialog } from "radix-ui";
 import { useContext } from "react";
@@ -120,10 +126,10 @@ export function Preview({
 											target="_blank"
 											rel="noopner noreferrer"
 										>
-											<ExternalLink />
+											<ExternalLinkIcon />
 										</a>
 									) : (
-										<ExternalLink />
+										<ExternalLinkIcon />
 									)}
 								</Button>
 							</TooltipTrigger>
@@ -134,10 +140,10 @@ export function Preview({
 								<Button size="icon" asChild disabled={!downloadUrl}>
 									{downloadUrl ? (
 										<a href={downloadUrl}>
-											<Download />
+											<DownloadIcon />
 										</a>
 									) : (
-										<Download />
+										<DownloadIcon />
 									)}
 								</Button>
 							</TooltipTrigger>
@@ -146,7 +152,7 @@ export function Preview({
 						<ButtonGroupSeparator className={cn("bg-transparent")} />
 						<Dialog.Close asChild>
 							<Button size="icon">
-								<X />
+								<XIcon />
 							</Button>
 						</Dialog.Close>
 					</ButtonGroup>
@@ -165,7 +171,7 @@ export function Preview({
 							aria-label="Previous"
 							onClick={onPrev}
 						>
-							<MoveLeft />
+							<MoveLeftIcon />
 						</Button>
 					</div>
 					<div
@@ -181,7 +187,7 @@ export function Preview({
 							aria-label="Next"
 							onClick={onNext}
 						>
-							<MoveRight />
+							<MoveRightIcon />
 						</Button>
 					</div>
 
