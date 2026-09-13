@@ -32,6 +32,10 @@
 				"tamasfe.even-better-toml"
 			],
 			"settings": {
+				// since bunfig.toml in each package is not respected,
+				// I can't run test from UI.
+				// maybe related to https://github.com/oven-sh/bun/discussions/11762
+				"bun.test.enable": false,
 				"editor.defaultFormatter": "biomejs.biome",
 				// recommended by tailwind https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
 				"editor.quickSuggestions": {
