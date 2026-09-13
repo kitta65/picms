@@ -3,6 +3,8 @@ import type { Revision } from "../../domains/revision/entity";
 import {
 	CREATE_INPUT_SCHEMA,
 	CreateInput,
+	DISPLAY_INPUT_SCHEMA,
+	DisplayInput,
 	FIND_BY_ID_INPUT_SCHEMA,
 	ISSUE_SIGNED_URL_INPUT_SCHEMA,
 } from "./io";
@@ -72,5 +74,57 @@ describe("ISSUE_SIGNED_URL_INPUT_SCHEMA", () => {
 		);
 		expect(result).toStrictEqual(VALID_ISSUE_SIGNED_URL_INPUT);
 		//
+	});
+});
+
+const VALID_DISPLAY_INPUT = {
+	revisionId: Bun.randomUUIDv7(),
+	size: "100x100",
+	mode: "inside",
+} satisfies DisplayInput;
+
+describe("DISPLAY_INPUT_SCHEMA", () => {
+	test("succeed to parse valid input", () => {
+		const result = DISPLAY_INPUT_SCHEMA.safeParse(VALID_DISPLAY_INPUT);
+		expect(result.success).toBe(true);
+	});
+
+	test("fail to parse invalid input (invalid size)", () => {
+		const result = DISPLAY_INPUT_SCHEMA.safeParse({
+			...VALID_DISPLAY_INPUT,
+			size: "100:100",
+		} satisfies DisplayInput);
+		expect(result.success).toBe(false);
+	});
+
+	test("succeed to parse valid input (invalid mode)", () => {
+		const result = DISPLAY_INPUT_SCHEMA.safeParse({
+			...VALID_DISPLAY_INPUT,
+			// biome-ignore lint: intentional any
+			mode: "InvalidMode" as any,
+		} satisfies DisplayInput);
+		expect(result.success).toBe(false);
+	});
+});
+
+describe("DisplayInput.toDisplayOptions", () => {
+	test("width and height are preserved", () => {
+		const input: DisplayInput = {
+			...VALID_DISPLAY_INPUT,
+			size: "200x400",
+		};
+		const result = DisplayInput.toDisplayOptions(input);
+		expect(result.resize.size.width).toBe(200);
+		expect(result.resize.size.height).toBe(400);
+	});
+
+	test("unspecified width and height are handled as undefined", () => {
+		const input: DisplayInput = {
+			...VALID_DISPLAY_INPUT,
+			size: "x",
+		};
+		const result = DisplayInput.toDisplayOptions(input);
+		expect(result.resize.size.width).toBeUndefined();
+		expect(result.resize.size.height).toBeUndefined();
 	});
 });

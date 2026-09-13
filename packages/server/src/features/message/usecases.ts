@@ -1,9 +1,10 @@
+import { assertNever } from "picms-shared/types";
 import type { Message } from "../../domains/message/entity";
 import type { IMessageBroker } from "../../domains/message/repository";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
+import * as RevisionService from "../../domains/revision/service";
 import type { ISharedStorage } from "../../domains/shared/repository";
 import type { IWorkDatabase } from "../../domains/work/repository";
-import { assertNever } from "../../utils";
 
 const RETRY_INTERVAL_MINUTES = 1;
 const MAX_ATTEMPTS = 3;
@@ -31,7 +32,7 @@ export async function handleFirstN(
 				await handleRevisionSignedUrlExpired(m, di);
 				break;
 			case "WORK_DELETED":
-				console.warn("TODO: not implemented");
+				await handleWorkDeleted(m, di);
 				break;
 			default: {
 				assertNever(m.type);
@@ -72,8 +73,24 @@ async function handleRevisionSignedUrlExpired(
 		revisionStorage: ISharedStorage;
 	},
 ) {
-	await di.revisionDatabase.deleteById(message.targetId);
-	await di.revisionStorage.deleteById(message.id);
+	// if the data does not exist in storage until this message is handled, it means the revision is broken.
+	const notFound = await di.revisionStorage.checkAvailability(message.targetId);
+	if (notFound) {
+		await di.revisionDatabase.deleteById(message.targetId);
+	}
+	await di.messageBroker.ack(message.id);
+}
+
+async function handleWorkDeleted(
+	message: Message,
+	di: {
+		messageBroker: IMessageBroker;
+		revisionDatabase: IRevisionDatabase;
+		revisionStorage: ISharedStorage;
+		workDatabase: IWorkDatabase;
+	},
+) {
+	await RevisionService.deleteByWorkId(message.targetId, di);
 	await di.messageBroker.ack(message.id);
 }
 

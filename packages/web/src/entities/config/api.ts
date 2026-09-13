@@ -4,7 +4,7 @@ import { useContext } from "react";
 import type { Config } from "@/entities/config/model";
 import { ApiClientContext, ApiError } from "@/shared/api";
 
-function useConfigQuery() {
+export function useConfigQuery() {
 	const client = useContext(ApiClientContext);
 
 	return useQuery({

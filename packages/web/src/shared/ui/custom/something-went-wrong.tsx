@@ -1,4 +1,4 @@
-import { CircleAlert } from "lucide-react";
+import { CircleAlertIcon } from "lucide-react";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
 	Empty,
@@ -16,7 +16,7 @@ export function SomethingWentWrong() {
 		<Empty>
 			<EmptyHeader>
 				<EmptyMedia variant="icon">
-					<CircleAlert />
+					<CircleAlertIcon />
 				</EmptyMedia>
 
 				<EmptyTitle>Something Went Wrong.</EmptyTitle>
