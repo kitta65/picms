@@ -1,10 +1,10 @@
+import { cn } from "cn";
 import { useEffect, useRef, useState } from "react";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from "@/shared/ui/shadcn/tooltip";
-import { cn } from "@/shared/ui/shadcn/utils";
 
 type TextWithTooltipProps = React.ComponentProps<"span">;
 export function TextWithTooltip({ children, ...props_ }: TextWithTooltipProps) {

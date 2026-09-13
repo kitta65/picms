@@ -1,3 +1,4 @@
+import { cn } from "cn";
 import {
 	DownloadIcon,
 	ExternalLinkIcon,
@@ -22,7 +23,6 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/shared/ui/shadcn/tooltip";
-import { cn } from "@/shared/ui/shadcn/utils";
 
 const MERGIN = cn("m-4");
 const ANIMATION = cn(
