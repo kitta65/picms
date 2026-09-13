@@ -19,7 +19,8 @@
 	},
 	"postCreateCommand": {
 		"bun": "bun run setup && bun run build",
-		"env": "echo export BUN_CHROME_PATH=$(find ~/.cache/ms-playwright -maxdepth 3 -type f -name 'chrome-headless-shell') >> ~/.bashrc"
+		"env": "echo export BUN_CHROME_PATH=$(find ~/.cache/ms-playwright -maxdepth 3 -type f -name 'chrome-headless-shell') >> ~/.bashrc",
+		"lefthook": "lefthook install"
 	},
 	"customizations": {
 		"vscode": {

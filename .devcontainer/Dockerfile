@@ -6,6 +6,9 @@ ARG BUN_VERSION=1.4.2
 
 USER vscode
 
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash && \
+    sudo apt install lefthook
+
 ENV XDG_DATA_HOME=/home/vscode/.local/share
 
 # NOTE: since bun.completion.bash is not auto loaded, it is required to rename
