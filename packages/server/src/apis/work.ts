@@ -77,4 +77,21 @@ export const WORK_API = new Hono()
 			const result = await repo.update(work);
 			return c.json(result, 200);
 		},
+	)
+	.delete(
+		"/:id",
+		validator("param", (value) => {
+			const parsed = workIo.DELETE_INPUT_SCHEMA.safeParse(value);
+			if (!parsed.success) {
+				const { status, message } = ERROR_CODE.BAD_REQUEST;
+				throw new HTTPException(status, { message });
+			}
+			return parsed.data;
+		}),
+		async (c) => {
+			const input = c.req.valid("param");
+			const repo = drizzleRepositories.workDatabase;
+			await repo.deleteById(input.id);
+			return c.body(null, 204);
+		},
 	);

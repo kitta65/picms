@@ -9,7 +9,7 @@ export const CREATE_INPUT_SCHEMA = WORK_SCHEMA.pick({
 	description: true,
 	public: true,
 });
-type CreateInput = z.infer<typeof CREATE_INPUT_SCHEMA>;
+export type CreateInput = z.infer<typeof CREATE_INPUT_SCHEMA>;
 export const CreateInput = {
 	toEntity(input: CreateInput): Work {
 		const validated = CREATE_INPUT_SCHEMA.parse(input);
@@ -27,7 +27,7 @@ export const UPDATE_INPUT_SCHEMA = z.object({
 	description: WORK_SCHEMA.shape.description.optional(),
 	public: WORK_SCHEMA.shape.public.optional(),
 });
-type UpdateInput = z.infer<typeof UPDATE_INPUT_SCHEMA>;
+export type UpdateInput = z.infer<typeof UPDATE_INPUT_SCHEMA>;
 export const UpdateInput = {
 	forRepository(input: UpdateInput): Parameters<IWorkDatabase["update"]>[0] {
 		const validated = UPDATE_INPUT_SCHEMA.parse(input);
@@ -62,3 +62,7 @@ export type FindManyInput = z.infer<typeof FIND_MANY_INPUT_SCHEMA>;
 
 export const FIND_MANY_OUTPUT_SCHEMA = z.array(FIND_ONE_OUTPUT_SCHEMA.unwrap());
 export type FindManyOutput = z.infer<typeof FIND_MANY_OUTPUT_SCHEMA>;
+
+export const DELETE_INPUT_SCHEMA = z.object({
+	id: WORK_SCHEMA.shape.id,
+});

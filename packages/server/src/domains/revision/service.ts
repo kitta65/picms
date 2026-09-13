@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import { ERROR_CODE } from "../../constants";
 import type { ISharedStorage } from "../shared/repository";
 import type { Revision } from "./entity";
+import type { IRevisionDatabase } from "./repository";
 
 export async function checkStorageAvailability(
 	revision: Revision,
@@ -77,4 +78,21 @@ export async function readWithMetadata(
 	};
 
 	return { stream, metadata };
+}
+
+async function deleteById(
+	revisionId: Revision["id"],
+	di: { revisionDatabase: IRevisionDatabase; revisionStorage: ISharedStorage },
+) {
+	await di.revisionStorage.deleteById(revisionId);
+	await di.revisionDatabase.deleteById(revisionId);
+}
+
+export async function deleteByWorkId(
+	workId: Revision["workId"],
+	di: { revisionDatabase: IRevisionDatabase; revisionStorage: ISharedStorage },
+) {
+	const revisions = await di.revisionDatabase.findByWorkId(workId);
+	const promises = revisions.map((r) => deleteById(r.id, di));
+	await Promise.all(promises);
 }

@@ -59,7 +59,12 @@ function Wrapper({
 
 describe("WorksNew", () => {
 	test("cannot submit if required field is not set", async () => {
-		const { component, user } = setupComponent(<WorksNew />);
+		const client = testClient(FAKE_API);
+		const { component, user } = setupComponent(
+			<Wrapper apiClient={client}>
+				<WorksNew />
+			</Wrapper>,
+		);
 		const button = component.getByRole("button", { name: /submit/i });
 		await user.click(button);
 

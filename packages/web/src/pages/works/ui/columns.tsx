@@ -8,9 +8,11 @@ import {
 	TrashIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { toast } from "sonner";
 import { Link } from "wouter";
 import { useConfigQuery } from "@/entities/config/api";
 import { RevisionImage, type RevisionImageProps } from "@/entities/revision/ui";
+import { useWorkDeletion } from "@/entities/work/api";
 import type { Work } from "@/entities/work/model";
 import { ROUTE } from "@/shared/routes";
 import { ConfirmDialog } from "@/shared/ui/custom/confirm-dialog";
@@ -224,7 +226,7 @@ function ActionCell({ workId, isDisabledPreview, onPreview }: ActionCellProps) {
 			</Tooltip>
 			<Tooltip>
 				<TooltipTrigger asChild>
-					<ActionDropdown asChild>
+					<ActionDropdown asChild workId={workId}>
 						<Button variant="ghost" size="icon">
 							<EllipsisIcon />
 						</Button>
@@ -239,10 +241,18 @@ function ActionCell({ workId, isDisabledPreview, onPreview }: ActionCellProps) {
 }
 
 type ActionDropdownProps = {
+	workId: string;
 	children: ReactNode;
 	asChild: boolean;
 };
-function ActionDropdown({ children, asChild }: ActionDropdownProps) {
+function ActionDropdown({ workId, children, asChild }: ActionDropdownProps) {
+	const { mutateAsync } = useWorkDeletion();
+	const onDeletion = async () => {
+		await mutateAsync(workId).then(
+			() => toast.success("Deleted!"),
+			() => toast.error("Something went wrong."),
+		);
+	};
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild={asChild}>{children}</DropdownMenuTrigger>
@@ -251,7 +261,7 @@ function ActionDropdown({ children, asChild }: ActionDropdownProps) {
 					asChild
 					title="Are you sure you want to delete this?"
 					description="This action cannot be undone."
-					onSelectYes={() => console.log("TODO: not implemented")}
+					onSelectYes={onDeletion}
 				>
 					<DropdownMenuItem
 						variant="destructive"

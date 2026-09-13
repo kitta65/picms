@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
+import { useWorksQuery } from "@/entities/work/api";
 import { Preview } from "@/features/preview/ui";
-import { useWorkQuery } from "@/pages/works/api";
 import { createColumns } from "@/pages/works/ui/columns";
 import { ROUTE } from "@/shared/routes";
 import { useDataTable } from "@/shared/ui/custom/data-table";
@@ -21,7 +21,7 @@ function useWorkId() {
 
 export function Works() {
 	useWorkId();
-	const { data, isLoading } = useWorkQuery();
+	const { data, isLoading } = useWorksQuery();
 	const [previewIdx, setPreviewIdx] = useState(0);
 	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 	const columns = createColumns({

@@ -158,6 +158,29 @@ export const workDatabase: IWorkDatabase = {
 		}
 		return found;
 	},
+	deleteById: async (id: Parameters<IWorkDatabase["deleteById"]>[0]) => {
+		const message = Message.create({
+			type: "WORK_DELETED",
+			targetId: id,
+		});
+		const result_ = await DB.transaction(async (tx) => {
+			await tx.delete(workTable).where(eq(workTable.id, id));
+			await tx.delete(workTagTable).where(eq(workTagTable.workId, id));
+			const messages = await tx
+				.insert(messageTable)
+				.values(message)
+				.returning();
+			return {
+				data: null,
+				messages,
+			};
+		});
+		const result = {
+			...result_,
+			messages: result_.messages.map((m) => MESSAGE_SCHEMA.parse(m)),
+		};
+		return result;
+	},
 };
 
 class RevisionDatabase implements IRevisionDatabase {
@@ -234,6 +257,13 @@ class RevisionDatabase implements IRevisionDatabase {
 
 		const entity = REVISION_SCHEMA.parse(revision);
 		return entity;
+	}
+
+	async findByWorkId(workId: Parameters<IRevisionDatabase["findByWorkId"]>[0]) {
+		const revisions = await DB.select()
+			.from(revisionTable)
+			.where(eq(revisionTable.workId, workId));
+		return revisions;
 	}
 
 	async deleteById(id: Revision["id"]) {

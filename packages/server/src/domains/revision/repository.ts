@@ -7,6 +7,8 @@ import type { Revision } from "./entity";
 export interface IRevisionDatabase {
 	insert: (workId: Revision) => Awaitable<OperationResult<Revision>>;
 	findById: (id: Revision["id"]) => Awaitable<Revision | undefined>;
+	findByWorkId: (id: Revision["workId"]) => Awaitable<Revision[]>;
+	// should be called via domain service because it takes care of storage
 	deleteById: (id: Revision["id"]) => Awaitable<void>;
 }
 
@@ -16,6 +18,12 @@ class FakeRevisionDatabase implements IRevisionDatabase {
 		throw new HTTPException(status, { message });
 	}
 	findById(_: Revision["id"]): Awaitable<Revision | undefined> {
+		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
+		throw new HTTPException(status, { message });
+	}
+	findByWorkId(
+		_: Revision["workId"],
+	): ReturnType<IRevisionDatabase["findByWorkId"]> {
 		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
 		throw new HTTPException(status, { message });
 	}
