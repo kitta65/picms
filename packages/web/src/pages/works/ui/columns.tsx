@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { useConfigQuery } from "@/entities/config/api";
 import { RevisionImage, type RevisionImageProps } from "@/entities/revision/ui";
 import type { Work } from "@/entities/work/model";
-import { ROUTE } from "@/shared/config";
+import { ROUTE } from "@/shared/routes";
 import { createColumnHelper } from "@/shared/ui/custom/data-table";
 import { DateWithTz } from "@/shared/ui/custom/date-with-tz";
 import { TagBadge } from "@/shared/ui/custom/tag-badge";

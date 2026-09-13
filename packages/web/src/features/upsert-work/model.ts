@@ -13,11 +13,3 @@ export const UPDATE_WORK_INPUT_SCHEMA =
 		file: z.instanceof(File).nullable(),
 	});
 export type UpdateWorkInput = z.infer<typeof UPDATE_WORK_INPUT_SCHEMA>;
-
-export type CommonPart = {
-	file: File | null;
-	title: string;
-	description: string;
-	tags: string[];
-	public: boolean;
-};

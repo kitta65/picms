@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from "wouter";
 import { Preview } from "@/features/preview/ui";
 import { useWorkQuery } from "@/pages/works/api";
 import { createColumns } from "@/pages/works/ui/columns";
-import { ROUTE } from "@/shared/config";
+import { ROUTE } from "@/shared/routes";
 import { useDataTable } from "@/shared/ui/custom/data-table";
 import { Button } from "@/shared/ui/shadcn/button";
 

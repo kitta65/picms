@@ -1,10 +1,7 @@
 import { useSelector } from "@tanstack/react-store";
 import { ImageIcon } from "lucide-react";
 import { useCreateWorkForm } from "@/features/upsert-work/api";
-import {
-	UPSERT_WORK_FIELDS,
-	UpsertWorkFields,
-} from "@/features/upsert-work/ui";
+import { UpsertWorkFields } from "@/features/upsert-work/ui";
 import { useObjectUrl } from "@/shared/lib/object-url";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
@@ -29,7 +26,17 @@ export function WorksNew() {
 			}}
 		>
 			<SelectedFilePreview url={previewUrl} />
-			<UpsertWorkFields form={form} isCreate fields={UPSERT_WORK_FIELDS} />
+			<UpsertWorkFields
+				form={form}
+				isCreate
+				fields={{
+					file: "file",
+					title: "title",
+					tags: "tags",
+					description: "description",
+					public: "public",
+				}}
+			/>
 			<div className="flex items-center justify-center gap-x-4">
 				<Button variant="outline" type="button" onClick={() => form.reset()}>
 					Reset

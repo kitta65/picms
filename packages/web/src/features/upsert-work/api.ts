@@ -1,4 +1,3 @@
-import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { useContext } from "react";
 import { toast } from "sonner";
 import { navigate } from "wouter/use-browser-location";
@@ -9,17 +8,8 @@ import {
 	type UpdateWorkInput,
 } from "@/features/upsert-work/model";
 import { type ApiClient, ApiClientContext } from "@/shared/api";
-import { ROUTE } from "@/shared/config";
-
-const { fieldContext, formContext } = createFormHookContexts();
-const formHook = createFormHook({
-	fieldComponents: {},
-	formComponents: {},
-	fieldContext,
-	formContext,
-});
-const { useAppForm } = formHook;
-export const { withFieldGroup } = formHook;
+import { useAppForm } from "@/shared/lib/form";
+import { ROUTE } from "@/shared/routes";
 
 type HandleSubmitOptions = {
 	client: ApiClient;

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
-import { ROUTE } from "@/shared/config";
+import { ROUTE } from "@/shared/routes";
 import {
 	Breadcrumb as Breadcrumb_,
 	BreadcrumbItem,

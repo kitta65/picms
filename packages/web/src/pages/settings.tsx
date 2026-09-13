@@ -1,4 +1,3 @@
-import { useForm } from "@tanstack/react-form";
 import {
 	UPSERT_INPUT_SCHEMA,
 	type UpsertInput,
@@ -6,6 +5,7 @@ import {
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useConfigOperation } from "@/entities/config/api";
+import { useAppForm } from "@/shared/lib/form";
 import { SomethingWentWrong } from "@/shared/ui/custom/something-went-wrong";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
@@ -32,7 +32,7 @@ export function Settings() {
 	const defaultValues: UpsertInput = {
 		timezone: null,
 	};
-	const form = useForm({
+	const form = useAppForm({
 		defaultValues,
 		validators: {
 			onSubmit: UPSERT_INPUT_SCHEMA,
@@ -71,7 +71,7 @@ export function Settings() {
 			}}
 		>
 			<FieldGroup>
-				<form.Field name="timezone">
+				<form.AppField name="timezone">
 					{(field) => {
 						const isInvalid =
 							field.state.meta.isTouched && !field.state.meta.isValid;
@@ -109,7 +109,7 @@ export function Settings() {
 							</Field>
 						);
 					}}
-				</form.Field>
+				</form.AppField>
 			</FieldGroup>
 
 			<div className="flex items-center justify-center gap-x-4">

@@ -1,7 +1,7 @@
 import { BookOpen } from "lucide-react";
 import { Link } from "wouter";
 
-import { ROUTE } from "@/shared/config";
+import { ROUTE } from "@/shared/routes";
 import logo from "@/shared/ui/custom/logo/logo.svg";
 import { Button } from "@/shared/ui/shadcn/button";
 import {

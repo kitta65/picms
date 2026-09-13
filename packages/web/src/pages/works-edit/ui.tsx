@@ -3,10 +3,7 @@ import { useEffect } from "react";
 import { RevisionImage } from "@/entities/revision/ui";
 import { useWorkQuery } from "@/entities/work/api";
 import { useUpdateWorkForm } from "@/features/upsert-work/api";
-import {
-	UPSERT_WORK_FIELDS,
-	UpsertWorkFields,
-} from "@/features/upsert-work/ui";
+import { UpsertWorkFields } from "@/features/upsert-work/ui";
 import { useObjectUrl } from "@/shared/lib/object-url";
 import { Button } from "@/shared/ui/shadcn/button";
 
@@ -50,7 +47,13 @@ export function WorksEdit({ workId }: WorksEditProps) {
 			<UpsertWorkFields
 				form={form}
 				isCreate={false}
-				fields={UPSERT_WORK_FIELDS}
+				fields={{
+					file: "file",
+					title: "title",
+					tags: "tags",
+					description: "description",
+					public: "public",
+				}}
 			/>
 			<div className="flex items-center justify-center gap-x-4">
 				<Button

@@ -15,7 +15,7 @@ import { Works } from "@/pages/works/ui";
 import { WorksEdit } from "@/pages/works-edit/ui";
 import { WorksNew } from "@/pages/works-new/ui";
 import { type ApiClient, ApiClientContext } from "@/shared/api";
-import { ROUTE, type RoutePattern } from "@/shared/config";
+import { ROUTE, type RoutePattern } from "@/shared/routes";
 import { Separator } from "@/shared/ui/shadcn/separator";
 import { Toaster } from "@/shared/ui/shadcn/sonner";
 import { TooltipProvider } from "@/shared/ui/shadcn/tooltip";

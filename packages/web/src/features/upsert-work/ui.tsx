@@ -1,6 +1,10 @@
+import { useSelector } from "@tanstack/react-store";
 import { useEffect, useRef } from "react";
-import { withFieldGroup } from "@/features/upsert-work/api";
-import type { CommonPart } from "@/features/upsert-work/model";
+import type {
+	CreateWorkInput,
+	UpdateWorkInput,
+} from "@/features/upsert-work/model";
+import { withFieldGroup } from "@/shared/lib/form";
 import { ContextualHelp } from "@/shared/ui/custom/contextual-help";
 import { InputTags } from "@/shared/ui/custom/input-tags";
 import { Checkbox } from "@/shared/ui/shadcn/checkbox";
@@ -16,21 +20,18 @@ import {
 import { Input } from "@/shared/ui/shadcn/input";
 import { Textarea } from "@/shared/ui/shadcn/textarea";
 
-const defaultValues: CommonPart = {
+type DefaultValues = Pick<
+	CreateWorkInput | UpdateWorkInput,
+	keyof CreateWorkInput & keyof UpdateWorkInput
+>;
+
+const DEFALUT_VALUES: DefaultValues = {
 	file: null,
 	title: "",
 	description: "",
 	public: false,
 	tags: [],
 };
-
-export const UPSERT_WORK_FIELDS = {
-	file: "file",
-	title: "title",
-	description: "description",
-	tags: "tags",
-	public: "public",
-} as const;
 
 function ClearFileInputOnReset({
 	file,
@@ -48,12 +49,19 @@ function ClearFileInputOnReset({
 }
 
 export const UpsertWorkFields = withFieldGroup({
-	defaultValues,
+	defaultValues: DEFALUT_VALUES,
 	props: {
 		isCreate: false,
 	},
-	render: function Render({ group, isCreate }) {
+	render: ({ group, isCreate }) => {
 		const fileInputRef = useRef<HTMLInputElement>(null);
+		const file = useSelector(group.store, (state) => state.values.file);
+		useEffect(() => {
+			if (!file && fileInputRef.current) {
+				fileInputRef.current.value = "";
+			}
+		}, [file]);
+
 		return (
 			<FieldGroup>
 				<group.Subscribe selector={(state) => state.values.file}>
@@ -62,7 +70,7 @@ export const UpsertWorkFields = withFieldGroup({
 					)}
 				</group.Subscribe>
 				<FieldSet>
-					<group.Field name="file">
+					<group.AppField name="file">
 						{(field) => {
 							const isInvalid =
 								field.state.meta.isTouched && !field.state.meta.isValid;
@@ -94,8 +102,8 @@ export const UpsertWorkFields = withFieldGroup({
 								</Field>
 							);
 						}}
-					</group.Field>
-					<group.Field name="title">
+					</group.AppField>
+					<group.AppField name="title">
 						{(field) => {
 							const isInvalid =
 								field.state.meta.isTouched && !field.state.meta.isValid;
@@ -116,8 +124,8 @@ export const UpsertWorkFields = withFieldGroup({
 								</Field>
 							);
 						}}
-					</group.Field>
-					<group.Field name="description">
+					</group.AppField>
+					<group.AppField name="description">
 						{(field) => {
 							const isInvalid =
 								field.state.meta.isTouched && !field.state.meta.isValid;
@@ -138,8 +146,8 @@ export const UpsertWorkFields = withFieldGroup({
 								</Field>
 							);
 						}}
-					</group.Field>
-					<group.Field name="tags">
+					</group.AppField>
+					<group.AppField name="tags">
 						{(field) => {
 							const isInvalid =
 								field.state.meta.isTouched && !field.state.meta.isValid;
@@ -160,7 +168,7 @@ export const UpsertWorkFields = withFieldGroup({
 								</Field>
 							);
 						}}
-					</group.Field>
+					</group.AppField>
 				</FieldSet>
 				<FieldSet>
 					<FieldLegend variant="label">Visibility</FieldLegend>
@@ -168,7 +176,7 @@ export const UpsertWorkFields = withFieldGroup({
 						By making this public, anyone can access it via public API.
 					</FieldDescription>
 					<FieldGroup>
-						<group.Field name="public">
+						<group.AppField name="public">
 							{(field) => {
 								const isInvalid =
 									field.state.meta.isTouched && !field.state.meta.isValid;
@@ -193,7 +201,7 @@ export const UpsertWorkFields = withFieldGroup({
 									</Field>
 								);
 							}}
-						</group.Field>
+						</group.AppField>
 					</FieldGroup>
 				</FieldSet>
 			</FieldGroup>

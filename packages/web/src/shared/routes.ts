@@ -48,7 +48,7 @@ export const ROUTE = {
 	[k in Route]: {
 		label: string;
 		pattern: string;
-		getLink?: (params: { [k: string]: string }) => string;
+		getLink: (params: { [k: string]: string }) => string;
 	};
 };
 

@@ -103,7 +103,10 @@
 										"message": "import path should start with `@/`"
 									},
 									{
-										"group": ["@testing-library/user-event"],
+										"group": [
+											"@tanstack/react-form",
+											"@testing-library/user-event"
+										],
 										"message": "wrapper implementation exists"
 									}
 								]
@@ -136,7 +139,10 @@
 										"message": "this layer must not depend on that"
 									},
 									{
-										"group": ["@testing-library/user-event"],
+										"group": [
+											"@tanstack/react-form",
+											"@testing-library/user-event"
+										],
 										"message": "wrapper implementation exists"
 									}
 								]
@@ -169,7 +175,10 @@
 										"message": "this layer must not depend on that"
 									},
 									{
-										"group": ["@testing-library/user-event"],
+										"group": [
+											"@tanstack/react-form",
+											"@testing-library/user-event"
+										],
 										"message": "wrapper implementation exists"
 									}
 								]
@@ -201,7 +210,10 @@
 										"message": "this layer must not depend on that"
 									},
 									{
-										"group": ["@testing-library/user-event"],
+										"group": [
+											"@tanstack/react-form",
+											"@testing-library/user-event"
+										],
 										"message": "wrapper implementation exists"
 									}
 								]
