@@ -14,7 +14,11 @@ import { Settings } from "@/pages/settings";
 import { Works } from "@/pages/works/ui";
 import { WorksEdit } from "@/pages/works-edit/ui";
 import { WorksNew } from "@/pages/works-new/ui";
-import { type ApiClient, ApiClientContext } from "@/shared/api";
+import {
+	type ApiClient,
+	ApiClientContext,
+	DEFAULT_API_CLIENT,
+} from "@/shared/api";
 import { ROUTE, type RoutePattern } from "@/shared/routes";
 import { Separator } from "@/shared/ui/shadcn/separator";
 import { Toaster } from "@/shared/ui/shadcn/sonner";
@@ -42,6 +46,14 @@ type WrapperProps = {
 };
 // add anything which should wrap entire app here!
 function Wrapper({ children, options }: WrapperProps) {
+	// Prefer production-safe defaults, with as many features enabled as possible.
+	const defaultOptions: Required<WrapperProps["options"]> = {
+		isStrict: true,
+		apiClient: DEFAULT_API_CLIENT,
+		shouldRetry: true,
+		showDevTools: true,
+	};
+
 	let component = children;
 
 	component = (
@@ -51,21 +63,19 @@ function Wrapper({ children, options }: WrapperProps) {
 		</>
 	);
 
-	const shouldRetry = options?.shouldRetry ?? true;
+	const shouldRetry = options?.shouldRetry ?? defaultOptions.shouldRetry;
 	component = (
 		<QueryClientProvider client={shouldRetry ? CLIENT : CLIENT_NO_RETRY}>
 			{component}
 		</QueryClientProvider>
 	);
 
-	const apiClient = options?.apiClient;
-	if (apiClient) {
-		component = (
-			<ApiClientContext value={apiClient}>{component}</ApiClientContext>
-		);
-	}
+	const apiClient = options?.apiClient ?? defaultOptions.apiClient;
+	component = (
+		<ApiClientContext value={apiClient}>{component}</ApiClientContext>
+	);
 
-	const showDevTools = options?.showDevTools ?? false;
+	const showDevTools = options?.showDevTools ?? defaultOptions.showDevTools;
 	if (showDevTools) {
 		component = (
 			<>
@@ -79,7 +89,7 @@ function Wrapper({ children, options }: WrapperProps) {
 
 	component = <TooltipProvider>{component}</TooltipProvider>;
 
-	const isStrict = options?.isStrict ?? true;
+	const isStrict = options?.isStrict ?? defaultOptions.isStrict;
 	if (isStrict) {
 		component = <StrictMode>{component}</StrictMode>;
 	}
@@ -120,7 +130,7 @@ function renderByPattern(pattern: RoutePattern) {
 
 export function App() {
 	return (
-		<Wrapper options={{ isStrict: true, showDevTools: true }}>
+		<Wrapper>
 			<div className="px-6 py-4">
 				<Header />
 				<Separator className="my-4" />

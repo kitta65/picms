@@ -1,24 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { _TEST as APP_TEST } from "@/app/App";
 import { DateWithTz } from "@/shared/ui/custom/date-with-tz";
 import { setupComponent } from "@/test-helpers";
 
 const DATE_ZERO = new Date(0); // 1970-01-01T00:00:00.000Z
-function Wrapper({ children }: { children: React.ReactNode }) {
-	return APP_TEST.Wrapper({
-		children,
-		options: {
-			shouldRetry: false,
-		},
-	});
-}
 
 describe("DateWithTz", () => {
 	test("Asia/Tokyo style timezone is handled properly", () => {
 		const { component } = setupComponent(
-			<Wrapper>
-				<DateWithTz date={DATE_ZERO} timezone={"Asia/Tokyo"} />
-			</Wrapper>,
+			<DateWithTz date={DATE_ZERO} timezone={"Asia/Tokyo"} />,
 		);
 
 		try {
@@ -30,9 +19,7 @@ describe("DateWithTz", () => {
 
 	test("Etc/GMT-9 style timezone is handled properly", () => {
 		const { component } = setupComponent(
-			<Wrapper>
-				<DateWithTz date={DATE_ZERO} timezone={"Etc/GMT-9"} />
-			</Wrapper>,
+			<DateWithTz date={DATE_ZERO} timezone={"Etc/GMT-9"} />,
 		);
 
 		try {
@@ -43,11 +30,7 @@ describe("DateWithTz", () => {
 	});
 
 	test("does not crash even if timezone is not specified", () => {
-		const { component } = setupComponent(
-			<Wrapper>
-				<DateWithTz date={DATE_ZERO} />
-			</Wrapper>,
-		);
+		const { component } = setupComponent(<DateWithTz date={DATE_ZERO} />);
 
 		try {
 			// text defers depending on the timezone

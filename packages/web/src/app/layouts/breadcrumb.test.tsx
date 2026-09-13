@@ -1,12 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { render, screen, within } from "@testing-library/react";
+import { within } from "@testing-library/react";
 import { Breadcrumb } from "@/app/layouts/breadcrumb";
+import { setupComponent } from "@/test-helpers";
 
 describe("Breadcrumb", () => {
 	test("does not appear in /", () => {
 		window.happyDOM.setURL("http://localhost");
-		render(<Breadcrumb />);
-		const breadcrumb = screen.queryByRole("navigation", {
+		const { component } = setupComponent(<Breadcrumb />);
+		const breadcrumb = component.queryByRole("navigation", {
 			name: /breadcrumb/i,
 		});
 		expect(breadcrumb).toBe(null);
@@ -14,9 +15,11 @@ describe("Breadcrumb", () => {
 
 	test("Home & Works appear in /works", () => {
 		window.happyDOM.setURL("http://localhost/works");
-		render(<Breadcrumb />);
+		const { component } = setupComponent(<Breadcrumb />);
 
-		const breadcrumb = screen.getByRole("navigation", { name: /breadcrumb/i });
+		const breadcrumb = component.getByRole("navigation", {
+			name: /breadcrumb/i,
+		});
 		expect(breadcrumb).toBeInTheDocument();
 
 		const links = within(breadcrumb).getAllByRole("link");

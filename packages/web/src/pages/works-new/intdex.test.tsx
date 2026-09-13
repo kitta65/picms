@@ -2,7 +2,6 @@ import { describe, expect, spyOn, test } from "bun:test";
 import { Hono, type InferResponseType } from "hono";
 import { testClient } from "hono/testing";
 import type { PicmsApi } from "picms-server/api";
-import { _TEST as APP_TEST } from "@/app/App";
 import { WorksNew } from "@/pages/works-new/ui";
 import type { ApiClient } from "@/shared/api";
 import { setupComponent } from "@/test-helpers";
@@ -10,8 +9,6 @@ import { setupComponent } from "@/test-helpers";
 const FAKE_API = new Hono()
 	// mock implementation is required
 	.use(async (c) => c.body(null, 501)) as unknown as PicmsApi;
-
-const FAKE_API_CLIENT = testClient(FAKE_API);
 
 type PostWorkReturn = InferResponseType<
 	ApiClient["api"]["private"]["works"]["$post"]
@@ -41,30 +38,9 @@ const DUMMY_GET_SIGNED_URL_RETURN: GetSignedUrlReturn = `http://localhost:XXXX`;
 
 const DUMMY_FILE = new File([], "dummy.jpeg", { type: "image/jpeg" });
 
-function Wrapper({
-	children,
-	apiClient,
-}: {
-	children: React.ReactNode;
-	apiClient?: ApiClient;
-}) {
-	return APP_TEST.Wrapper({
-		children,
-		options: {
-			shouldRetry: false,
-			apiClient: apiClient ?? FAKE_API_CLIENT,
-		},
-	});
-}
-
 describe("WorksNew", () => {
 	test("cannot submit if required field is not set", async () => {
-		const client = testClient(FAKE_API);
-		const { component, user } = setupComponent(
-			<Wrapper apiClient={client}>
-				<WorksNew />
-			</Wrapper>,
-		);
+		const { component, user } = setupComponent(<WorksNew />);
 		const button = component.getByRole("button", { name: /submit/i });
 		await user.click(button);
 
@@ -101,12 +77,8 @@ describe("WorksNew", () => {
 			new Response("ok"),
 		);
 		stack.defer(() => putFileSpy.mockReset()); // not reset automatically (bug?)
-		const client = testClient(api);
-		const { component, user } = setupComponent(
-			<Wrapper apiClient={client}>
-				<WorksNew />
-			</Wrapper>,
-		);
+		const apiClient = testClient(api);
+		const { component, user } = setupComponent(<WorksNew />, { apiClient });
 
 		const fileInput = component.getByLabelText(/file/i);
 		await user.upload(fileInput, DUMMY_FILE);
@@ -138,12 +110,8 @@ describe("WorksNew", () => {
 				return c.json(null, 500);
 			})
 			.route("/*", FAKE_API) as PicmsApi;
-		const client = testClient(api);
-		const { component, user } = setupComponent(
-			<Wrapper apiClient={client}>
-				<WorksNew />
-			</Wrapper>,
-		);
+		const apiClient = testClient(api);
+		const { component, user } = setupComponent(<WorksNew />, { apiClient });
 
 		const fileInput = component.getByLabelText(/file/i);
 		await user.upload(fileInput, DUMMY_FILE);
@@ -178,12 +146,8 @@ describe("WorksNew", () => {
 				return c.body(null, 500);
 			})
 			.route("/*", FAKE_API) as PicmsApi;
-		const client = testClient(api);
-		const { component, user } = setupComponent(
-			<Wrapper apiClient={client}>
-				<WorksNew />
-			</Wrapper>,
-		);
+		const apiClient = testClient(api);
+		const { component, user } = setupComponent(<WorksNew />, { apiClient });
 
 		const fileInput = component.getByLabelText(/file/i);
 		await user.upload(fileInput, DUMMY_FILE);
@@ -224,12 +188,10 @@ describe("WorksNew", () => {
 			new Response("ok"),
 		);
 		stack.defer(() => putFileSpy.mockReset()); // not reset automatically (bug?)
-		const client = testClient(api);
-		const { component, user } = setupComponent(
-			<Wrapper apiClient={client}>
-				<WorksNew />
-			</Wrapper>,
-		);
+		const apiClient = testClient(api);
+		const { component, user } = setupComponent(<WorksNew />, {
+			apiClient,
+		});
 
 		const fileInput = component.getByLabelText(/file/i);
 		await user.upload(fileInput, DUMMY_FILE);

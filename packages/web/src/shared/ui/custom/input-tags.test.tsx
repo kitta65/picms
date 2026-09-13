@@ -1,14 +1,15 @@
 import { describe, expect, test } from "bun:test";
-import { render } from "@testing-library/react";
 import { useState } from "react";
 import { InputTags } from "@/shared/ui/custom/input-tags";
 import { setupComponent } from "@/test-helpers";
 
 describe("InputTags", () => {
 	test("add button is disabled by default", async () => {
-		const methods = render(<InputTags onChange={() => {}} tags={[]} />);
+		const { component } = setupComponent(
+			<InputTags onChange={() => {}} tags={[]} />,
+		);
 
-		const button = methods.getByRole("button", { name: /add/i });
+		const button = component.getByRole("button", { name: /add/i });
 		expect(button).toBeDisabled();
 	});
 
@@ -39,11 +40,11 @@ describe("InputTags", () => {
 	});
 
 	test("tags appear", async () => {
-		const methods = render(
+		const { component } = setupComponent(
 			<InputTags onChange={() => {}} tags={["tag1", "tag2"]} />,
 		);
 
-		const tags = methods.getAllByRole("button", { name: /tag\d/ });
+		const tags = component.getAllByRole("button", { name: /tag\d/ });
 		expect(tags.length).toBe(2);
 	});
 

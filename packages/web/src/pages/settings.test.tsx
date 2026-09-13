@@ -1,45 +1,20 @@
 import { describe, expect, test } from "bun:test";
-import { act, render, screen } from "@testing-library/react";
 import { Hono } from "hono";
 import { testClient } from "hono/testing";
 import type { PicmsApi } from "picms-server/api";
 import type { UpsertInput } from "picms-server/features/config/io";
-import { _TEST as APP_TEST } from "@/app/App";
 import { Settings } from "@/pages/settings";
-import type { ApiClient } from "@/shared/api";
-import { setupComponentAsync } from "@/test-helpers";
+import { setupComponent, setupComponentAsync } from "@/test-helpers";
 
 const FAKE_API = new Hono()
 	// mock implementation is required
 	.use(async (c) => c.body(null, 501)) as unknown as PicmsApi;
 
-const FAKE_API_CLIENT = testClient(FAKE_API);
-
-function Wrapper({
-	children,
-	apiClient,
-}: {
-	children: React.ReactNode;
-	apiClient?: ApiClient;
-}) {
-	return APP_TEST.Wrapper({
-		children,
-		options: {
-			shouldRetry: false,
-			apiClient: apiClient ?? FAKE_API_CLIENT,
-		},
-	});
-}
-
 describe("Settings", () => {
 	test("show error page if server returns 501", async () => {
-		const { findAllByRole } = render(
-			<Wrapper>
-				<Settings />
-			</Wrapper>,
-		);
+		const { component } = setupComponent(<Settings />);
 		try {
-			await findAllByRole("link", { name: /report issue/i });
+			await component.findAllByRole("link", { name: /report issue/i });
 		} catch {
 			expect.unreachable();
 		}
@@ -51,19 +26,13 @@ describe("Settings", () => {
 				return c.json({ timezone: null } satisfies UpsertInput);
 			})
 			.route("/*", FAKE_API) as PicmsApi;
-		const client = testClient(api);
-
-		// to avoid `not wrapped in act` warning
-		await act(async () => {
-			render(
-				<Wrapper apiClient={client}>
-					<Settings />
-				</Wrapper>,
-			);
+		const apiClient = testClient(api);
+		const { component } = await setupComponentAsync(<Settings />, {
+			apiClient,
 		});
 
 		try {
-			await screen.findByRole("button", { name: /submit/i });
+			await component.findByRole("button", { name: /submit/i });
 		} catch {
 			expect.unreachable();
 		}
@@ -75,17 +44,12 @@ describe("Settings", () => {
 				return c.json({ timezone: "foo/bar" } satisfies UpsertInput);
 			})
 			.route("/*", FAKE_API) as PicmsApi;
-		const client = testClient(api);
-
-		await act(async () => {
-			render(
-				<Wrapper apiClient={client}>
-					<Settings />
-				</Wrapper>,
-			);
+		const apiClient = testClient(api);
+		const { component } = await setupComponentAsync(<Settings />, {
+			apiClient,
 		});
 
-		const combobox = await screen.findByLabelText(/timezone/i);
+		const combobox = await component.findByLabelText(/timezone/i);
 		expect(combobox).toHaveValue("");
 	});
 
@@ -95,17 +59,12 @@ describe("Settings", () => {
 				return c.json({ timezone: "Asia/Tokyo" } satisfies UpsertInput);
 			})
 			.route("/*", FAKE_API) as PicmsApi;
-		const client = testClient(api);
-
-		await act(async () => {
-			render(
-				<Wrapper apiClient={client}>
-					<Settings />
-				</Wrapper>,
-			);
+		const apiClient = testClient(api);
+		const { component } = await setupComponentAsync(<Settings />, {
+			apiClient,
 		});
 
-		const combobox = await screen.findByLabelText(/timezone/i);
+		const combobox = await component.findByLabelText(/timezone/i);
 		expect(combobox).toHaveValue("Asia/Tokyo");
 	});
 
@@ -120,13 +79,11 @@ describe("Settings", () => {
 				return c.json({});
 			})
 			.route("/*", FAKE_API) as PicmsApi;
-		const client = testClient(api);
+		const apiClient = testClient(api);
 
-		const { component, user } = await setupComponentAsync(
-			<Wrapper apiClient={client}>
-				<Settings />
-			</Wrapper>,
-		);
+		const { component, user } = await setupComponentAsync(<Settings />, {
+			apiClient,
+		});
 
 		// fill form
 		const combobox = await component.findByLabelText(/timezone/i);
@@ -137,7 +94,7 @@ describe("Settings", () => {
 		// submit
 		const button = await component.findByRole("button", { name: /submit/i });
 		await user.click(button);
-		await screen.findByText(/saved/i); // sonner
+		await component.findByText(/saved/i); // sonner
 		expect(submitCounter).toBe(1);
 	});
 
@@ -150,13 +107,10 @@ describe("Settings", () => {
 				return c.body(null, 500);
 			})
 			.route("/*", FAKE_API) as PicmsApi;
-		const client = testClient(api);
-
-		const { user, component } = await setupComponentAsync(
-			<Wrapper apiClient={client}>
-				<Settings />
-			</Wrapper>,
-		);
+		const apiClient = testClient(api);
+		const { user, component } = await setupComponentAsync(<Settings />, {
+			apiClient,
+		});
 
 		// fill form
 		const combobox = await component.findByLabelText(/timezone/i);
@@ -169,7 +123,7 @@ describe("Settings", () => {
 		// submit
 		const button = await component.findByRole("button", { name: /submit/i });
 		await user.click(button);
-		await screen.findByText(/something went wrong/i); // sonner
+		await component.findByText(/something went wrong/i); // sonner
 		expect(combobox).toHaveValue("Africa/Abidjan"); // do not reset
 	});
 
@@ -179,13 +133,11 @@ describe("Settings", () => {
 				return c.json({ timezone: null } satisfies UpsertInput);
 			})
 			.route("/*", FAKE_API) as PicmsApi;
-		const client = testClient(api);
+		const apiClient = testClient(api);
 
-		const { user, component } = await setupComponentAsync(
-			<Wrapper apiClient={client}>
-				<Settings />
-			</Wrapper>,
-		);
+		const { user, component } = await setupComponentAsync(<Settings />, {
+			apiClient,
+		});
 
 		const button = await component.findByRole("button", { name: /submit/i });
 		await user.click(button);
@@ -200,13 +152,11 @@ describe("Settings", () => {
 				return c.json({ timezone: null } satisfies UpsertInput);
 			})
 			.route("/*", FAKE_API) as PicmsApi;
-		const client = testClient(api);
+		const apiClient = testClient(api);
 
-		const { user, component } = await setupComponentAsync(
-			<Wrapper apiClient={client}>
-				<Settings />
-			</Wrapper>,
-		);
+		const { user, component } = await setupComponentAsync(<Settings />, {
+			apiClient,
+		});
 
 		const combobox = (await component.findByLabelText(
 			/timezone/i,
