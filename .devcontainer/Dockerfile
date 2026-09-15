@@ -2,9 +2,12 @@
 FROM mcr.microsoft.com/devcontainers/base:2-noble
 
 # SSOT
-ARG BUN_VERSION=1.3.14
+ARG BUN_VERSION=1.4.2
 
 USER vscode
+
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash && \
+    sudo apt install lefthook
 
 ENV XDG_DATA_HOME=/home/vscode/.local/share
 
