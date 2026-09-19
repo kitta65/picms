@@ -112,8 +112,8 @@ describe("workDatabase", () => {
 			const work1: Work = { ...VALID_WORK, id: id1, title: "this is 1st work" };
 			const work2: Work = { ...VALID_WORK, id: id2, title: "this is 2nd work" };
 
-			await workDatabase.upsert(work1);
-			await workDatabase.upsert(work2);
+			await workDatabase.insert(work1);
+			await workDatabase.insert(work2);
 
 			const result1 = await workDatabase.findById(id1);
 			const result2 = await workDatabase.findById(id2);
@@ -123,26 +123,25 @@ describe("workDatabase", () => {
 		});
 	});
 
-	describe("upsert", () => {
+	describe("insert", () => {
 		test("returns inserted value", async () => {
-			const result = await workDatabase.upsert(VALID_WORK);
+			const result = await workDatabase.insert(VALID_WORK);
 			expect(result).toStrictEqual(VALID_WORK);
 		});
 
 		test("returns inserted value (empty tags)", async () => {
 			const work = { ...VALID_WORK, tags: [] };
-			const result = await workDatabase.upsert(work);
+			const result = await workDatabase.insert(work);
 			expect(result).toStrictEqual(work);
 		});
 
-		test("returns updated value", async () => {
-			await workDatabase.upsert(VALID_WORK);
+		test("throws when the same id already exists", async () => {
+			await workDatabase.insert(VALID_WORK);
 			const modifiedWork: Work = {
 				...VALID_WORK,
 				tags: [...VALID_WORK.tags, "one more tag"],
 			};
-			const result = await workDatabase.upsert(modifiedWork);
-			expect(result).toStrictEqual(modifiedWork);
+			await expect(workDatabase.insert(modifiedWork)).rejects.toThrow();
 		});
 
 		test("tags are deduped", async () => {
@@ -150,7 +149,7 @@ describe("workDatabase", () => {
 				...VALID_WORK,
 				tags: ["foo", "foo"],
 			};
-			const result = await workDatabase.upsert(work);
+			const result = await workDatabase.insert(work);
 			await expect(result.tags).toStrictEqual(["foo"]);
 		});
 
@@ -161,7 +160,7 @@ describe("workDatabase", () => {
 				...VALID_WORK,
 				id,
 			};
-			await expect(workDatabase.upsert(work)).rejects.toThrow();
+			await expect(workDatabase.insert(work)).rejects.toThrow();
 		});
 	});
 });

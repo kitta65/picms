@@ -51,7 +51,7 @@ describe("workView", () => {
 				...VALID_WORK,
 				tags,
 			} satisfies Work;
-			await workDatabase.upsert(work);
+			await workDatabase.insert(work);
 			await revisionDatabase.insert(VALID_REVISION_LATEST);
 			await revisionDatabase.insert(VALID_REVISION_OLDEST);
 			const results = await workView.findMany();
@@ -74,8 +74,8 @@ describe("workView", () => {
 				...VALID_WORK,
 				id: Bun.randomUUIDv7(),
 			} satisfies Work;
-			await workDatabase.upsert(work1);
-			await workDatabase.upsert(work2);
+			await workDatabase.insert(work1);
+			await workDatabase.insert(work2);
 
 			const resultsWitoutLimit = await workView.findMany();
 			expect(resultsWitoutLimit.length).toBe(2);
@@ -98,8 +98,8 @@ describe("workView", () => {
 			} satisfies Work;
 
 			// insert order does not matter if orderBy options is working
-			await workDatabase.upsert(work2);
-			await workDatabase.upsert(work1);
+			await workDatabase.insert(work2);
+			await workDatabase.insert(work1);
 
 			const resultsAsc = await workView.findMany({
 				orderBy: { createdAt: "asc" },

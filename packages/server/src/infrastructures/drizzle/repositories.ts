@@ -119,37 +119,25 @@ export const workDatabase: IWorkDatabase = {
 		return found;
 	},
 
-	upsert: async (work: Work) => {
+	insert: async (work: Work) => {
 		const dt = new Date();
 		await DB.transaction(async (tx) => {
-			await tx
-				.insert(workTable)
-				.values(work)
-				.onConflictDoUpdate({ target: workTable.id, set: work })
-				.returning();
-			// NOTE: drizzle does not support MERGE statement
-			if (work.tags.length !== 0) {
-				await tx
-					.insert(workTagTable)
-					.values(
-						work.tags.map((t) => ({
-							id: Bun.randomUUIDv7(),
-							workId: work.id,
-							name: t,
-							createdAt: dt,
-						})),
-					)
-					.onConflictDoNothing()
-					.returning();
+			await tx.insert(workTable).values(work).returning();
+			if (work.tags.length === 0) {
+				return;
 			}
 			await tx
-				.delete(workTagTable)
-				.where(
-					and(
-						eq(workTagTable.workId, work.id),
-						notInArray(workTagTable.name, work.tags),
-					),
-				);
+				.insert(workTagTable)
+				.values(
+					work.tags.map((t) => ({
+						id: Bun.randomUUIDv7(),
+						workId: work.id,
+						name: t,
+						createdAt: dt,
+					})),
+				)
+				.onConflictDoNothing()
+				.returning();
 		});
 		const found = await workDatabase.findById(work.id);
 		if (!found) {
