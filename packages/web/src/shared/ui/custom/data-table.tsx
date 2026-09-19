@@ -7,7 +7,7 @@ import {
 	tableFeatures,
 	useTable,
 } from "@tanstack/react-table";
-import type { ClassValue } from "clsx";
+import { type ClassValue, cn } from "cn";
 import {
 	Table,
 	TableBody,
@@ -16,7 +16,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/shared/ui/shadcn/table";
-import { cn } from "@/shared/ui/shadcn/utils";
 
 // see https://tanstack.com/table/latest/docs/guide/table-and-column-meta
 const features = tableFeatures({

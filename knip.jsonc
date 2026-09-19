@@ -8,7 +8,8 @@
 		".": {},
 		"packages/*": {},
 		"packages/web": {
-			"entry": ["src/app/frontend.tsx", "src/index.ts"]
+			"entry": ["src/app/frontend.tsx", "src/index.ts"],
+			"ignore": ["src/shared/ui/shadcn/*"]
 		}
 	}
 }

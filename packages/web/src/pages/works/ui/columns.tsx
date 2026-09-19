@@ -1,3 +1,4 @@
+import { cn } from "cn";
 import {
 	ClockIcon,
 	EllipsisIcon,
@@ -41,7 +42,6 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/shared/ui/shadcn/tooltip";
-import { cn } from "@/shared/ui/shadcn/utils";
 
 const columnHelper = createColumnHelper<Work>();
 

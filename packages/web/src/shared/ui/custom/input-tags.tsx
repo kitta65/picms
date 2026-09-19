@@ -1,10 +1,10 @@
+import { cn } from "cn";
 import { HashIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { TagBadge } from "@/shared/ui/custom/tag-badge";
 import { Button } from "@/shared/ui/shadcn/button";
 import { ButtonGroup } from "@/shared/ui/shadcn/button-group";
 import { Input } from "@/shared/ui/shadcn/input";
-import { cn } from "@/shared/ui/shadcn/utils";
 
 type InputTagsProps = Omit<React.ComponentProps<"input">, "onChange"> & {
 	tags: string[];
