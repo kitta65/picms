@@ -45,6 +45,27 @@ describe("workView", () => {
 		await DB.delete(revisionTable);
 	});
 
+	describe("findById", () => {
+		test("returns latest revision id and all tags", async () => {
+			const tags: string[] = ["foo", "bar"];
+			const work = {
+				...VALID_WORK,
+				tags,
+			} satisfies Work;
+			await workDatabase.insert(work);
+			await revisionDatabase.insert(VALID_REVISION_LATEST);
+			await revisionDatabase.insert(VALID_REVISION_OLDEST);
+			const result = await workView.findById({ id: VALID_WORK.id });
+
+			if (!result) {
+				expect.unreachable();
+			}
+
+			expect(result.revisionId).toBe(VALID_REVISION_LATEST.id);
+			expect(result.tags).toEqual(tags);
+		});
+	});
+
 	describe("findMany", () => {
 		test("returns latest revision id and all tags", async () => {
 			const tags: string[] = ["foo", "bar"];
@@ -63,7 +84,7 @@ describe("workView", () => {
 			}
 
 			expect(result.revisionId).toBe(VALID_REVISION_LATEST.id);
-			expect(result.tags.sort()).toEqual(tags.sort());
+			expect(result.tags).toEqual(tags);
 		});
 
 		test("limit option is working", async () => {

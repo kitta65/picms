@@ -17,6 +17,7 @@ export const workView: IWorkView = {
 				},
 				tags: {
 					columns: {
+						id: true,
 						name: true,
 					},
 				},
@@ -30,7 +31,9 @@ export const workView: IWorkView = {
 
 		const work = {
 			...result,
-			tags: result.tags.map((t) => t.name),
+			tags: result.tags
+				.toSorted((a, b) => (a.id < b.id ? -1 : 1))
+				.map((t) => t.name),
 			revisionId: result.revisions.map((r) => r.id).at(0) ?? null,
 		};
 		return work;
@@ -52,6 +55,7 @@ export const workView: IWorkView = {
 				},
 				tags: {
 					columns: {
+						id: true,
 						name: true,
 					},
 				},
@@ -66,7 +70,9 @@ export const workView: IWorkView = {
 
 		const works = result.map((r) => ({
 			...r,
-			tags: r.tags.map((t) => t.name),
+			tags: r.tags
+				.toSorted((a, b) => (a.id < b.id ? -1 : 1))
+				.map((t) => t.name),
 			revisionId: r.revisions.map((r) => r.id).at(0) ?? null,
 		}));
 

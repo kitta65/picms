@@ -27,7 +27,12 @@ export const workDatabase: IWorkDatabase = {
 			return;
 		}
 
-		return { ...result, tags: result.tags.toSorted().map((t) => t.name) };
+		return {
+			...result,
+			tags: result.tags
+				.toSorted((a, b) => (a.id < b.id ? -1 : 1))
+				.map((t) => t.name),
+		};
 	},
 
 	update: async (work: Parameters<IWorkDatabase["update"]>[0]) => {
