@@ -42,6 +42,29 @@ describe("workDatabase", () => {
 			expect(result1).toStrictEqual(work1);
 			expect(result2).toStrictEqual(work2);
 		});
+
+		test("the order of tags are predictable", async () => {
+			let work = {
+				...VALID_WORK,
+				tags: ["foo", "bar"],
+			};
+			let result = await workDatabase.insert(work);
+			// should be the order of original array (work.tags)
+			expect(result.tags).toStrictEqual(["foo", "bar"]);
+
+			work = {
+				...work,
+				tags: ["bar"],
+			};
+			result = await workDatabase.update(work);
+			work = {
+				...work,
+				tags: ["foo", "bar"],
+			};
+			result = await workDatabase.update(work);
+			// since bar is the most long-lived tag, it comes first
+			expect(result.tags).toStrictEqual(["bar", "foo"]);
+		});
 	});
 
 	describe("insert", () => {
@@ -58,11 +81,7 @@ describe("workDatabase", () => {
 
 		test("throws when the same id already exists", async () => {
 			await workDatabase.insert(VALID_WORK);
-			const modifiedWork: Work = {
-				...VALID_WORK,
-				tags: [...VALID_WORK.tags, "one more tag"],
-			};
-			await expect(workDatabase.insert(modifiedWork)).rejects.toThrow();
+			await expect(workDatabase.insert(VALID_WORK)).rejects.toThrow();
 		});
 
 		test("tags are deduped", async () => {
@@ -82,6 +101,57 @@ describe("workDatabase", () => {
 				id,
 			};
 			await expect(workDatabase.insert(work)).rejects.toThrow();
+		});
+	});
+
+	describe("update", () => {
+		test("retuns all properties when updated", async () => {
+			const inserted = await workDatabase.insert(VALID_WORK);
+			const updated = await workDatabase.update({
+				id: inserted.id,
+				updatedAt: inserted.updatedAt,
+			});
+			expect(updated).toStrictEqual(inserted);
+		});
+
+		test("the tag which is not specified when update is removed", async () => {
+			const work: Work = {
+				...VALID_WORK,
+				tags: ["foo", "bar"],
+			};
+			const inserted = await workDatabase.insert(work);
+			const updated = await workDatabase.update({
+				id: inserted.id,
+				tags: ["foo"],
+				updatedAt: new Date(),
+			});
+			await expect(updated.tags).toStrictEqual(["foo"]);
+		});
+
+		test("tags are deduped", async () => {
+			const work: Work = {
+				...VALID_WORK,
+				tags: ["foo"],
+			};
+			const inserted = await workDatabase.insert(work);
+			const updated = await workDatabase.update({
+				id: inserted.id,
+				tags: ["foo", "foo", "bar", "bar"],
+				updatedAt: new Date(),
+			});
+			await expect(updated.tags).toStrictEqual(["foo", "bar"]);
+		});
+	});
+
+	describe("deleteById", () => {
+		test("deleted work is not found any more", async () => {
+			const inserted = await workDatabase.insert(VALID_WORK);
+			const resultAfterInsert = await workDatabase.findById(inserted.id);
+			expect(resultAfterInsert).toBeDefined();
+
+			await workDatabase.deleteById(inserted.id);
+			const resultAfterDelete = await workDatabase.findById(inserted.id);
+			expect(resultAfterDelete).toBeUndefined();
 		});
 	});
 });

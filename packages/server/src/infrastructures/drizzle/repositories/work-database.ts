@@ -13,6 +13,7 @@ export const workDatabase: IWorkDatabase = {
 			with: {
 				tags: {
 					columns: {
+						id: true,
 						name: true,
 					},
 				},
@@ -26,7 +27,7 @@ export const workDatabase: IWorkDatabase = {
 			return;
 		}
 
-		return { ...result, tags: result.tags.map((t) => t.name) };
+		return { ...result, tags: result.tags.toSorted().map((t) => t.name) };
 	},
 
 	update: async (work: Parameters<IWorkDatabase["update"]>[0]) => {
@@ -106,8 +107,8 @@ export const workDatabase: IWorkDatabase = {
 			targetId: id,
 		});
 		const result_ = await DB.transaction(async (tx) => {
-			await tx.delete(workTable).where(eq(workTable.id, id));
 			await tx.delete(workTagTable).where(eq(workTagTable.workId, id));
+			await tx.delete(workTable).where(eq(workTable.id, id));
 			const messages = await tx
 				.insert(messageTable)
 				.values(message)

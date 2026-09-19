@@ -88,6 +88,17 @@ describe("revisionDatabase", () => {
 		});
 	});
 
+	describe("findByWorkId", () => {
+		test("returns all matched revisions", async () => {
+			const revision1 = { ...VALID_REVISION, id: Bun.randomUUIDv7() };
+			const revision2 = { ...VALID_REVISION, id: Bun.randomUUIDv7() };
+			await revisionDatabase.insert(revision1);
+			await revisionDatabase.insert(revision2);
+			const revisions = await revisionDatabase.findByWorkId(revision1.workId);
+			expect(revisions.length).toBe(2);
+		});
+	});
+
 	describe("deleteById", () => {
 		test("deleted revision is not found", async () => {
 			await revisionDatabase.insert(VALID_REVISION);
