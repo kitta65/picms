@@ -2,10 +2,8 @@
 
 import { afterAll, beforeAll } from "bun:test";
 
-import * as DrizzleRepositories from "./infrastructures/drizzle/repositories";
+import { DB } from "./infrastructures/drizzle/configs";
 import * as DrizzleTables from "./infrastructures/drizzle/tables";
-
-const { DB } = DrizzleRepositories._TEST;
 
 async function cleanUpDb() {
 	// TODO: use more sophisticated method

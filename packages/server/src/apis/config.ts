@@ -4,11 +4,11 @@ import { validator } from "hono/validator";
 import { ERROR_CODE } from "../constants";
 import { DEFAULT } from "../domains/config/entity";
 import * as configIo from "../features/config/io";
-import * as drizzleRepositories from "../infrastructures/drizzle/repositories";
+import { configDatabase } from "../infrastructures/drizzle/repositories/config-database";
 
 export const CONFIG_API = new Hono()
 	.get("/", async (c) => {
-		const repo = drizzleRepositories.configDatabase;
+		const repo = configDatabase;
 		const res = await repo.findFirst();
 
 		return c.json(res ?? DEFAULT);
@@ -26,7 +26,7 @@ export const CONFIG_API = new Hono()
 		async (c) => {
 			const input = c.req.valid("json");
 			const entity = configIo.UpsertInput.toEntity(input);
-			const repo = drizzleRepositories.configDatabase;
+			const repo = configDatabase;
 			await repo.upsert(entity);
 			return c.json(entity);
 		},

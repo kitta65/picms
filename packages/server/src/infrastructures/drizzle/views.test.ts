@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, spyOn, test } from "bun:test";
 import { _TEST as MESSAGE_REPOSITORY_TEST } from "../../domains/message/repository";
 import type { Revision } from "../../domains/revision/entity";
 import type { Work } from "../../domains/work/entity";
-import { _TEST as DRIZZLE_REPOSITORY_TEST, workDatabase } from "./repositories";
+import { DB } from "./configs";
+import { RevisionDatabase } from "./repositories/revision-database";
+import { workDatabase } from "./repositories/work-database";
 import { revisionTable, workTable, workTagTable } from "./tables";
 import { workView } from "./views";
 
-const { DB, RevisionDatabase } = DRIZZLE_REPOSITORY_TEST;
 const { FakeMessageBroker } = MESSAGE_REPOSITORY_TEST;
 
 const VALID_WORK = {

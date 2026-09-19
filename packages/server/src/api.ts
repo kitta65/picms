@@ -13,7 +13,9 @@ import {
 } from "./constants";
 import * as messageUsecases from "./features/message/usecases";
 import * as storageIo from "./features/storage/io";
-import * as drizzleRepositories from "./infrastructures/drizzle/repositories";
+import { messageBroker } from "./infrastructures/drizzle/repositories/message-broker";
+import { revisionDatabase } from "./infrastructures/drizzle/repositories/revision-database";
+import { workDatabase } from "./infrastructures/drizzle/repositories/work-database";
 import * as localRepository from "./infrastructures/local/repositories";
 
 const MESSAGE_BATCH_SIZE = 10;
@@ -36,9 +38,9 @@ const PRIVATE_API = new Hono()
 		);
 		messageUsecases
 			.handleFirstN(MESSAGE_BATCH_SIZE, {
-				messageBroker: drizzleRepositories.messageBroker,
-				workDatabase: drizzleRepositories.workDatabase,
-				revisionDatabase: drizzleRepositories.revisionDatabase,
+				messageBroker,
+				workDatabase,
+				revisionDatabase,
 				revisionStorage,
 			})
 			.catch((e) => console.error(e));
