@@ -10,6 +10,7 @@ const FAKE_API = new Hono()
 	// mock implementation is required
 	.use(async (c) => c.body(null, 501)) as unknown as PicmsApi;
 
+// NOTE: `http://localhsot` seems to be used as base url
 const FAKE_API_CLIENT = testClient(FAKE_API);
 
 export function setupComponent(

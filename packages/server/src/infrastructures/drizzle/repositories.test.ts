@@ -145,6 +145,15 @@ describe("workDatabase", () => {
 			expect(result).toStrictEqual(modifiedWork);
 		});
 
+		test("tags are deduped", async () => {
+			const work: Work = {
+				...VALID_WORK,
+				tags: ["foo", "foo"],
+			};
+			const result = await workDatabase.upsert(work);
+			await expect(result.tags).toStrictEqual(["foo"]);
+		});
+
 		test("not null constraints are working", async () => {
 			// biome-ignore lint: intentional type error for test
 			const id = null as any;

@@ -119,12 +119,17 @@ export function Preview({
 					>
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<Button size="icon" asChild disabled={!displayUrl}>
+								<Button
+									size="icon"
+									aria-label="Open in new tab"
+									asChild
+									disabled={!displayUrl}
+								>
 									{displayUrl ? (
 										<a
 											href={displayUrl}
 											target="_blank"
-											rel="noopner noreferrer"
+											rel="noopener noreferrer"
 										>
 											<ExternalLinkIcon />
 										</a>
@@ -137,7 +142,12 @@ export function Preview({
 						</Tooltip>
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<Button size="icon" asChild disabled={!downloadUrl}>
+								<Button
+									size="icon"
+									aria-label="Download"
+									asChild
+									disabled={!downloadUrl}
+								>
 									{downloadUrl ? (
 										<a href={downloadUrl}>
 											<DownloadIcon />
@@ -151,7 +161,7 @@ export function Preview({
 						</Tooltip>
 						<ButtonGroupSeparator className={cn("bg-transparent")} />
 						<Dialog.Close asChild>
-							<Button size="icon">
+							<Button size="icon" aria-label="Close">
 								<XIcon />
 							</Button>
 						</Dialog.Close>
