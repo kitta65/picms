@@ -19,14 +19,3 @@ ensure_dockerd() {
 	echo "dockerd did not become ready within 30s; see /tmp/dockerd.log" >&2
 	return 1
 }
-
-# usermod -aG docker does not apply to the current shell. After a first-time
-# Docker install in install.sh, talk to the daemon via sg so the client is
-# in the docker group.
-with_docker_group() {
-	if docker info >/dev/null 2>&1; then
-		"$@"
-		return
-	fi
-	sg docker -c "$(printf '%q ' "$@")"
-}

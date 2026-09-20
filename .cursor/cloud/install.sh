@@ -13,9 +13,8 @@
 # workspace bun cache (.cache/bun, node_modules) written by `bun run setup`.
 set -euo pipefail
 
-CLOUD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=ensure-dockerd.sh
-source "$CLOUD_DIR/ensure-dockerd.sh"
+source "$(dirname "$0")/ensure-dockerd.sh"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -89,14 +88,16 @@ if ! command -v devcontainer >/dev/null 2>&1; then
 fi
 
 # --- Nested images + bun cache for the Environment Build snapshot -------------
-# `devcontainer up` builds picms (Playwright, features) and starts postgres.
-# Skip postCreate here so install owns `bun run setup` (drizzle needs the DB).
-# BUN_INSTALL_CACHE_DIR is the bind-mounted workspace .cache/bun.
-# Then `down` (no --volumes): processes must not linger, images/volumes stay.
-# start.sh brings the stack back and runs postCreate (setup && build).
+# `devcontainer exec` requires a running devcontainer (see `devcontainer exec
+# --help`). install runs on Environment Builds before start.sh, so `up` is
+# required here; skip postCreate so install owns `bun run setup` (drizzle
+# needs postgres). BUN_INSTALL_CACHE_DIR is the bind-mounted workspace
+# .cache/bun. Then `down` (no --volumes): processes must not linger;
+# images/volumes stay. start.sh brings the stack back and runs postCreate.
 ensure_dockerd
-with_docker_group devcontainer up --workspace-folder "$PWD" --skip-post-create
-with_docker_group devcontainer exec --workspace-folder "$PWD" bun run setup
-with_docker_group docker compose -p "$(basename "$PWD")_devcontainer" down
+# usermod -aG docker does not apply to this shell after a first-time install.
+sg docker -c "devcontainer up --workspace-folder $(printf '%q' "$PWD") --skip-post-create"
+sg docker -c "devcontainer exec --workspace-folder $(printf '%q' "$PWD") bun run setup"
+sg docker -c "docker compose -p $(printf '%q' "$(basename "$PWD")_devcontainer") down"
 
 echo "install.sh completed"

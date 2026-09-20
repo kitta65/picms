@@ -9,9 +9,8 @@
 # Must be idempotent and must terminate.
 set -euo pipefail
 
-CLOUD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=ensure-dockerd.sh
-source "$CLOUD_DIR/ensure-dockerd.sh"
+source "$(dirname "$0")/ensure-dockerd.sh"
 
 ensure_dockerd
 devcontainer up --workspace-folder "$PWD"
