@@ -1,0 +1,11 @@
+{
+	"name": "PicMS",
+	"install": ".cursor/cloud/install.sh",
+	"start": ".cursor/cloud/start.sh",
+	"terminals": [
+		{
+			"name": "picms-dev",
+			"command": "devcontainer exec --workspace-folder /workspace bun run dev"
+		}
+	]
+}
