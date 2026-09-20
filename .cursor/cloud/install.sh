@@ -23,7 +23,11 @@ echo 'export HUSKY=0' | sudo tee /etc/profile.d/husky.sh >/dev/null
 # --- Docker engine + compose + nested-container helpers -----------------------
 if ! command -v docker >/dev/null 2>&1; then
 	sudo apt-get update -qq
+	# --force-confold/--force-confdef keep existing conffiles (e.g. /etc/fuse.conf)
+	# without the interactive prompt that would otherwise abort a non-tty install.
 	sudo apt-get install -y -qq \
+		-o Dpkg::Options::=--force-confold \
+		-o Dpkg::Options::=--force-confdef \
 		docker.io docker-compose-v2 fuse-overlayfs iptables uidmap
 fi
 
