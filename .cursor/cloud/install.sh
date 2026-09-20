@@ -42,7 +42,7 @@ fi
 if ! command -v devcontainer >/dev/null 2>&1; then
 	# NOTE: since pre-installed npm is too old and does not support --min-release-age options, do not unpin the version
 	npm install -g @devcontainers/cli@0.87.0
-	sudo ln -sf "$HOME/.bun/bin/devcontainer" /usr/local/bin/devcontainer
+	sudo ln -sf "$(npm prefix -g)/bin/devcontainer" /usr/local/bin/devcontainer
 fi
 
 # make cache
