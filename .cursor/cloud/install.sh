@@ -9,9 +9,8 @@
 #
 # It only installs durable, idempotent state. Running containers are not part
 # of the install snapshot, so start.sh still starts dockerd and `devcontainer
-# up`. Image layers in /var/lib/docker *are* snapshotted: this script builds
-# the picms image (Playwright included) and pulls compose images so each agent
-# boot does not redo that work.
+# up`. Image layers in /var/lib/docker *are* snapshotted, and so is the
+# workspace bun cache (.cache/bun, node_modules) written by `bun run setup`.
 set -euo pipefail
 
 CLOUD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -89,13 +88,15 @@ if ! command -v devcontainer >/dev/null 2>&1; then
 	sudo ln -sf "$HOME/.bun/bin/devcontainer" /usr/local/bin/devcontainer
 fi
 
-# --- Nested images for the Environment Build snapshot -------------------------
-# start.sh must still create containers (processes do not survive). Building
-# here caches Playwright, Dev Container features, postgres, and dbgate.
+# --- Nested images + bun cache for the Environment Build snapshot -------------
+# `devcontainer up` builds picms (Playwright, features) and starts postgres.
+# Skip postCreate here so install owns `bun run setup` (drizzle needs the DB).
+# BUN_INSTALL_CACHE_DIR is the bind-mounted workspace .cache/bun.
+# Then `down` (no --volumes): processes must not linger, images/volumes stay.
+# start.sh brings the stack back and runs postCreate (setup && build).
 ensure_dockerd
-with_docker_group devcontainer build --workspace-folder "$PWD"
-with_docker_group docker compose \
-	-f .devcontainer/docker-compose.yml \
-	pull --ignore-buildable
+with_docker_group devcontainer up --workspace-folder "$PWD" --skip-post-create
+with_docker_group devcontainer exec --workspace-folder "$PWD" bun run setup
+with_docker_group docker compose -p "$(basename "$PWD")_devcontainer" down
 
 echo "install.sh completed"
