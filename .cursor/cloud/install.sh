@@ -63,16 +63,23 @@ if ! command -v docker >/dev/null 2>&1; then
 	sudo usermod -aG docker "$USER"
 fi
 
-# --- devcontainer CLI (pinned to the version used in CI) ----------------------
+# --- devcontainer CLI ---------------------------------------------------------
+# Install unpinned, but only versions at least 7 days old, mirroring the repo's
+# supply-chain policy (bunfig.toml's minimumReleaseAge) and CI's
+# `npm install --min-release-age=7`. We install with bun (the repo's package
+# manager, same version as .devcontainer/Dockerfile) because the image's npm is
+# too old for `--min-release-age`; bun applies minimumReleaseAge to global
+# installs read from ~/.bunfig.toml.
 if ! command -v devcontainer >/dev/null 2>&1; then
-	if ! command -v npm >/dev/null 2>&1; then
-		export NVM_DIR="$HOME/.nvm"
-		# shellcheck disable=SC1091
-		[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+	if ! command -v bun >/dev/null 2>&1; then
+		export BUN_INSTALL="$HOME/.bun"
+		curl -fsSL https://bun.com/install | bash -s "bun-v1.3.14"
 	fi
-	npm install -g @devcontainers/cli@0.87.0
-	DC="$(npm prefix -g)/bin/devcontainer"
-	[ -x "$DC" ] && sudo ln -sf "$DC" /usr/local/bin/devcontainer
+	export PATH="$HOME/.bun/bin:$PATH"
+	[ -f "$HOME/.bunfig.toml" ] \
+		|| printf '[install]\nminimumReleaseAge = 604800 # 7 days; see bunfig.toml\n' > "$HOME/.bunfig.toml"
+	bun install -g @devcontainers/cli
+	sudo ln -sf "$HOME/.bun/bin/devcontainer" /usr/local/bin/devcontainer
 fi
 
 echo "install.sh completed"
