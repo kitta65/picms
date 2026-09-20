@@ -89,13 +89,14 @@ fi
 
 # --- Nested images + bun cache for the Environment Build snapshot -------------
 # `devcontainer up` from the repo root (Cursor runs install there) builds
-# images and runs postCreate (`bun run setup && bun run build`), which
-# fills workspace .cache/bun. Then `down` (no --volumes): processes must
-# not linger; images/volumes stay. start.sh brings the stack back.
-# `sg -c` is required: without -c, sg only takes a single command word.
+# images and starts postgres. `devcontainer exec bun run setup` then fills
+# workspace .cache/bun (drizzle needs the DB). Then `down` (no --volumes):
+# processes must not linger; images/volumes stay. start.sh brings the stack
+# back. `sg -c` is required: without -c, sg only takes a single command word.
 ensure_dockerd
 # usermod -aG docker does not apply to this shell after a first-time install.
 sg docker -c "devcontainer up"
+sg docker -c "devcontainer exec bun run setup"
 sg docker -c "docker compose -p $(printf '%q' "$(basename "$PWD")_devcontainer") down"
 
 echo "install.sh completed"
