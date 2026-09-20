@@ -17,7 +17,7 @@ runs:
 
     - name: install devcontainer cli 
       shell: bash
-      run: npm install --min-release-age=7 -g @devcontainers/cli@0.87.0
+      run: npm install --min-release-age=7 -g @devcontainers/cli
 
     - name: login to registry
       shell: bash
