@@ -40,6 +40,15 @@ fi
 grep -q '^user_allow_other' /etc/fuse.conf 2>/dev/null \
 	|| echo user_allow_other | sudo tee -a /etc/fuse.conf >/dev/null
 
+# Use the iptables-legacy backend (as recommended for nested Docker:
+# https://cursor.com/docs/cloud-agent/setup#running-docker). Otherwise Docker's
+# nftables rules coexist with the VM's iptables-legacy FORWARD chain (default
+# policy DROP), which silently drops container-to-container traffic (e.g.
+# picms -> postgres). With a single legacy backend, Docker's own FORWARD ACCEPT
+# rules apply and no manual FORWARD tweak is needed at boot.
+sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
+sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+
 # Let the agent user talk to the docker socket.
 sudo groupadd -f docker
 sudo usermod -aG docker "$USER" || true
