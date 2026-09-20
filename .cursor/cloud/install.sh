@@ -56,17 +56,6 @@ if ! command -v devcontainer >/dev/null 2>&1; then
 	[ -x "$DC" ] && sudo ln -sf "$DC" /usr/local/bin/devcontainer
 fi
 
-# --- Pre-warm images so the first `devcontainer up` is fast -------------------
-# Best-effort: if the build pod cannot run nested Docker, start.sh still builds
-# everything on first boot.
-if ! sudo docker info >/dev/null 2>&1; then
-	sudo nohup dockerd >/tmp/dockerd-install.log 2>&1 &
-	for _ in $(seq 1 30); do sudo docker info >/dev/null 2>&1 && break; sleep 1; done
-fi
-sudo iptables-legacy -P FORWARD ACCEPT 2>/dev/null || true
-sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
-
-devcontainer build --workspace-folder "$PWD" || true
-docker compose -f .devcontainer/docker-compose.yml pull postgres dbgate || true
-
+# Starting dockerd and bringing the stack up is start.sh's responsibility
+# (per-boot runtime state), so nothing Docker-runtime happens here.
 echo "install.sh completed"
