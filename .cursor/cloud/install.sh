@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+#
+# Cloud Agent install phase.
+#
+# This repository's development environment is defined by .devcontainer
+# (a docker-compose stack: picms + postgres + dbgate). Cursor Cloud Agents
+# don't consume devcontainer.json directly, so this script prepares the VM to
+# run that same stack via the devcontainer CLI, matching .github/workflows/ci.yml.
+#
+# It only installs durable, idempotent state. Bringing the stack up happens in
+# start.sh (per boot), because containers are not part of the install snapshot.
+set -euo pipefail
+
+export DEBIAN_FRONTEND=noninteractive
+
+# --- Docker engine + compose + nested-container helpers -----------------------
+if ! command -v docker >/dev/null 2>&1; then
+	sudo apt-get update -qq
+	sudo apt-get install -y -qq \
+		docker.io docker-compose-v2 fuse-overlayfs iptables uidmap
+fi
+
+# fuse-overlayfs is the storage driver that works for Docker nested inside the
+# Cloud Agent VM (overlay2 is not usable on the VM's filesystem).
+sudo mkdir -p /etc/docker
+if [ ! -s /etc/docker/daemon.json ]; then
+	echo '{ "storage-driver": "fuse-overlayfs" }' | sudo tee /etc/docker/daemon.json >/dev/null
+fi
+grep -q '^user_allow_other' /etc/fuse.conf 2>/dev/null \
+	|| echo user_allow_other | sudo tee -a /etc/fuse.conf >/dev/null
+
+# Let the agent user talk to the docker socket.
+sudo groupadd -f docker
+sudo usermod -aG docker "$USER" || true
+
+# --- devcontainer CLI (pinned to the version used in CI) ----------------------
+if ! command -v devcontainer >/dev/null 2>&1; then
+	if ! command -v npm >/dev/null 2>&1; then
+		export NVM_DIR="$HOME/.nvm"
+		# shellcheck disable=SC1091
+		[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+	fi
+	npm install -g @devcontainers/cli@0.87.0
+	DC="$(npm prefix -g)/bin/devcontainer"
+	[ -x "$DC" ] && sudo ln -sf "$DC" /usr/local/bin/devcontainer
+fi
+
+# --- Pre-warm images so the first `devcontainer up` is fast -------------------
+# Best-effort: if the build pod cannot run nested Docker, start.sh still builds
+# everything on first boot.
+if ! sudo docker info >/dev/null 2>&1; then
+	sudo nohup dockerd >/tmp/dockerd-install.log 2>&1 &
+	for _ in $(seq 1 30); do sudo docker info >/dev/null 2>&1 && break; sleep 1; done
+fi
+sudo iptables-legacy -P FORWARD ACCEPT 2>/dev/null || true
+sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
+
+devcontainer build --workspace-folder "$PWD" || true
+docker compose -f .devcontainer/docker-compose.yml pull postgres dbgate || true
+
+echo "install.sh completed"
