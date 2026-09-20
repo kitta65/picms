@@ -1,7 +1,7 @@
 {
 	"name": "PicMS (devcontainer)",
-	"install": "bash .cursor/cloud/install.sh",
-	"start": "bash .cursor/cloud/start.sh",
+	"install": ".cursor/cloud/install.sh",
+	"start": ".cursor/cloud/start.sh",
 	"terminals": [
 		{
 			"name": "picms-dev",
