@@ -45,10 +45,10 @@ if ! command -v devcontainer >/dev/null 2>&1; then
 	sudo ln -sf "$(npm prefix -g)/bin/devcontainer" /usr/local/bin/devcontainer
 fi
 
-# make cache
+# prewarm
 ensure_dockerd
 sg docker -c "devcontainer up"
 sg docker -c "devcontainer exec bun run setup"
-sg docker -c "docker compose -p $(printf '%q' "$(basename "$PWD")_devcontainer") down"
+sg docker -c "docker compose -p '$(basename "$PWD")_devcontainer' down"
 
 echo "install.sh completed"
