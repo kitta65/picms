@@ -25,9 +25,6 @@ import { Toaster } from "@/shared/ui/shadcn/sonner";
 import { TooltipProvider } from "@/shared/ui/shadcn/tooltip";
 
 const CLIENT = new QueryClient();
-const CLIENT_NO_RETRY = new QueryClient({
-	defaultOptions: { queries: { retry: false } },
-});
 
 // https://tanstack.com/devtools/latest/docs/production#excluding-devtools-from-production-on-non-vite-projects
 const DevTools =
@@ -40,7 +37,6 @@ type WrapperProps = {
 	options?: {
 		isStrict?: boolean;
 		apiClient?: ApiClient;
-		shouldRetry?: boolean;
 		showDevTools?: boolean;
 	};
 };
@@ -50,7 +46,6 @@ function Wrapper({ children, options }: WrapperProps) {
 	const defaultOptions: Required<WrapperProps["options"]> = {
 		isStrict: true,
 		apiClient: DEFAULT_API_CLIENT,
-		shouldRetry: true,
 		showDevTools: true,
 	};
 
@@ -63,11 +58,8 @@ function Wrapper({ children, options }: WrapperProps) {
 		</>
 	);
 
-	const shouldRetry = options?.shouldRetry ?? defaultOptions.shouldRetry;
 	component = (
-		<QueryClientProvider client={shouldRetry ? CLIENT : CLIENT_NO_RETRY}>
-			{component}
-		</QueryClientProvider>
+		<QueryClientProvider client={CLIENT}>{component}</QueryClientProvider>
 	);
 
 	const apiClient = options?.apiClient ?? defaultOptions.apiClient;

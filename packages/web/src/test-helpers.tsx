@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Hono } from "hono";
@@ -20,18 +21,22 @@ export function setupComponent(
 	// recommended to invoke before render
 	// https://testing-library.com/docs/user-event/intro#writing-tests-with-userevent
 	const user = userEvent.setup();
+	// use brand new queryClient for each test to avoid problems related to cache
+	const queryClient = new QueryClient({
+		defaultOptions: { queries: { retry: false } },
+	});
 
 	const component = render(
 		<Wrapper
 			options={{
 				isStrict: false,
 				apiClient: FAKE_API_CLIENT,
-				shouldRetry: false,
 				showDevTools: false,
 				...options,
 			}}
 		>
-			{ui}
+			{/* nested QueryClientProvider is allowd https://github.com/TanStack/query/discussions/2670 */}
+			<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
 		</Wrapper>,
 	);
 	return { component, user };
