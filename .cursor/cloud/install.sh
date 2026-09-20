@@ -1,35 +1,15 @@
 #!/usr/bin/env bash
-#
-# Cloud Agent install phase.
-#
-# This repository's development environment is defined by .devcontainer
-# (a docker-compose stack: picms + postgres + dbgate). Cursor Cloud Agents
-# don't consume devcontainer.json directly, so this script prepares the VM to
-# run that same stack via the devcontainer CLI, matching .github/workflows/ci.yml.
-#
-# It only installs durable, idempotent state. Bringing the stack up happens in
-# start.sh (per boot), because containers are not part of the install snapshot.
 set -euo pipefail
+source "$(dirname "$0")/ensure-dockerd.sh"
 
+# see also https://askubuntu.com/questions/972516/debian-frontend-environment-variable
 export DEBIAN_FRONTEND=noninteractive
 
-# --- Disable Husky git hooks for the agent ------------------------------------
-# The repo's pre-commit hook runs `bun run lint`/`test`, which need the
-# devcontainer database. Cloud Agents commit from the VM shell, so disable
-# hooks environment-wide via HUSKY=0 (see .husky/_/h). This is a login-shell
-# system profile so it applies to the agent's shells.
+# disable husky (prefer cursor hooks for agents)
 echo 'export HUSKY=0' | sudo tee /etc/profile.d/husky.sh >/dev/null
 
-# --- Docker for nested containers ---------------------------------------------
-# The commands in this block follow the official nested-Docker guidance so they
-# can be reviewed against the docs verbatim:
-# https://cursor.com/docs/cloud-agent/setup#running-docker
-# (Differences from the docs' Dockerfile snippet: everything is run with `sudo`
-# and guarded for idempotency since this is an install script, not an image
-# build; the docs' Ubuntu-user block is omitted because the default Cloud Agent
-# image already provides the `ubuntu` user with passwordless sudo.)
+# enable docker https://cursor.com/docs/cloud-agent/setup#running-docker
 if ! command -v docker >/dev/null 2>&1; then
-	# Install Docker
 	sudo install -m 0755 -d /etc/apt/keyrings
 	curl --retry 3 --retry-delay 5 -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 	sudo chmod a+r /etc/apt/keyrings/docker.gpg
@@ -42,10 +22,7 @@ if ! command -v docker >/dev/null 2>&1; then
 		docker-buildx-plugin \
 		docker-compose-plugin
 
-	# fuse-overlayfs storage driver.
-	# (--force-conf* is the one addition to the docs: it keeps the existing
-	# /etc/fuse.conf without the interactive dpkg prompt that would otherwise
-	# abort this non-tty install. The docs' image base has no such conffile.)
+	# --force-confold and --force-confdef are specified to avoid dpkg prompt
 	sudo apt-get install -y \
 		-o Dpkg::Options::=--force-confold \
 		-o Dpkg::Options::=--force-confdef \
@@ -53,33 +30,25 @@ if ! command -v docker >/dev/null 2>&1; then
 	sudo mkdir -p /etc/docker
 	printf '%s\n' '{' '  "storage-driver": "fuse-overlayfs"' '}' | sudo tee /etc/docker/daemon.json > /dev/null
 
-	# iptables-legacy backend
 	sudo apt-get install -y iptables
 	sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
 	sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
-	# Let the agent user run Docker
 	sudo groupadd -f docker
 	sudo usermod -aG docker "$USER"
 fi
 
-# --- devcontainer CLI ---------------------------------------------------------
-# Install unpinned, but only versions at least 7 days old, mirroring the repo's
-# supply-chain policy (bunfig.toml's minimumReleaseAge) and CI's
-# `npm install --min-release-age=7`. We install with bun (the repo's package
-# manager, same version as .devcontainer/Dockerfile) because the image's npm is
-# too old for `--min-release-age`; bun applies minimumReleaseAge to global
-# installs read from ~/.bunfig.toml.
+# enable devcontainer CLI
 if ! command -v devcontainer >/dev/null 2>&1; then
-	if ! command -v bun >/dev/null 2>&1; then
-		export BUN_INSTALL="$HOME/.bun"
-		curl -fsSL https://bun.com/install | bash -s "bun-v1.3.14"
-	fi
-	export PATH="$HOME/.bun/bin:$PATH"
-	[ -f "$HOME/.bunfig.toml" ] \
-		|| printf '[install]\nminimumReleaseAge = 604800 # 7 days; see bunfig.toml\n' > "$HOME/.bunfig.toml"
-	bun install -g @devcontainers/cli
-	sudo ln -sf "$HOME/.bun/bin/devcontainer" /usr/local/bin/devcontainer
+	# NOTE: since pre-installed npm is too old and does not support --min-release-age options, do not unpin the version
+	npm install -g @devcontainers/cli@0.87.0
+	sudo ln -sf "$(npm prefix -g)/bin/devcontainer" /usr/local/bin/devcontainer
 fi
+
+# prewarm
+ensure_dockerd
+sg docker -c "devcontainer up"
+sg docker -c "devcontainer exec bun run setup"
+sg docker -c "docker compose -p '$(basename "$PWD")_devcontainer' down"
 
 echo "install.sh completed"
