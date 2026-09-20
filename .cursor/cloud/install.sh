@@ -7,9 +7,16 @@
 # don't consume devcontainer.json directly, so this script prepares the VM to
 # run that same stack via the devcontainer CLI, matching .github/workflows/ci.yml.
 #
-# It only installs durable, idempotent state. Bringing the stack up happens in
-# start.sh (per boot), because containers are not part of the install snapshot.
+# It only installs durable, idempotent state. Running containers are not part
+# of the install snapshot, so start.sh still starts dockerd and `devcontainer
+# up`. Image layers in /var/lib/docker *are* snapshotted: this script builds
+# the picms image (Playwright included) and pulls compose images so each agent
+# boot does not redo that work.
 set -euo pipefail
+
+CLOUD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=ensure-dockerd.sh
+source "$CLOUD_DIR/ensure-dockerd.sh"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -81,5 +88,14 @@ if ! command -v devcontainer >/dev/null 2>&1; then
 	bun install -g @devcontainers/cli
 	sudo ln -sf "$HOME/.bun/bin/devcontainer" /usr/local/bin/devcontainer
 fi
+
+# --- Nested images for the Environment Build snapshot -------------------------
+# start.sh must still create containers (processes do not survive). Building
+# here caches Playwright, Dev Container features, postgres, and dbgate.
+ensure_dockerd
+with_docker_group devcontainer build --workspace-folder "$PWD"
+with_docker_group docker compose \
+	-f .devcontainer/docker-compose.yml \
+	pull --ignore-buildable
 
 echo "install.sh completed"
