@@ -13,6 +13,13 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
+# --- Disable Husky git hooks for the agent ------------------------------------
+# The repo's pre-commit hook runs `bun run lint`/`test`, which need the
+# devcontainer database. Cloud Agents commit from the VM shell, so disable
+# hooks environment-wide via HUSKY=0 (see .husky/_/h). This is a login-shell
+# system profile so it applies to the agent's shells.
+echo 'export HUSKY=0' | sudo tee /etc/profile.d/husky.sh >/dev/null
+
 # --- Docker engine + compose + nested-container helpers -----------------------
 if ! command -v docker >/dev/null 2>&1; then
 	sudo apt-get update -qq
