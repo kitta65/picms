@@ -13,6 +13,6 @@ set -euo pipefail
 source "$(dirname "$0")/ensure-dockerd.sh"
 
 ensure_dockerd
-devcontainer up --workspace-folder "$PWD"
+devcontainer up
 
 echo "start.sh completed; use the 'picms-dev' terminal for the dev servers"
