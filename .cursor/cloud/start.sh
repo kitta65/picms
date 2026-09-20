@@ -16,9 +16,6 @@ if ! sudo docker info >/dev/null 2>&1; then
 	for _ in $(seq 1 30); do sudo docker info >/dev/null 2>&1 && break; sleep 1; done
 fi
 
-# --- Docker socket access without sudo ----------------------------------------
-sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
-
 # --- Bring up the devcontainer stack + run postCreate (setup + build) ---------
 devcontainer up --workspace-folder "$PWD"
 
