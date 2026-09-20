@@ -5,7 +5,7 @@
 	"terminals": [
 		{
 			"name": "picms-dev",
-			"command": "bash .cursor/cloud/dev.sh"
+			"command": "devcontainer exec --workspace-folder /workspace bun run dev"
 		}
 	]
 }
