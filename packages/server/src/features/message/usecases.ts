@@ -96,4 +96,5 @@ async function handleWorkDeleted(
 
 export const _TEST = {
 	handleRevisionInserted,
+	handleWorkDeleted,
 };

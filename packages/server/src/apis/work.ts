@@ -4,7 +4,7 @@ import { validator } from "hono/validator";
 
 import { ERROR_CODE } from "../constants";
 import * as workIo from "../features/work/io";
-import * as drizzleRepositories from "../infrastructures/drizzle/repositories";
+import { workDatabase } from "../infrastructures/drizzle/repositories/work-database";
 import * as drizzleViews from "../infrastructures/drizzle/views";
 
 export const WORK_API = new Hono()
@@ -20,9 +20,9 @@ export const WORK_API = new Hono()
 		}),
 		async (c) => {
 			const input = c.req.valid("json");
-			const repo = drizzleRepositories.workDatabase;
+			const repo = workDatabase;
 			const work = workIo.CreateInput.toEntity(input);
-			const result = await repo.upsert(work);
+			const result = await repo.insert(work);
 			return c.json(result, 200);
 		},
 	)
@@ -72,7 +72,7 @@ export const WORK_API = new Hono()
 		}),
 		async (c) => {
 			const input = c.req.valid("json");
-			const repo = drizzleRepositories.workDatabase;
+			const repo = workDatabase;
 			const work = workIo.UpdateInput.forRepository(input);
 			const result = await repo.update(work);
 			return c.json(result, 200);
@@ -90,7 +90,7 @@ export const WORK_API = new Hono()
 		}),
 		async (c) => {
 			const input = c.req.valid("param");
-			const repo = drizzleRepositories.workDatabase;
+			const repo = workDatabase;
 			await repo.deleteById(input.id);
 			return c.body(null, 204);
 		},

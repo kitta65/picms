@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, spyOn, test } from "bun:test";
 import { _TEST as MESSAGE_REPOSITORY_TEST } from "../../domains/message/repository";
 import type { Revision } from "../../domains/revision/entity";
 import type { Work } from "../../domains/work/entity";
-import { _TEST as DRIZZLE_REPOSITORY_TEST, workDatabase } from "./repositories";
+import { DB } from "./configs";
+import { RevisionDatabase } from "./repositories/revision-database";
+import { workDatabase } from "./repositories/work-database";
 import { revisionTable, workTable, workTagTable } from "./tables";
 import { workView } from "./views";
 
-const { DB, RevisionDatabase } = DRIZZLE_REPOSITORY_TEST;
 const { FakeMessageBroker } = MESSAGE_REPOSITORY_TEST;
 
 const VALID_WORK = {
@@ -44,6 +45,27 @@ describe("workView", () => {
 		await DB.delete(revisionTable);
 	});
 
+	describe("findById", () => {
+		test("returns latest revision id and all tags", async () => {
+			const tags: string[] = ["foo", "bar"];
+			const work = {
+				...VALID_WORK,
+				tags,
+			} satisfies Work;
+			await workDatabase.insert(work);
+			await revisionDatabase.insert(VALID_REVISION_LATEST);
+			await revisionDatabase.insert(VALID_REVISION_OLDEST);
+			const result = await workView.findById({ id: VALID_WORK.id });
+
+			if (!result) {
+				expect.unreachable();
+			}
+
+			expect(result.revisionId).toBe(VALID_REVISION_LATEST.id);
+			expect(result.tags).toEqual(tags);
+		});
+	});
+
 	describe("findMany", () => {
 		test("returns latest revision id and all tags", async () => {
 			const tags: string[] = ["foo", "bar"];
@@ -51,7 +73,7 @@ describe("workView", () => {
 				...VALID_WORK,
 				tags,
 			} satisfies Work;
-			await workDatabase.upsert(work);
+			await workDatabase.insert(work);
 			await revisionDatabase.insert(VALID_REVISION_LATEST);
 			await revisionDatabase.insert(VALID_REVISION_OLDEST);
 			const results = await workView.findMany();
@@ -62,7 +84,7 @@ describe("workView", () => {
 			}
 
 			expect(result.revisionId).toBe(VALID_REVISION_LATEST.id);
-			expect(result.tags.sort()).toEqual(tags.sort());
+			expect(result.tags).toEqual(tags);
 		});
 
 		test("limit option is working", async () => {
@@ -74,8 +96,8 @@ describe("workView", () => {
 				...VALID_WORK,
 				id: Bun.randomUUIDv7(),
 			} satisfies Work;
-			await workDatabase.upsert(work1);
-			await workDatabase.upsert(work2);
+			await workDatabase.insert(work1);
+			await workDatabase.insert(work2);
 
 			const resultsWitoutLimit = await workView.findMany();
 			expect(resultsWitoutLimit.length).toBe(2);
@@ -98,8 +120,8 @@ describe("workView", () => {
 			} satisfies Work;
 
 			// insert order does not matter if orderBy options is working
-			await workDatabase.upsert(work2);
-			await workDatabase.upsert(work1);
+			await workDatabase.insert(work2);
+			await workDatabase.insert(work1);
 
 			const resultsAsc = await workView.findMany({
 				orderBy: { createdAt: "asc" },

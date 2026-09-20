@@ -37,7 +37,16 @@ const VALID_REVISION_INSERTED_MESSAGE: Message = {
 	scheduledAt: new Date(),
 };
 
-describe("handleRevisionCreated", () => {
+export const VALID_WORK_DELETED_MESSAGE: Message = {
+	id: Bun.randomUUIDv7(),
+	type: "WORK_DELETED",
+	targetId: VALID_WORK.id,
+	attemptCount: 1,
+	createdAt: new Date(),
+	scheduledAt: new Date(),
+};
+
+describe("handleRevisionInserted", () => {
 	test("ack message if everything was found", async () => {
 		const revisionDatabase = new FakeRevisionDatabase();
 		spyOn(revisionDatabase, "findById").mockImplementation(

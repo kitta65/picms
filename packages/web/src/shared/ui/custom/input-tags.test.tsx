@@ -68,6 +68,23 @@ describe("InputTags", () => {
 		}
 	});
 
+	test("tag is not added if already exists", async () => {
+		function InputTagsWithSingleTag() {
+			const [tags, setTags] = useState<string[]>(["foo"]);
+			return <InputTags onChange={setTags} tags={tags} />;
+		}
+		const { user, component } = setupComponent(<InputTagsWithSingleTag />);
+
+		const textbox = component.getByRole("textbox");
+		await user.click(textbox);
+		await user.keyboard("foo");
+		const button = component.getByRole("button", { name: /add/i });
+		await user.click(button);
+
+		const tags = await component.findAllByRole("button", { name: "foo" });
+		expect(tags.length).toBe(1);
+	});
+
 	test("tag is added by enter key", async () => {
 		function InputTagsWithNoTag() {
 			const [tags, setTags] = useState<string[]>([]);

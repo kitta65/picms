@@ -30,6 +30,50 @@ describe("Preview", () => {
 		}
 	});
 
+	test("open in new tab button has appropriate attributes", async () => {
+		const { component } = setupComponent(
+			<Preview
+				data={VALID_PREVIEWABLE}
+				isOpen={true}
+				setIsOpen={() => {}}
+				currPage={1}
+				lastPage={1}
+				onPrev={() => console.log("NOP")}
+			/>,
+		);
+
+		const button = component.getByLabelText(/open in new tab/i);
+		expect(button).toHaveAttribute(
+			"href",
+			`http://localhost/api/private/revisions/${VALID_PREVIEWABLE.revisionId}/inside/x`,
+		);
+		expect(button).toHaveAttribute("target", "_blank");
+		expect(button).toHaveAttribute("rel", expect.stringContaining("noopener"));
+		expect(button).toHaveAttribute(
+			"rel",
+			expect.stringContaining("noreferrer"),
+		);
+	});
+
+	test("download button has appropriate attributes", async () => {
+		const { component } = setupComponent(
+			<Preview
+				data={VALID_PREVIEWABLE}
+				isOpen={true}
+				setIsOpen={() => {}}
+				currPage={1}
+				lastPage={1}
+				onPrev={() => console.log("NOP")}
+			/>,
+		);
+
+		const button = component.getByLabelText(/download/i);
+		expect(button).toHaveAttribute(
+			"href",
+			`http://localhost/api/private/revisions/${VALID_PREVIEWABLE.revisionId}/download`,
+		);
+	});
+
 	test("left button is disable if onPrev is not specified", async () => {
 		const { component } = setupComponent(
 			<Preview

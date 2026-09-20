@@ -8,7 +8,7 @@ export interface IRevisionDatabase {
 	insert: (workId: Revision) => Awaitable<OperationResult<Revision>>;
 	findById: (id: Revision["id"]) => Awaitable<Revision | undefined>;
 	findByWorkId: (id: Revision["workId"]) => Awaitable<Revision[]>;
-	// should be called via domain service because it takes care of storage
+	// in most cases, should be called via domain service because it takes care of storage
 	deleteById: (id: Revision["id"]) => Awaitable<void>;
 }
 

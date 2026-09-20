@@ -5,20 +5,20 @@ import type { OperationResult } from "../message/types";
 import type { Work } from "./entity";
 
 export interface IWorkDatabase {
+	insert: (work: Work) => Awaitable<Work>;
 	update: (work: AtLeast<Work, "id" | "updatedAt">) => Awaitable<Work>;
-	upsert: (work: Work) => Awaitable<Work>;
 	findById: (id: Work["id"]) => Awaitable<Work | undefined>;
 	deleteById: (id: Work["id"]) => Awaitable<OperationResult<null>>;
 }
 
 class FakeWorkDatabase implements IWorkDatabase {
-	update(
-		_: AtLeast<Work, "id" | "updatedAt">,
-	): ReturnType<IWorkDatabase["update"]> {
+	insert(_: Work): ReturnType<IWorkDatabase["insert"]> {
 		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
 		throw new HTTPException(status, { message });
 	}
-	upsert(_: Work): ReturnType<IWorkDatabase["upsert"]> {
+	update(
+		_: AtLeast<Work, "id" | "updatedAt">,
+	): ReturnType<IWorkDatabase["update"]> {
 		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
 		throw new HTTPException(status, { message });
 	}

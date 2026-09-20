@@ -6,7 +6,7 @@ import { ERROR_CODE, PRIVATE_API_PATH, STORAGE_API_PATH } from "../constants";
 import * as revisionService from "../domains/revision/service";
 import * as revisionIo from "../features/revision/io";
 import * as revisionUsecase from "../features/revision/usecases";
-import * as drizzleRepositories from "../infrastructures/drizzle/repositories";
+import { revisionDatabase } from "../infrastructures/drizzle/repositories/revision-database";
 import * as localRepository from "../infrastructures/local/repositories";
 
 export const REVISION_API = new Hono()
@@ -21,7 +21,7 @@ export const REVISION_API = new Hono()
 			return parsed.data;
 		}),
 		async (c) => {
-			const repository = drizzleRepositories.revisionDatabase;
+			const repository = revisionDatabase;
 			const entity = revisionIo.CreateInput.toEntity(c.req.valid("json"));
 			const { data: created } = await repository.insert(entity);
 			return c.json(created);
@@ -40,7 +40,7 @@ export const REVISION_API = new Hono()
 		}),
 		async (c) => {
 			const param = c.req.valid("param");
-			const repo = drizzleRepositories.revisionDatabase;
+			const repo = revisionDatabase;
 			const revision = await repo.findById(param.id);
 			if (!revision) {
 				const { status, message } = ERROR_CODE.NOT_FOUND;
@@ -62,7 +62,6 @@ export const REVISION_API = new Hono()
 		}),
 		async (c) => {
 			const param = c.req.valid("param");
-			const revisionDatabase = drizzleRepositories.revisionDatabase;
 			const splitted = c.req.url.split(PRIVATE_API_PATH);
 			const basePath = splitted.at(0);
 			if (splitted.length !== 2 || !basePath) {
@@ -92,7 +91,6 @@ export const REVISION_API = new Hono()
 		}),
 		async (c) => {
 			const param = c.req.valid("param");
-			const revisionDatabase = drizzleRepositories.revisionDatabase;
 			const splitted = c.req.url.split(PRIVATE_API_PATH);
 			const basePath = splitted.at(0);
 			if (splitted.length !== 2 || !basePath) {
@@ -122,7 +120,6 @@ export const REVISION_API = new Hono()
 		}),
 		async (c) => {
 			const param = c.req.valid("param");
-			const revisionDatabase = drizzleRepositories.revisionDatabase;
 			const splitted = c.req.url.split(PRIVATE_API_PATH);
 			const basePath = splitted.at(0);
 			if (splitted.length !== 2 || !basePath) {
