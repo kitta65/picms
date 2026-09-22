@@ -33,7 +33,7 @@ services:
       POSTGRES_PASSWORD: *pg-pass
       POSTGRES_USER: *pg-user
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_USER"]
+      test: pg_isready
       interval: 2s
       timeout: 5s
       retries: 10
