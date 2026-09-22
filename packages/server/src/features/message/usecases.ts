@@ -94,7 +94,7 @@ async function handleWorkDeleted(
 	await di.messageBroker.ack(message.id);
 }
 
-export const _TEST = {
+export const forTesting = {
 	handleRevisionInserted,
 	handleWorkDeleted,
 };

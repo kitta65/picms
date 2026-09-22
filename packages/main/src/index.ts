@@ -52,6 +52,6 @@ if (import.meta.main) {
 	main();
 }
 
-export const _TEST = {
+export const forTesting = {
 	createServerOptions,
 };

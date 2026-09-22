@@ -4,9 +4,9 @@ import userEvent from "@testing-library/user-event";
 import { Hono } from "hono";
 import { testClient } from "hono/testing";
 import type { PicmsApi } from "picms-server/api";
-import { _TEST } from "@/app/App";
+import { forTesting } from "@/app/App";
 
-const { Wrapper } = _TEST;
+const { Wrapper } = forTesting;
 const FAKE_API = new Hono()
 	// mock implementation is required
 	.use(async (c) => c.body(null, 501)) as unknown as PicmsApi;

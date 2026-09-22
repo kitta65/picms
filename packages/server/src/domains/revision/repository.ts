@@ -33,6 +33,6 @@ class FakeRevisionDatabase implements IRevisionDatabase {
 	}
 }
 
-export const _TEST = {
+export const forTesting = {
 	FakeRevisionDatabase,
 };

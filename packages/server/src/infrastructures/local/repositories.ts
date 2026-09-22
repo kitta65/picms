@@ -112,6 +112,6 @@ export class RevisionStorage extends SharedStorage {
 	}
 }
 
-export const _TEST = {
+export const forTesting = {
 	BASE_PATH, // for cleanup
 };

@@ -146,6 +146,6 @@ export function App() {
 	);
 }
 
-export const _TEST = {
+export const forTesting = {
 	Wrapper,
 };

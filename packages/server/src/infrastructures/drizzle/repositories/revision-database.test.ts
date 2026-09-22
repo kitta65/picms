@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, spyOn, test } from "bun:test";
-import { _TEST as MESSAGE_REPOSITORY_TEST } from "../../../domains/message/repository";
+import { forTesting as messageRepositoryForTesting } from "../../../domains/message/repository";
 import type { Revision } from "../../../domains/revision/entity";
 import { DB } from "../configs";
 import { revisionTable } from "../tables";
 import { RevisionDatabase } from "./revision-database";
 
-const { FakeMessageBroker } = MESSAGE_REPOSITORY_TEST;
+const { FakeMessageBroker } = messageRepositoryForTesting;
 
 const VALID_REVISION: Revision = {
 	id: Bun.randomUUIDv7(),

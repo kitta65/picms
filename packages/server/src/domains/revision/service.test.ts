@@ -3,10 +3,10 @@ import { ReadStream } from "node:fs";
 import { Readable } from "node:stream";
 import { ERROR_CODE } from "../../constants";
 import * as revisionService from "../revision/service";
-import { _TEST as SHARED_REPOSITORY_TEST } from "../shared/repository";
+import { forTesting as sharedRepositoryForTesting } from "../shared/repository";
 import type { Revision } from "./entity";
 
-const { FakeSharedStorage } = SHARED_REPOSITORY_TEST;
+const { FakeSharedStorage } = sharedRepositoryForTesting;
 const revisionStorage = new FakeSharedStorage();
 
 // 1x1 white PNG, re-encoded so `readById` returns a real JPEG.

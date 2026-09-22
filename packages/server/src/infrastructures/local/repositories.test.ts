@@ -2,10 +2,10 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { ERROR_CODE } from "../../constants";
-import { _TEST, SharedStorage } from "./repositories";
+import { forTesting, SharedStorage } from "./repositories";
 
 const TEMP_DIR_NAME = "local-repository-test";
-const { BASE_PATH } = _TEST;
+const { BASE_PATH } = forTesting;
 
 async function cleanUp() {
 	const path_ = path.resolve(BASE_PATH, TEMP_DIR_NAME);

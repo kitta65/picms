@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, spyOn, test } from "bun:test";
-import { _TEST as MESSAGE_REPOSITORY_TEST } from "../../domains/message/repository";
+import { forTesting as messageRepositoryForTesting } from "../../domains/message/repository";
 import type { Revision } from "../../domains/revision/entity";
 import type { Work } from "../../domains/work/entity";
 import { DB } from "./configs";
@@ -8,7 +8,7 @@ import { workDatabase } from "./repositories/work-database";
 import { revisionTable, workTable, workTagTable } from "./tables";
 import { workView } from "./views";
 
-const { FakeMessageBroker } = MESSAGE_REPOSITORY_TEST;
+const { FakeMessageBroker } = messageRepositoryForTesting;
 
 const VALID_WORK = {
 	id: Bun.randomUUIDv7(),

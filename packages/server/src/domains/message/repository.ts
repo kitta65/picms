@@ -33,6 +33,6 @@ class FakeMessageBroker implements IMessageBroker {
 	}
 }
 
-export const _TEST = {
+export const forTesting = {
 	FakeMessageBroker,
 };

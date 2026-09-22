@@ -1,16 +1,16 @@
 import { describe, expect, spyOn, test } from "bun:test";
 import type { Message } from "../../domains/message/entity";
-import { _TEST as MESSAGE_REPOSITORY_TEST } from "../../domains/message/repository";
+import { forTesting as messageRepositoryForTesting } from "../../domains/message/repository";
 import type { Revision } from "../../domains/revision/entity";
-import { _TEST as REVISION_REPOSITORY_TEST } from "../../domains/revision/repository";
+import { forTesting as revisionRepositoryForTesting } from "../../domains/revision/repository";
 import type { Work } from "../../domains/work/entity";
-import { _TEST as WORK_REPOSITORY_TEST } from "../../domains/work/repository";
-import { _TEST as MESSAGE_USECASE_TEST } from "./usecases";
+import { forTesting as workRepositoryForTesting } from "../../domains/work/repository";
+import { forTesting as messageUsecaseForTesting } from "./usecases";
 
-const { FakeMessageBroker } = MESSAGE_REPOSITORY_TEST;
-const { FakeWorkDatabase } = WORK_REPOSITORY_TEST;
-const { FakeRevisionDatabase } = REVISION_REPOSITORY_TEST;
-const { handleRevisionInserted } = MESSAGE_USECASE_TEST;
+const { FakeMessageBroker } = messageRepositoryForTesting;
+const { FakeWorkDatabase } = workRepositoryForTesting;
+const { FakeRevisionDatabase } = revisionRepositoryForTesting;
+const { handleRevisionInserted } = messageUsecaseForTesting;
 
 const VALID_WORK: Work = {
 	id: Bun.randomUUIDv7(),
