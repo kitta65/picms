@@ -24,7 +24,7 @@ export const REVISION_API = new Hono()
 			const repository = revisionDatabase;
 			const entity = revisionIo.CreateInput.toEntity(c.req.valid("json"));
 			const { data: created } = await repository.insert(entity);
-			return c.json(created);
+			return c.json(created, 201);
 		},
 	)
 	.get(
