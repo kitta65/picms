@@ -21,6 +21,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      gcs:
+        condition: service_started
     volumes:
       - "..:/workspaces/picms"
 
@@ -57,6 +59,8 @@ services:
       PORT_postgres: *pg-port
       ENGINE_postgres: postgres@dbgate-plugin-postgres
 
-    # do not persist data until this bug is fixed https://github.com/dbgate/dbgate/issues/1493
-    # volumes:
-    #   - "../.cache/dbgate:/root/.dbgate"
+  # https://github.com/fsouza/fake-gcs-server
+  gcs:
+    image: fsouza/fake-gcs-server
+    volumes:
+      - "../.cache/gcs:/data"
