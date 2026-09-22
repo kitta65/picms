@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { CONFIG_SCHEMA, type Config } from "../../../domains/config/entity";
+import { CONFIG_SCHEMA } from "../../../domains/config/entity";
 import type { IConfigDatabase } from "../../../domains/config/repository";
 import { DB } from "../configs";
 import { configTable } from "../tables";
@@ -19,7 +19,7 @@ export const configDatabase: IConfigDatabase = {
 		const parsed = CONFIG_SCHEMA.parse(config);
 		return parsed;
 	},
-	upsert: async (config: Config) => {
+	upsert: async (config: Parameters<IConfigDatabase["upsert"]>[0]) => {
 		const result = await DB.insert(configTable)
 			.values({ id: CONFIG_ID, ...config })
 			.onConflictDoUpdate({

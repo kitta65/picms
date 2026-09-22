@@ -1,11 +1,11 @@
 import { and, eq, inArray, lt, sql } from "drizzle-orm";
-import { MESSAGE_SCHEMA, type Message } from "../../../domains/message/entity";
+import { MESSAGE_SCHEMA } from "../../../domains/message/entity";
 import type { IMessageBroker } from "../../../domains/message/repository";
 import { DB } from "../configs";
 import { messageTable } from "../tables";
 
 export const messageBroker: IMessageBroker = {
-	publish: async (message: Message) => {
+	publish: async (message: Parameters<IMessageBroker["publish"]>[0]) => {
 		const results = await DB.insert(messageTable).values(message).returning();
 		const inserted = results.at(0);
 
@@ -17,11 +17,7 @@ export const messageBroker: IMessageBroker = {
 		return parsed;
 	},
 
-	pull: async (options?: {
-		limit?: number;
-		retryIntervalMinutes?: number;
-		maxAttempts?: number;
-	}) => {
+	pull: async (options?: Parameters<IMessageBroker["pull"]>[0]) => {
 		const limit = options?.limit;
 		const nextScheduledAt = new Date();
 		nextScheduledAt.setMinutes(
@@ -64,7 +60,7 @@ export const messageBroker: IMessageBroker = {
 		return messages;
 	},
 
-	ack: async (id: Message["id"]) => {
+	ack: async (id: Parameters<IMessageBroker["ack"]>[0]) => {
 		await DB.delete(messageTable).where(and(eq(messageTable.id, id)));
 	},
 };

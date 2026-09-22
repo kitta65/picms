@@ -1,12 +1,11 @@
 import { and, eq, notInArray } from "drizzle-orm";
 import { MESSAGE_SCHEMA, Message } from "../../../domains/message/entity";
-import type { Work } from "../../../domains/work/entity";
 import type { IWorkDatabase } from "../../../domains/work/repository";
 import { DB } from "../configs";
 import { messageTable, workTable, workTagTable } from "../tables";
 
 export const workDatabase: IWorkDatabase = {
-	findById: async (id: Work["id"]) => {
+	findById: async (id: Parameters<IWorkDatabase["findById"]>[0]) => {
 		const result = await DB.query.workTable.findFirst({
 			with: {
 				tags: {
@@ -76,7 +75,7 @@ export const workDatabase: IWorkDatabase = {
 		return found;
 	},
 
-	insert: async (work: Work) => {
+	insert: async (work: Parameters<IWorkDatabase["insert"]>[0]) => {
 		const dt = new Date();
 		await DB.transaction(async (tx) => {
 			await tx.insert(workTable).values(work).returning();
