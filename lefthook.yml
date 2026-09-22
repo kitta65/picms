@@ -1,0 +1,5 @@
+# https://lefthook.dev/configuration/Hook/
+pre-commit:
+  jobs:
+    - run: bun run lint
+    - run: bun run test

@@ -9,9 +9,9 @@
 		],
 		"catalog": {
 			"@types/bun": "latest",
-			"hono": "^4.2.16",
-			"zod": "^4.4.3",
-			"typescript": "^7.0.0"
+			"hono": "^4.13.7",
+			"zod": "^4.5.4",
+			"typescript": "^7.0.2"
 		}
 	},
 	"scripts": {
@@ -23,15 +23,13 @@
 		"lint": "knip && biome check && bun run --filter '*' --parallel lint",
 		"fix": "knip --fix && biome check --write",
 		"fix:unsafe": "knip --fix && biome check --write --unsafe",
-		"prepare": "husky",
 		"test": "bun run --filter '*' --parallel test",
 		"e2e": "bun run --filter 'picms-e2e' e2e"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.16",
+		"@biomejs/biome": "^2.5.12",
 		"@types/bun": "catalog:",
-		"husky": "^9.1.7",
-		"knip": "^6.11.0",
+		"knip": "^6.34.0",
 		"typescript": "catalog:"
 	}
 }
