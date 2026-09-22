@@ -11,6 +11,7 @@ import {
 	PUBLIC_API_PATH,
 	STORAGE_API_PATH,
 } from "./constants";
+import { handleApiError } from "./errors";
 import * as messageUsecases from "./features/message/usecases";
 import * as storageIo from "./features/storage/io";
 import { messageBroker } from "./infrastructures/drizzle/repositories/message-broker";
@@ -30,8 +31,7 @@ const PRIVATE_API = new Hono()
 		const splitted = c.req.url.split(PRIVATE_API_PATH);
 		const basePath = splitted.at(0);
 		if (splitted.length !== 2 || !basePath) {
-			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
-			throw new HTTPException(status, { message });
+			throw new Error("failed to derive API base path");
 		}
 		const revisionStorage = new localRepository.RevisionStorage(
 			basePath + STORAGE_API_PATH,
@@ -75,8 +75,7 @@ const STORAGE_API = new Hono().put(
 		const splitted = c.req.url.split(STORAGE_API_PATH);
 		const basePath = splitted.at(0);
 		if (splitted.length !== 2 || !basePath) {
-			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
-			throw new HTTPException(status, { message });
+			throw new Error("failed to derive API base path");
 		}
 
 		const storage = new localRepository.SharedStorage(
@@ -101,13 +100,5 @@ export const PICMS_API = new Hono()
 	.route(PRIVATE_API_PATH, PRIVATE_API)
 	.route(PUBLIC_API_PATH, PUBLIC_API)
 	.route(STORAGE_API_PATH, STORAGE_API)
-	.onError((err, c) => {
-		if (err instanceof HTTPException) {
-			return err.getResponse();
-		}
-
-		// fallback
-		const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
-		return c.text(message, status);
-	});
+	.onError(handleApiError);
 export type PicmsApi = typeof PICMS_API;

@@ -9,6 +9,7 @@ export const STORAGE_API_PATH = `/storage`;
 export const ORPHAN_REVISION_TTL_MINUTES = 5;
 export const SIGNED_URL_TTL_MINUTES = 5;
 
+// HTTP mapping used at the API boundary. Inner layers throw AppError codes, not status numbers.
 type ErrorCode = {
 	status: number;
 	message: string;

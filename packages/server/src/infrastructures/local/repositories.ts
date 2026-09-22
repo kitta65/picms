@@ -1,8 +1,8 @@
 import * as crypto from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { HTTPException } from "hono/http-exception";
-import { ERROR_CODE, SIGNED_URL_TTL_MINUTES } from "../../constants";
+import { SIGNED_URL_TTL_MINUTES } from "../../constants";
+import { AppError } from "../../errors";
 import type { ISharedStorage } from "../../domains/shared/repository";
 
 type Sign = {
@@ -41,8 +41,7 @@ export class SharedStorage implements ISharedStorage {
 	constructor(apiBaseUrl: string, directory: string, options?: Options) {
 		if (!directory) {
 			// since empty string may cause undefined behavior, it is not allowed
-			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
-			throw new HTTPException(status, { message });
+			throw new Error("storage directory must not be empty");
 		}
 		this.apiBaseUrl = apiBaseUrl;
 		this.directory = directory;
@@ -78,8 +77,7 @@ export class SharedStorage implements ISharedStorage {
 			SharedStorage.sign.token === token &&
 			elapsedMinutes < SIGNED_URL_TTL_MINUTES;
 		if (!isValid && !this.options.skipValidation) {
-			const { status, message } = ERROR_CODE.UNAUTHORIZED;
-			throw new HTTPException(status, { message });
+			throw new AppError("UNAUTHORIZED");
 		}
 
 		const fullPath = this.#buildFullPath(id);

@@ -1,7 +1,6 @@
-import { HTTPException } from "hono/http-exception";
 import * as z from "zod";
-import { ERROR_CODE } from "../../constants";
 import { REVISION_SCHEMA, type Revision } from "../../domains/revision/entity";
+import { AppError } from "../../errors";
 import {
 	DISPLAY_MODES,
 	type DisplayOptions,
@@ -48,8 +47,7 @@ export const DisplayInput = {
 		const mode = input.mode;
 		const parsed = DISPLAY_SIZE_REGEX.exec(input.size);
 		if (!parsed) {
-			const { status, message } = ERROR_CODE.BAD_REQUEST;
-			throw new HTTPException(status, { message });
+			throw new AppError("BAD_REQUEST");
 		}
 
 		let width: number | undefined;

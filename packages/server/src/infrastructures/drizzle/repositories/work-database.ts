@@ -1,6 +1,4 @@
 import { and, eq, notInArray } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import { ERROR_CODE } from "../../../constants";
 import { MESSAGE_SCHEMA, Message } from "../../../domains/message/entity";
 import type { Work } from "../../../domains/work/entity";
 import type { IWorkDatabase } from "../../../domains/work/repository";
@@ -73,8 +71,7 @@ export const workDatabase: IWorkDatabase = {
 
 		const found = await workDatabase.findById(work.id);
 		if (!found) {
-			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
-			throw new HTTPException(status, { message });
+			throw new Error("failed to load work after update");
 		}
 		return found;
 	},
@@ -101,8 +98,7 @@ export const workDatabase: IWorkDatabase = {
 		});
 		const found = await workDatabase.findById(work.id);
 		if (!found) {
-			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
-			throw new HTTPException(status, { message });
+			throw new Error("failed to load work after insert");
 		}
 		return found;
 	},

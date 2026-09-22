@@ -1,6 +1,6 @@
 import { describe, expect, spyOn, test } from "bun:test";
-import { ERROR_CODE } from "../../constants";
 import type { Revision } from "../../domains/revision/entity";
+import { AppError } from "../../errors";
 import { _TEST as REVISION_REPOSITORY_TEST } from "../../domains/revision/repository";
 import { _TEST as SHARED_REPOSITORY_TEST } from "../../domains/shared/repository";
 import { issueSignedUrl } from "./usecases";
@@ -47,7 +47,7 @@ describe("issueSignedUrl", () => {
 				revisionDatabase,
 				revisionStorage,
 			}),
-		).rejects.toThrow(ERROR_CODE.NOT_FOUND);
+		).rejects.toThrow(new AppError("NOT_FOUND"));
 
 		expect(spy).toBeCalledTimes(0);
 	});
@@ -67,7 +67,7 @@ describe("issueSignedUrl", () => {
 				revisionDatabase,
 				revisionStorage,
 			}),
-		).rejects.toThrow(ERROR_CODE.REQUEST_TIMEOUT);
+		).rejects.toThrow(new AppError("REQUEST_TIMEOUT"));
 
 		expect(spy).toBeCalledTimes(0);
 	});
@@ -87,7 +87,7 @@ describe("issueSignedUrl", () => {
 				revisionDatabase,
 				revisionStorage,
 			}),
-		).rejects.toThrow(ERROR_CODE.CONFLICT);
+		).rejects.toThrow(new AppError("CONFLICT"));
 
 		expect(spy).toBeCalledTimes(0);
 	});
