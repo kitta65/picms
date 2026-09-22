@@ -23,7 +23,7 @@ export const WORK_API = new Hono()
 			const repo = workDatabase;
 			const work = workIo.CreateInput.toEntity(input);
 			const result = await repo.insert(work);
-			return c.json(result, 200);
+			return c.json(result, 201);
 		},
 	)
 	.get(

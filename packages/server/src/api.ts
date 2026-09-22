@@ -92,7 +92,7 @@ const STORAGE_API = new Hono().put(
 		const id = c.req.valid("param").id;
 		const blob = await c.req.blob();
 		await storage.save(id, token, blob);
-		return c.text("ok", 200);
+		return c.body(null, 201);
 	},
 );
 
