@@ -32,6 +32,6 @@ class FakeWorkDatabase implements IWorkDatabase {
 	}
 }
 
-export const _TEST = {
+export const forTesting = {
 	FakeWorkDatabase,
 };

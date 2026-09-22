@@ -1,12 +1,12 @@
 import { describe, expect, spyOn, test } from "bun:test";
 import { ERROR_CODE } from "../../constants";
 import type { Revision } from "../../domains/revision/entity";
-import { _TEST as REVISION_REPOSITORY_TEST } from "../../domains/revision/repository";
-import { _TEST as SHARED_REPOSITORY_TEST } from "../../domains/shared/repository";
+import { forTesting as revisionRepositoryForTesting } from "../../domains/revision/repository";
+import { forTesting as sharedRepositoryForTesting } from "../../domains/shared/repository";
 import { issueSignedUrl } from "./usecases";
 
-const { FakeSharedStorage } = SHARED_REPOSITORY_TEST;
-const { FakeRevisionDatabase } = REVISION_REPOSITORY_TEST;
+const { FakeSharedStorage } = sharedRepositoryForTesting;
+const { FakeRevisionDatabase } = revisionRepositoryForTesting;
 
 const VALID_REVISION: Revision = {
 	id: Bun.randomUUIDv7(),

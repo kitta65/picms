@@ -33,6 +33,6 @@ class FakeSharedStorage implements ISharedStorage {
 	}
 }
 
-export const _TEST = {
+export const forTesting = {
 	FakeSharedStorage,
 };
