@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { AppError } from "../../errors";
+import { CodedError } from "../../errors";
 import { _TEST, SharedStorage } from "./repositories";
 
 const TEMP_DIR_NAME = "local-repository-test";
@@ -106,14 +106,14 @@ describe("save", () => {
 				SharedStorage.sign.token,
 				new Blob(["dummy"]),
 			),
-		).rejects.toThrow(new AppError("UNAUTHORIZED"));
+		).rejects.toThrow(new CodedError("UNAUTHORIZED"));
 	});
 
 	test("cannot save using invalid token", async () => {
 		const storage = new SharedStorage("", TEMP_DIR_NAME);
 		await expect(
 			storage.save("foo", "invalid token", new Blob(["dummy"])),
-		).rejects.toThrow(new AppError("UNAUTHORIZED"));
+		).rejects.toThrow(new CodedError("UNAUTHORIZED"));
 	});
 
 	test("cannot save twice using the same id", async () => {
@@ -139,7 +139,7 @@ describe("save", () => {
 				SharedStorage.sign.token,
 				new Blob(["dummy"]),
 			),
-		).rejects.toThrow(new AppError("UNAUTHORIZED"));
+		).rejects.toThrow(new CodedError("UNAUTHORIZED"));
 	});
 });
 

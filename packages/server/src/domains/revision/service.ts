@@ -1,6 +1,6 @@
 import { buffer } from "node:stream/consumers";
 import { assertNever } from "picms-shared/types";
-import { AppError } from "../../errors";
+import { CodedError } from "../../errors";
 import type { ISharedStorage } from "../shared/repository";
 import type { Revision } from "./entity";
 import type { IRevisionDatabase } from "./repository";
@@ -42,7 +42,7 @@ export async function display(
 	switch (mode) {
 		case "inside": {
 			if ((width && !height) || (!width && height)) {
-				throw new AppError("BAD_REQUEST");
+				throw new CodedError("BAD_REQUEST");
 			}
 			if (!width || !height) {
 				return stream;

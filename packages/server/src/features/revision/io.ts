@@ -4,7 +4,7 @@ import {
 	DISPLAY_MODES,
 	type DisplayOptions,
 } from "../../domains/revision/service";
-import { AppError } from "../../errors";
+import { CodedError } from "../../errors";
 
 export const CREATE_INPUT_SCHEMA = REVISION_SCHEMA.omit({
 	id: true,
@@ -47,7 +47,7 @@ export const DisplayInput = {
 		const mode = input.mode;
 		const parsed = DISPLAY_SIZE_REGEX.exec(input.size);
 		if (!parsed) {
-			throw new AppError("BAD_REQUEST");
+			throw new CodedError("BAD_REQUEST");
 		}
 
 		let width: number | undefined;

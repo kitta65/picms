@@ -3,7 +3,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { SIGNED_URL_TTL_MINUTES } from "../../constants";
 import type { ISharedStorage } from "../../domains/shared/repository";
-import { AppError } from "../../errors";
+import { CodedError } from "../../errors";
 
 type Sign = {
 	directory: string;
@@ -77,7 +77,7 @@ export class SharedStorage implements ISharedStorage {
 			SharedStorage.sign.token === token &&
 			elapsedMinutes < SIGNED_URL_TTL_MINUTES;
 		if (!isValid && !this.options.skipValidation) {
-			throw new AppError("UNAUTHORIZED");
+			throw new CodedError("UNAUTHORIZED");
 		}
 
 		const fullPath = this.#buildFullPath(id);

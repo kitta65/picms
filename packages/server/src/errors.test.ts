@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { ERROR_CODE } from "./constants";
-import { AppError, handleApiError, notImplemented } from "./errors";
+import { CodedError, handleApiError, notImplemented } from "./errors";
 
 const app = new Hono()
 	.onError(handleApiError)
@@ -10,18 +10,18 @@ const app = new Hono()
 		const { status, message } = ERROR_CODE.BAD_REQUEST;
 		throw new HTTPException(status, { message });
 	})
-	.get("/app-error", () => {
-		throw new AppError("NOT_FOUND");
+	.get("/coded-error", () => {
+		throw new CodedError("NOT_FOUND");
 	})
 	.get("/plain-error", () => {
 		throw new Error("unexpected failure");
 	});
 
-describe("AppError", () => {
+describe("CodedError", () => {
 	test("carries a semantic code and the mapped message", () => {
-		const error = new AppError("CONFLICT");
+		const error = new CodedError("CONFLICT");
 		expect(error).toBeInstanceOf(Error);
-		expect(error.name).toBe("AppError");
+		expect(error.name).toBe("CodedError");
 		expect(error.code).toBe("CONFLICT");
 		expect(error.message).toBe(ERROR_CODE.CONFLICT.message);
 	});
@@ -41,8 +41,8 @@ describe("handleApiError", () => {
 		expect(await res.text()).toBe(ERROR_CODE.BAD_REQUEST.message);
 	});
 
-	test("maps AppError to the matching HTTP status", async () => {
-		const res = await app.request("/app-error");
+	test("maps CodedError to the matching HTTP status", async () => {
+		const res = await app.request("/coded-error");
 		expect(res.status).toBe(ERROR_CODE.NOT_FOUND.status);
 		expect(await res.text()).toBe(ERROR_CODE.NOT_FOUND.message);
 	});

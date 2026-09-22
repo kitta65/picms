@@ -2,7 +2,7 @@ import { describe, expect, spyOn, test } from "bun:test";
 import type { Revision } from "../../domains/revision/entity";
 import { _TEST as REVISION_REPOSITORY_TEST } from "../../domains/revision/repository";
 import { _TEST as SHARED_REPOSITORY_TEST } from "../../domains/shared/repository";
-import { AppError } from "../../errors";
+import { CodedError } from "../../errors";
 import { issueSignedUrl } from "./usecases";
 
 const { FakeSharedStorage } = SHARED_REPOSITORY_TEST;
@@ -47,7 +47,7 @@ describe("issueSignedUrl", () => {
 				revisionDatabase,
 				revisionStorage,
 			}),
-		).rejects.toThrow(new AppError("NOT_FOUND"));
+		).rejects.toThrow(new CodedError("NOT_FOUND"));
 
 		expect(spy).toBeCalledTimes(0);
 	});
@@ -67,7 +67,7 @@ describe("issueSignedUrl", () => {
 				revisionDatabase,
 				revisionStorage,
 			}),
-		).rejects.toThrow(new AppError("REQUEST_TIMEOUT"));
+		).rejects.toThrow(new CodedError("REQUEST_TIMEOUT"));
 
 		expect(spy).toBeCalledTimes(0);
 	});
@@ -87,7 +87,7 @@ describe("issueSignedUrl", () => {
 				revisionDatabase,
 				revisionStorage,
 			}),
-		).rejects.toThrow(new AppError("CONFLICT"));
+		).rejects.toThrow(new CodedError("CONFLICT"));
 
 		expect(spy).toBeCalledTimes(0);
 	});

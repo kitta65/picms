@@ -1,7 +1,7 @@
 import { describe, expect, spyOn, test } from "bun:test";
 import { ReadStream } from "node:fs";
 import { Readable } from "node:stream";
-import { AppError } from "../../errors";
+import { CodedError } from "../../errors";
 import * as revisionService from "../revision/service";
 import { _TEST as SHARED_REPOSITORY_TEST } from "../shared/repository";
 import type { Revision } from "./entity";
@@ -62,7 +62,7 @@ describe("display", () => {
 				await revisionService.display(VALID_REVISION, options, {
 					revisionStorage,
 				});
-			}).toThrow(new AppError("BAD_REQUEST"));
+			}).toThrow(new CodedError("BAD_REQUEST"));
 		});
 
 		test("throw exception if height is not specified", async () => {
@@ -78,7 +78,7 @@ describe("display", () => {
 				await revisionService.display(VALID_REVISION, options, {
 					revisionStorage,
 				});
-			}).toThrow(new AppError("BAD_REQUEST"));
+			}).toThrow(new CodedError("BAD_REQUEST"));
 		});
 	});
 });

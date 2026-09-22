@@ -3,7 +3,7 @@ import { Revision } from "../../domains/revision/entity";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import * as RevisionService from "../../domains/revision/service";
 import type { ISharedStorage } from "../../domains/shared/repository";
-import { AppError } from "../../errors";
+import { CodedError } from "../../errors";
 
 export async function issueSignedUrl(
 	revisionId: Revision["id"],
@@ -12,11 +12,11 @@ export async function issueSignedUrl(
 	const revision = await di.revisionDatabase.findById(revisionId);
 
 	if (!revision) {
-		throw new AppError("NOT_FOUND");
+		throw new CodedError("NOT_FOUND");
 	}
 
 	if (!Revision.isWithinOrphanTtl(revision)) {
-		throw new AppError("REQUEST_TIMEOUT");
+		throw new CodedError("REQUEST_TIMEOUT");
 	}
 
 	// avoid duplicate upload (best effort)
@@ -24,7 +24,7 @@ export async function issueSignedUrl(
 		revisionStorage: di.revisionStorage,
 	});
 	if (!isAvailable) {
-		throw new AppError("CONFLICT");
+		throw new CodedError("CONFLICT");
 	}
 
 	const url = await di.revisionStorage.issueSignedUrl(revisionId);
@@ -51,7 +51,7 @@ export async function download(
 ) {
 	const revision = await di.revisionDatabase.findById(revisionId);
 	if (!revision) {
-		throw new AppError("NOT_FOUND");
+		throw new CodedError("NOT_FOUND");
 	}
 
 	const { stream, metadata } = await RevisionService.readWithMetadata(

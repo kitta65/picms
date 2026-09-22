@@ -4,7 +4,7 @@ import { validator } from "hono/validator";
 
 import { ERROR_CODE, PRIVATE_API_PATH, STORAGE_API_PATH } from "../constants";
 import * as revisionService from "../domains/revision/service";
-import { AppError } from "../errors";
+import { CodedError } from "../errors";
 import * as revisionIo from "../features/revision/io";
 import * as revisionUsecase from "../features/revision/usecases";
 import { revisionDatabase } from "../infrastructures/drizzle/repositories/revision-database";
@@ -44,7 +44,7 @@ export const REVISION_API = new Hono()
 			const repo = revisionDatabase;
 			const revision = await repo.findById(param.id);
 			if (!revision) {
-				throw new AppError("NOT_FOUND");
+				throw new CodedError("NOT_FOUND");
 			}
 			return c.json(revision);
 		},
@@ -129,7 +129,7 @@ export const REVISION_API = new Hono()
 
 			const revision = await revisionDatabase.findById(param.revisionId);
 			if (!revision) {
-				throw new AppError("NOT_FOUND");
+				throw new CodedError("NOT_FOUND");
 			}
 			const options = revisionIo.DisplayInput.toDisplayOptions(param);
 			const blob = await revisionService.display(revision, options, {
