@@ -2,7 +2,7 @@ import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { ERROR_CODE } from "./constants";
 
-export type AppErrorCode = Exclude<
+type AppErrorCode = Exclude<
 	keyof typeof ERROR_CODE,
 	"INTERNAL_SERVER_ERROR" | "NOT_IMPLEMENTED"
 >;

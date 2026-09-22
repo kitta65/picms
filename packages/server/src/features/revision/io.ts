@@ -1,10 +1,10 @@
 import * as z from "zod";
 import { REVISION_SCHEMA, type Revision } from "../../domains/revision/entity";
-import { AppError } from "../../errors";
 import {
 	DISPLAY_MODES,
 	type DisplayOptions,
 } from "../../domains/revision/service";
+import { AppError } from "../../errors";
 
 export const CREATE_INPUT_SCHEMA = REVISION_SCHEMA.omit({
 	id: true,

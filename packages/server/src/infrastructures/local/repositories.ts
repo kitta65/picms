@@ -2,8 +2,8 @@ import * as crypto from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { SIGNED_URL_TTL_MINUTES } from "../../constants";
-import { AppError } from "../../errors";
 import type { ISharedStorage } from "../../domains/shared/repository";
+import { AppError } from "../../errors";
 
 type Sign = {
 	directory: string;

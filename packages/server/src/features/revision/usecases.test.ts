@@ -1,8 +1,8 @@
 import { describe, expect, spyOn, test } from "bun:test";
 import type { Revision } from "../../domains/revision/entity";
-import { AppError } from "../../errors";
 import { _TEST as REVISION_REPOSITORY_TEST } from "../../domains/revision/repository";
 import { _TEST as SHARED_REPOSITORY_TEST } from "../../domains/shared/repository";
+import { AppError } from "../../errors";
 import { issueSignedUrl } from "./usecases";
 
 const { FakeSharedStorage } = SHARED_REPOSITORY_TEST;
