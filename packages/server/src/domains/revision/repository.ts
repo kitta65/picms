@@ -1,6 +1,4 @@
-import { HTTPException } from "hono/http-exception";
 import type { Awaitable } from "picms-shared/types";
-import { ERROR_CODE } from "../../constants";
 import type { OperationResult } from "../message/types";
 import type { Revision } from "./entity";
 
@@ -14,22 +12,18 @@ export interface IRevisionDatabase {
 
 class FakeRevisionDatabase implements IRevisionDatabase {
 	insert(_: Revision): Awaitable<OperationResult<Revision>> {
-		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
-		throw new HTTPException(status, { message });
+		throw new Error("not implemented");
 	}
 	findById(_: Revision["id"]): Awaitable<Revision | undefined> {
-		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
-		throw new HTTPException(status, { message });
+		throw new Error("not implemented");
 	}
 	findByWorkId(
 		_: Revision["workId"],
 	): ReturnType<IRevisionDatabase["findByWorkId"]> {
-		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
-		throw new HTTPException(status, { message });
+		throw new Error("not implemented");
 	}
 	deleteById(_: Revision["id"]): Awaitable<void> {
-		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
-		throw new HTTPException(status, { message });
+		throw new Error("not implemented");
 	}
 }
 

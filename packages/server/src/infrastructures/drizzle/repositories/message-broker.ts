@@ -1,6 +1,4 @@
 import { and, eq, inArray, lt, sql } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import { ERROR_CODE } from "../../../constants";
 import { MESSAGE_SCHEMA, type Message } from "../../../domains/message/entity";
 import type { IMessageBroker } from "../../../domains/message/repository";
 import { DB } from "../configs";
@@ -12,8 +10,7 @@ export const messageBroker: IMessageBroker = {
 		const inserted = results.at(0);
 
 		if (!inserted) {
-			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
-			throw new HTTPException(status, { message });
+			throw new Error("something went wrong");
 		}
 
 		const parsed = MESSAGE_SCHEMA.parse(inserted);

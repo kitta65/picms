@@ -1,7 +1,5 @@
 import { eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
 import {
-	ERROR_CODE,
 	ORPHAN_REVISION_TTL_MINUTES,
 	SIGNED_URL_TTL_MINUTES,
 } from "../../../constants";
@@ -31,8 +29,7 @@ export class RevisionDatabase implements IRevisionDatabase {
 				.returning();
 			const insertedRevision = results.at(0);
 			if (!insertedRevision) {
-				const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
-				throw new HTTPException(status, { message });
+				throw new Error("something went wrong");
 			}
 
 			// publish messages

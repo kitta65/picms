@@ -1,8 +1,6 @@
 import { Hono } from "hono";
-import { HTTPException } from "hono/http-exception";
 import { validator } from "hono/validator";
-
-import { ERROR_CODE } from "../constants";
+import { CodedError } from "../errors";
 import * as workIo from "../features/work/io";
 import { workDatabase } from "../infrastructures/drizzle/repositories/work-database";
 import * as drizzleViews from "../infrastructures/drizzle/views";
@@ -13,8 +11,7 @@ export const WORK_API = new Hono()
 		validator("json", (value) => {
 			const parsed = workIo.CREATE_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
-				const { status, message } = ERROR_CODE.BAD_REQUEST;
-				throw new HTTPException(status, { message });
+				throw new CodedError("BAD_REQUEST");
 			}
 			return parsed.data;
 		}),
@@ -31,8 +28,7 @@ export const WORK_API = new Hono()
 		validator("query", (value) => {
 			const parsed = workIo.FIND_MANY_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
-				const { status, message } = ERROR_CODE.BAD_REQUEST;
-				throw new HTTPException(status, { message });
+				throw new CodedError("BAD_REQUEST");
 			}
 			return parsed.data;
 		}),
@@ -48,8 +44,7 @@ export const WORK_API = new Hono()
 		validator("param", (value) => {
 			const parsed = workIo.FIND_BY_ID_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
-				const { status, message } = ERROR_CODE.BAD_REQUEST;
-				throw new HTTPException(status, { message });
+				throw new CodedError("BAD_REQUEST");
 			}
 			return parsed.data;
 		}),
@@ -65,8 +60,7 @@ export const WORK_API = new Hono()
 		validator("json", (value) => {
 			const parsed = workIo.UPDATE_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
-				const { status, message } = ERROR_CODE.BAD_REQUEST;
-				throw new HTTPException(status, { message });
+				throw new CodedError("BAD_REQUEST");
 			}
 			return parsed.data;
 		}),
@@ -83,8 +77,7 @@ export const WORK_API = new Hono()
 		validator("param", (value) => {
 			const parsed = workIo.DELETE_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
-				const { status, message } = ERROR_CODE.BAD_REQUEST;
-				throw new HTTPException(status, { message });
+				throw new CodedError("BAD_REQUEST");
 			}
 			return parsed.data;
 		}),

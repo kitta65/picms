@@ -1,16 +1,15 @@
 import { Hono } from "hono";
-import { HTTPException } from "hono/http-exception";
 import { validator } from "hono/validator";
 import { SERVER_ROUTE } from "picms-shared/constants";
 import { CONFIG_API } from "./apis/config";
 import { REVISION_API } from "./apis/revision";
 import { WORK_API } from "./apis/work";
 import {
-	ERROR_CODE,
 	PRIVATE_API_PATH,
 	PUBLIC_API_PATH,
 	STORAGE_API_PATH,
 } from "./constants";
+import { CodedError, type ErrorCode } from "./errors";
 import * as messageUsecases from "./features/message/usecases";
 import * as storageIo from "./features/storage/io";
 import { messageBroker } from "./infrastructures/drizzle/repositories/message-broker";
@@ -30,8 +29,7 @@ const PRIVATE_API = new Hono()
 		const splitted = c.req.url.split(PRIVATE_API_PATH);
 		const basePath = splitted.at(0);
 		if (splitted.length !== 2 || !basePath) {
-			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
-			throw new HTTPException(status, { message });
+			throw new Error("cannot infer basePath");
 		}
 		const revisionStorage = new localRepository.RevisionStorage(
 			basePath + STORAGE_API_PATH,
@@ -59,8 +57,7 @@ const STORAGE_API = new Hono().put(
 	validator("param", (value) => {
 		const parsed = storageIo.STORAGE_POST_SCHEMA.safeParse(value);
 		if (!parsed.success) {
-			const { status, message } = ERROR_CODE.BAD_REQUEST;
-			throw new HTTPException(status, { message });
+			throw new CodedError("BAD_REQUEST");
 		}
 		return parsed.data;
 	}),
@@ -68,15 +65,13 @@ const STORAGE_API = new Hono().put(
 	async (c) => {
 		const { PICMS_STORAGE } = Bun.env;
 		if (PICMS_STORAGE !== "local") {
-			const { status, message } = ERROR_CODE.NOT_FOUND;
-			throw new HTTPException(status, { message });
+			throw new Error("local storage is not enabled");
 		}
 
 		const splitted = c.req.url.split(STORAGE_API_PATH);
 		const basePath = splitted.at(0);
 		if (splitted.length !== 2 || !basePath) {
-			const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
-			throw new HTTPException(status, { message });
+			throw new Error("cannot infer basePath");
 		}
 
 		const storage = new localRepository.SharedStorage(
@@ -86,8 +81,7 @@ const STORAGE_API = new Hono().put(
 
 		const token = c.req.query("token");
 		if (!token) {
-			const { status, message } = ERROR_CODE.FORBIDDEN;
-			throw new HTTPException(status, { message });
+			throw new CodedError("FORBIDDEN");
 		}
 		const id = c.req.valid("param").id;
 		const blob = await c.req.blob();
@@ -96,18 +90,27 @@ const STORAGE_API = new Hono().put(
 	},
 );
 
+const RESPONSE_BY_ERROR_CODE = {
+	BAD_REQUEST: { status: 400, message: "Bad Request" },
+	UNAUTHORIZED: { status: 401, message: "Unauthorized" },
+	FORBIDDEN: { status: 403, message: "Forbidden" },
+	NOT_FOUND: { status: 404, message: "Not Found" },
+	REQUEST_TIMEOUT: { status: 408, message: "Request Timeout" },
+	CONFLICT: { status: 409, message: "Conflict" },
+} as const satisfies { [k in ErrorCode]: { status: number; message: string } };
+
 export const PICMS_API = new Hono()
 	.basePath(SERVER_ROUTE)
 	.route(PRIVATE_API_PATH, PRIVATE_API)
 	.route(PUBLIC_API_PATH, PUBLIC_API)
 	.route(STORAGE_API_PATH, STORAGE_API)
 	.onError((err, c) => {
-		if (err instanceof HTTPException) {
-			return err.getResponse();
+		if (err instanceof CodedError) {
+			const { status, message } = RESPONSE_BY_ERROR_CODE[err.code];
+			return c.text(message, status);
 		}
 
 		// fallback
-		const { status, message } = ERROR_CODE.INTERNAL_SERVER_ERROR;
-		return c.text(message, status);
+		return c.text("Internal Server Error", 500);
 	});
 export type PicmsApi = typeof PICMS_API;
