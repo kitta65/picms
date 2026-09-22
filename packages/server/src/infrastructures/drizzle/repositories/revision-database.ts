@@ -5,7 +5,10 @@ import {
 } from "../../../constants";
 import { MESSAGE_SCHEMA, Message } from "../../../domains/message/entity";
 import type { IMessageBroker } from "../../../domains/message/repository";
-import { REVISION_SCHEMA } from "../../../domains/revision/entity";
+import {
+	REVISION_SCHEMA,
+	type Revision,
+} from "../../../domains/revision/entity";
 import type { IRevisionDatabase } from "../../../domains/revision/repository";
 import { DB } from "../configs";
 import { messageTable, revisionTable } from "../tables";
@@ -17,7 +20,7 @@ export class RevisionDatabase implements IRevisionDatabase {
 		this.messageBroker = di?.messageBroker;
 	}
 
-	async insert(revision: Parameters<IRevisionDatabase["insert"]>[0]) {
+	async insert(revision: Revision) {
 		const result = await DB.transaction(async (tx) => {
 			// insert
 			const results = await tx
@@ -70,7 +73,7 @@ export class RevisionDatabase implements IRevisionDatabase {
 		return operationResult;
 	}
 
-	async findById(id: Parameters<IRevisionDatabase["findById"]>[0]) {
+	async findById(id: Revision["id"]) {
 		const revisions = await DB.select()
 			.from(revisionTable)
 			.where(eq(revisionTable.id, id));
@@ -92,7 +95,7 @@ export class RevisionDatabase implements IRevisionDatabase {
 		return revisions;
 	}
 
-	async deleteById(id: Parameters<IRevisionDatabase["deleteById"]>[0]) {
+	async deleteById(id: Revision["id"]) {
 		await DB.delete(revisionTable).where(eq(revisionTable.id, id));
 	}
 }

@@ -49,7 +49,7 @@ export class SharedStorage implements ISharedStorage {
 		this.options = options ?? {};
 	}
 
-	async issueSignedUrl(id: Parameters<ISharedStorage["issueSignedUrl"]>[0]) {
+	async issueSignedUrl(id: string) {
 		const token = crypto.randomBytes(36).toString("hex");
 		const url = `${this.apiBaseUrl}/${this.directory}/${id}?token=${token}`;
 		SharedStorage.sign = {
@@ -61,9 +61,7 @@ export class SharedStorage implements ISharedStorage {
 		return url;
 	}
 
-	async checkAvailability(
-		id: Parameters<ISharedStorage["checkAvailability"]>[0],
-	) {
+	async checkAvailability(id: string) {
 		const fullPath = this.#buildFullPath(id);
 		const exists = await fs.exists(fullPath);
 		return !exists;
@@ -90,13 +88,13 @@ export class SharedStorage implements ISharedStorage {
 		await fs.writeFile(fullPath, data.stream(), { flag: "wx" });
 	}
 
-	async readById(id: Parameters<ISharedStorage["readById"]>[0]) {
+	async readById(id: string) {
 		const fullPath = this.#buildFullPath(id);
 		const file = Bun.file(fullPath);
 		return { stream: file.stream(), size: file.size };
 	}
 
-	async deleteById(id: Parameters<ISharedStorage["deleteById"]>[0]) {
+	async deleteById(id: string) {
 		const fullPath = this.#buildFullPath(id);
 		await fs.rm(fullPath, { force: true });
 	}
