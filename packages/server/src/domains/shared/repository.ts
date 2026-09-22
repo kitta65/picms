@@ -13,16 +13,18 @@ export interface ISharedStorage {
 }
 
 class FakeSharedStorage implements ISharedStorage {
-	issueSignedUrl(_: string): Awaitable<string> {
+	issueSignedUrl(_: string): ReturnType<ISharedStorage["issueSignedUrl"]> {
 		throw new Error("not implemented");
 	}
-	checkAvailability(_: string): Awaitable<boolean> {
+	checkAvailability(
+		_: string,
+	): ReturnType<ISharedStorage["checkAvailability"]> {
 		throw new Error("not implemented");
 	}
-	readById(_: string): Awaitable<StreamWithSize> {
+	readById(_: string): ReturnType<ISharedStorage["readById"]> {
 		throw new Error("not implemented");
 	}
-	deleteById(_: string): Awaitable<void> {
+	deleteById(_: string): ReturnType<ISharedStorage["deleteById"]> {
 		throw new Error("not implemented");
 	}
 }

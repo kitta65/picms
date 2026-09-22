@@ -11,10 +11,10 @@ export interface IRevisionDatabase {
 }
 
 class FakeRevisionDatabase implements IRevisionDatabase {
-	insert(_: Revision): Awaitable<OperationResult<Revision>> {
+	insert(_: Revision): ReturnType<IRevisionDatabase["insert"]> {
 		throw new Error("not implemented");
 	}
-	findById(_: Revision["id"]): Awaitable<Revision | undefined> {
+	findById(_: Revision["id"]): ReturnType<IRevisionDatabase["findById"]> {
 		throw new Error("not implemented");
 	}
 	findByWorkId(
@@ -22,7 +22,7 @@ class FakeRevisionDatabase implements IRevisionDatabase {
 	): ReturnType<IRevisionDatabase["findByWorkId"]> {
 		throw new Error("not implemented");
 	}
-	deleteById(_: Revision["id"]): Awaitable<void> {
+	deleteById(_: Revision["id"]): ReturnType<IRevisionDatabase["deleteById"]> {
 		throw new Error("not implemented");
 	}
 }

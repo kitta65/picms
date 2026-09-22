@@ -15,15 +15,15 @@ export interface IMessageBroker {
 }
 
 class FakeMessageBroker implements IMessageBroker {
-	publish(_: Message): Awaitable<Message> {
+	publish(_: Message): ReturnType<IMessageBroker["publish"]> {
 		throw new Error("not implemented");
 	}
 
-	pull(_?: Options): Awaitable<Message[]> {
+	pull(_?: Options): ReturnType<IMessageBroker["pull"]> {
 		throw new Error("not implemented");
 	}
 
-	ack(_: Message["id"]): Awaitable<void> {
+	ack(_: Message["id"]): ReturnType<IMessageBroker["ack"]> {
 		throw new Error("not implemented");
 	}
 }
