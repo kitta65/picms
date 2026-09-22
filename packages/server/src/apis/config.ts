@@ -1,8 +1,7 @@
 import { Hono } from "hono";
-import { HTTPException } from "hono/http-exception";
 import { validator } from "hono/validator";
-import { ERROR_CODE } from "../constants";
 import { DEFAULT } from "../domains/config/entity";
+import { CodedError } from "../errors";
 import * as configIo from "../features/config/io";
 import { configDatabase } from "../infrastructures/drizzle/repositories/config-database";
 
@@ -18,8 +17,7 @@ export const CONFIG_API = new Hono()
 		validator("json", (value) => {
 			const parsed = configIo.UPSERT_INPUT_SCHEMA.safeParse(value);
 			if (!parsed.success) {
-				const { status, message } = ERROR_CODE.BAD_REQUEST;
-				throw new HTTPException(status, { message });
+				throw new CodedError("BAD_REQUEST");
 			}
 			return parsed.data;
 		}),

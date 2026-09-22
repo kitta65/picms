@@ -35,7 +35,9 @@
 										"group": [
 											"**/infrastructures/**/*",
 											"**/features/**/*",
-											"**/apis/**/*"
+											"**/apis/**/*",
+											"hono",
+											"hono/**/*"
 										]
 									}
 								]
@@ -56,7 +58,12 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["**/infrastructures/**/*", "**/apis/**/*"]
+										"group": [
+											"**/infrastructures/**/*",
+											"**/apis/**/*",
+											"hono",
+											"hono/**/*"
+										]
 									}
 								]
 							}
@@ -76,7 +83,7 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["**/apis/**/*"]
+										"group": ["**/apis/**/*", "hono", "hono/**/*"]
 									}
 								]
 							}

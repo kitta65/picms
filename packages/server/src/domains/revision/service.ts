@@ -1,6 +1,5 @@
 import { buffer } from "node:stream/consumers";
-import { HTTPException } from "hono/http-exception";
-import { ERROR_CODE } from "../../constants";
+import { CodedError } from "../../errors";
 import type { ISharedStorage } from "../shared/repository";
 import type { Revision } from "./entity";
 import type { IRevisionDatabase } from "./repository";
@@ -42,8 +41,7 @@ export async function display(
 	switch (mode) {
 		case "inside": {
 			if ((width && !height) || (!width && height)) {
-				const { status, message } = ERROR_CODE.BAD_REQUEST;
-				throw new HTTPException(status, { message });
+				throw new CodedError("BAD_REQUEST");
 			}
 			if (!width || !height) {
 				return stream;
@@ -54,8 +52,7 @@ export async function display(
 			return await image.resize(width, height, { fit: "inside" }).blob();
 		}
 		default: {
-			const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
-			throw new HTTPException(status, { message });
+			throw new Error("not implemented");
 		}
 	}
 }

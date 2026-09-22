@@ -1,6 +1,4 @@
-import { HTTPException } from "hono/http-exception";
 import type { AtLeast, Awaitable } from "picms-shared/types";
-import { ERROR_CODE } from "../../constants";
 import type { OperationResult } from "../message/types";
 import type { Work } from "./entity";
 
@@ -13,22 +11,18 @@ export interface IWorkDatabase {
 
 class FakeWorkDatabase implements IWorkDatabase {
 	insert(_: Work): ReturnType<IWorkDatabase["insert"]> {
-		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
-		throw new HTTPException(status, { message });
+		throw new Error("not implemented");
 	}
 	update(
 		_: AtLeast<Work, "id" | "updatedAt">,
 	): ReturnType<IWorkDatabase["update"]> {
-		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
-		throw new HTTPException(status, { message });
+		throw new Error("not implemented");
 	}
 	findById(_: Work["id"]): ReturnType<IWorkDatabase["findById"]> {
-		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
-		throw new HTTPException(status, { message });
+		throw new Error("not implemented");
 	}
 	deleteById(_: Work["id"]): ReturnType<IWorkDatabase["deleteById"]> {
-		const { status, message } = ERROR_CODE.NOT_IMPLEMENTED;
-		throw new HTTPException(status, { message });
+		throw new Error("not implemented");
 	}
 }
 

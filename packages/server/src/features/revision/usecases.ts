@@ -1,10 +1,9 @@
-import { HTTPException } from "hono/http-exception";
 import { assertNever } from "picms-shared/types";
-import { ERROR_CODE } from "../../constants";
 import { Revision } from "../../domains/revision/entity";
 import type { IRevisionDatabase } from "../../domains/revision/repository";
 import * as RevisionService from "../../domains/revision/service";
 import type { ISharedStorage } from "../../domains/shared/repository";
+import { CodedError } from "../../errors";
 
 export async function issueSignedUrl(
 	revisionId: Revision["id"],
@@ -13,13 +12,11 @@ export async function issueSignedUrl(
 	const revision = await di.revisionDatabase.findById(revisionId);
 
 	if (!revision) {
-		const { status, message } = ERROR_CODE.NOT_FOUND;
-		throw new HTTPException(status, { message });
+		throw new CodedError("NOT_FOUND");
 	}
 
 	if (!Revision.isWithinOrphanTtl(revision)) {
-		const { status, message } = ERROR_CODE.REQUEST_TIMEOUT;
-		throw new HTTPException(status, { message });
+		throw new CodedError("REQUEST_TIMEOUT");
 	}
 
 	// avoid duplicate upload (best effort)
@@ -27,8 +24,7 @@ export async function issueSignedUrl(
 		revisionStorage: di.revisionStorage,
 	});
 	if (!isAvailable) {
-		const { status, message } = ERROR_CODE.CONFLICT;
-		throw new HTTPException(status, { message });
+		throw new CodedError("CONFLICT");
 	}
 
 	const url = await di.revisionStorage.issueSignedUrl(revisionId);
@@ -55,8 +51,7 @@ export async function download(
 ) {
 	const revision = await di.revisionDatabase.findById(revisionId);
 	if (!revision) {
-		const { status, message } = ERROR_CODE.NOT_FOUND;
-		throw new HTTPException(status, { message });
+		throw new CodedError("NOT_FOUND");
 	}
 
 	const { stream, metadata } = await RevisionService.readWithMetadata(
