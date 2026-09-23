@@ -19,7 +19,7 @@ services:
       # options: local, gcs, fake-gcs
       PICMS_STORAGE_TYPE: local
       PICMS_STORAGE_LOCAL_ORIGIN: "localhost:9003" # PICMS_PORT_WEB for development
-      PICMS_STORAGE_GCS_BUCKET: "devlopment"
+      PICMS_STORAGE_FAKE_GCS_BUCKET: "devlopment"
     command: sleep infinity
     depends_on:
       postgres:
@@ -67,5 +67,6 @@ services:
     image: fsouza/fake-gcs-server
     environment:
       FAKE_GCS_PUBLIC_HOST: gcs
+      FAKE_GCS_SCHEME: http
     volumes:
-      - "../.cache/gcs:/data"
+      - "../.cache/gcs:/storage"

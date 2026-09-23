@@ -10,9 +10,15 @@ const STORAGE_OPTIONS_GCS_SCHEMA = z.object({
 	storageGcsBucket: z.string().min(1),
 });
 
+const STORAGE_OPTIONS_FAKE_GCS_SCHEMA = z.object({
+	storageType: z.literal("fake-gcs"),
+	storageFakeGcsBucket: z.string().min(1),
+});
+
 const STORAGE_OPTIONS_SCHEMA = z.discriminatedUnion("storageType", [
 	STORAGE_OPTIONS_LOCAL_SCHEMA,
 	STORAGE_OPTIONS_GCS_SCHEMA,
+	STORAGE_OPTIONS_FAKE_GCS_SCHEMA,
 ]);
 
 // when you add other options, use z.intersection(STORAGE_OPTIONS_SCHEMA, ...);
