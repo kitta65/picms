@@ -16,4 +16,5 @@ const STORAGE_OPTIONS_SCHEMA = z.discriminatedUnion("storageType", [
 ]);
 
 // when you add other options, use z.intersection(STORAGE_OPTIONS_SCHEMA, ...);
-export const SERVER_OPTIONS_SCHEMA = STORAGE_OPTIONS_SCHEMA;
+export const API_OPTIONS_SCHEMA = STORAGE_OPTIONS_SCHEMA;
+export type ApiOptions = z.infer<typeof API_OPTIONS_SCHEMA>;

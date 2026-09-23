@@ -1,6 +1,6 @@
 import type { Awaitable } from "picms-shared/types";
 
-type StreamWithSize = {
+export type StreamWithSize = {
 	stream: ReadableStream;
 	size: number; // size in bytes
 };

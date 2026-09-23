@@ -1,4 +1,4 @@
-import { PICMS_API } from "picms-server/api";
+import { createPicmsApi } from "picms-server/api";
 import { SERVER_ROUTE } from "picms-shared/constants";
 import type { Awaitable } from "picms-shared/types";
 import index from "picms-web/dist/index.html";
@@ -36,9 +36,10 @@ function main() {
 	// TODO: support command line arguments
 	const picmsOptions = PicmsOptions.fromEnv(Bun.env);
 	const isProduction = process.env.NODE_ENV === "production";
+	const api = createPicmsApi(picmsOptions);
 	const serverOptions = createServerOptions(
 		{
-			apiFunc: (req) => PICMS_API.fetch(req),
+			apiFunc: (req) => api.fetch(req),
 		},
 		{ port: picmsOptions.portMain, isProduction },
 	);

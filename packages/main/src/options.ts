@@ -1,4 +1,4 @@
-import { SERVER_OPTIONS_SCHEMA } from "picms-server/options";
+import { API_OPTIONS_SCHEMA } from "picms-server/options";
 import * as z from "zod";
 
 const PORT_OPTIONS_SCHEMA = z.object({
@@ -8,7 +8,7 @@ const PORT_OPTIONS_SCHEMA = z.object({
 
 const PICMS_OPTIONS_SCHEMA = z.intersection(
 	PORT_OPTIONS_SCHEMA,
-	SERVER_OPTIONS_SCHEMA,
+	API_OPTIONS_SCHEMA,
 );
 type PicmsOptions = z.infer<typeof PICMS_OPTIONS_SCHEMA>;
 
