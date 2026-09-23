@@ -1,7 +1,7 @@
 # https://docs.docker.com/reference/compose-file/extension/
 x-dev-constants: &dev-constants
   PG_USER: &pg-user picms
-  PG_PASS: &pg-pass pass 
+  PG_PASS: &pg-pass pass
   PG_PORT: &pg-port 5432
 
 services:
@@ -13,14 +13,19 @@ services:
     environment:
       <<: *dev-constants
       PICMS_CACHE_DIR: /workspaces/picms/.cache
-      PICMS_STORAGE: local
       PICMS_PORT_MAIN: 9001
       PICMS_PORT_INSPECT: 9002
       PICMS_PORT_WEB: 9003
+      # options: local, gcs, fake-gcs
+      PICMS_STORAGE_TYPE: local
+      PICMS_STORAGE_LOCAL_ORIGIN: "localhost:9003" # PICMS_PORT_WEB for development
+      PICMS_STORAGE_FAKE_GCS_BUCKET: "devlopment"
     command: sleep infinity
     depends_on:
       postgres:
         condition: service_healthy
+      gcs:
+        condition: service_started
     volumes:
       - "..:/workspaces/picms"
 
@@ -57,6 +62,11 @@ services:
       PORT_postgres: *pg-port
       ENGINE_postgres: postgres@dbgate-plugin-postgres
 
-    # do not persist data until this bug is fixed https://github.com/dbgate/dbgate/issues/1493
-    # volumes:
-    #   - "../.cache/dbgate:/root/.dbgate"
+  # https://github.com/fsouza/fake-gcs-server
+  gcs:
+    image: fsouza/fake-gcs-server
+    environment:
+      FAKE_GCS_PUBLIC_HOST: gcs
+      FAKE_GCS_SCHEME: http
+    volumes:
+      - "../.cache/gcs:/storage"

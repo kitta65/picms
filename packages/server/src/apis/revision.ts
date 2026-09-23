@@ -1,134 +1,101 @@
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-
-import { PRIVATE_API_PATH, STORAGE_API_PATH } from "../constants";
+import type { Di } from "../di";
 import * as revisionService from "../domains/revision/service";
 import { CodedError } from "../errors";
 import * as revisionIo from "../features/revision/io";
 import * as revisionUsecase from "../features/revision/usecases";
-import { revisionDatabase } from "../infrastructures/drizzle/repositories/revision-database";
-import * as localRepository from "../infrastructures/local/repositories";
 
-export const REVISION_API = new Hono()
-	.post(
-		"/",
-		validator("json", async (value) => {
-			const parsed = revisionIo.CREATE_INPUT_SCHEMA.safeParse(value);
-			if (!parsed.success) {
-				throw new CodedError("BAD_REQUEST");
-			}
-			return parsed.data;
-		}),
-		async (c) => {
-			const repository = revisionDatabase;
-			const entity = revisionIo.CreateInput.toEntity(c.req.valid("json"));
-			const { data: created } = await repository.insert(entity);
-			return c.json(created, 201);
-		},
-	)
-	.get(
-		"/:id",
-		validator("param", async (value) => {
-			const parsed = revisionIo.FIND_BY_ID_INPUT_SCHEMA.safeParse(value);
-			if (!parsed.success) {
-				throw new CodedError("BAD_REQUEST");
-			}
+export function createRevisionApi(di: Di) {
+	return new Hono()
+		.post(
+			"/",
+			validator("json", async (value) => {
+				const parsed = revisionIo.CREATE_INPUT_SCHEMA.safeParse(value);
+				if (!parsed.success) {
+					throw new CodedError("BAD_REQUEST");
+				}
+				return parsed.data;
+			}),
+			async (c) => {
+				const repository = di.revisionDatabase;
+				const entity = revisionIo.CreateInput.toEntity(c.req.valid("json"));
+				const { data: created } = await repository.insert(entity);
+				return c.json(created, 201);
+			},
+		)
+		.get(
+			"/:id",
+			validator("param", async (value) => {
+				const parsed = revisionIo.FIND_BY_ID_INPUT_SCHEMA.safeParse(value);
+				if (!parsed.success) {
+					throw new CodedError("BAD_REQUEST");
+				}
 
-			return parsed.data;
-		}),
-		async (c) => {
-			const param = c.req.valid("param");
-			const repo = revisionDatabase;
-			const revision = await repo.findById(param.id);
-			if (!revision) {
-				throw new CodedError("NOT_FOUND");
-			}
-			return c.json(revision);
-		},
-	)
-	.get(
-		"/:id/signed-url",
-		validator("param", async (value) => {
-			const parsed = revisionIo.ISSUE_SIGNED_URL_INPUT_SCHEMA.safeParse(value);
-			if (!parsed.success) {
-				throw new CodedError("BAD_REQUEST");
-			}
+				return parsed.data;
+			}),
+			async (c) => {
+				const param = c.req.valid("param");
+				const repo = di.revisionDatabase;
+				const revision = await repo.findById(param.id);
+				if (!revision) {
+					throw new CodedError("NOT_FOUND");
+				}
+				return c.json(revision);
+			},
+		)
+		.get(
+			"/:id/signed-url",
+			validator("param", async (value) => {
+				const parsed =
+					revisionIo.ISSUE_SIGNED_URL_INPUT_SCHEMA.safeParse(value);
+				if (!parsed.success) {
+					throw new CodedError("BAD_REQUEST");
+				}
 
-			return parsed.data;
-		}),
-		async (c) => {
-			const param = c.req.valid("param");
-			const splitted = c.req.url.split(PRIVATE_API_PATH);
-			const basePath = splitted.at(0);
-			if (splitted.length !== 2 || !basePath) {
-				throw new Error("cannot infer basePath");
-			}
-			const revisionStorage = new localRepository.RevisionStorage(
-				basePath + STORAGE_API_PATH,
-			);
-			const url = await revisionUsecase.issueSignedUrl(param.id, {
-				revisionDatabase,
-				revisionStorage,
-			});
-			return c.text(url);
-		},
-	)
-	.get(
-		"/:id/download",
-		validator("param", async (value) => {
-			const parsed = revisionIo.DOWNLOAD_INPUT_SCHEMA.safeParse(value);
-			if (!parsed.success) {
-				throw new CodedError("BAD_REQUEST");
-			}
+				return parsed.data;
+			}),
+			async (c) => {
+				const param = c.req.valid("param");
+				const url = await revisionUsecase.issueSignedUrl(param.id, di);
+				return c.text(url);
+			},
+		)
+		.get(
+			"/:id/download",
+			validator("param", async (value) => {
+				const parsed = revisionIo.DOWNLOAD_INPUT_SCHEMA.safeParse(value);
+				if (!parsed.success) {
+					throw new CodedError("BAD_REQUEST");
+				}
 
-			return parsed.data;
-		}),
-		async (c) => {
-			const param = c.req.valid("param");
-			const splitted = c.req.url.split(PRIVATE_API_PATH);
-			const basePath = splitted.at(0);
-			if (splitted.length !== 2 || !basePath) {
-				throw new Error("cannot infer basePath");
-			}
-			const revisionStorage = new localRepository.RevisionStorage(
-				basePath + STORAGE_API_PATH,
-			);
+				return parsed.data;
+			}),
+			async (c) => {
+				const param = c.req.valid("param");
+				return revisionUsecase.download(param.id, di);
+			},
+		)
+		.get(
+			"/:revisionId/:mode/:size",
+			validator("param", async (value) => {
+				const parsed = revisionIo.DISPLAY_INPUT_SCHEMA.safeParse(value);
+				if (!parsed.success) {
+					throw new CodedError("BAD_REQUEST");
+				}
 
-			return revisionUsecase.download(param.id, {
-				revisionStorage,
-				revisionDatabase,
-			});
-		},
-	)
-	.get(
-		"/:revisionId/:mode/:size",
-		validator("param", async (value) => {
-			const parsed = revisionIo.DISPLAY_INPUT_SCHEMA.safeParse(value);
-			if (!parsed.success) {
-				throw new CodedError("BAD_REQUEST");
-			}
+				return parsed.data;
+			}),
+			async (c) => {
+				const param = c.req.valid("param");
 
-			return parsed.data;
-		}),
-		async (c) => {
-			const param = c.req.valid("param");
-			const splitted = c.req.url.split(PRIVATE_API_PATH);
-			const basePath = splitted.at(0);
-			if (splitted.length !== 2 || !basePath) {
-				throw new Error("cannot infer basePath");
-			}
-			const revisionStorage = new localRepository.RevisionStorage(
-				basePath + STORAGE_API_PATH,
-			);
-
-			const revision = await revisionDatabase.findById(param.revisionId);
-			if (!revision) {
-				throw new CodedError("NOT_FOUND");
-			}
-			const options = revisionIo.DisplayInput.toDisplayOptions(param);
-			const blob = await revisionService.display(revision, options, {
-				revisionStorage,
-			});
-			return new Response(blob);
-		},
-	);
+				const revision = await di.revisionDatabase.findById(param.revisionId);
+				if (!revision) {
+					throw new CodedError("NOT_FOUND");
+				}
+				const options = revisionIo.DisplayInput.toDisplayOptions(param);
+				const blob = await revisionService.display(revision, options, di);
+				return new Response(blob);
+			},
+		);
+}

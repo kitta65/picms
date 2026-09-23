@@ -144,23 +144,26 @@ describe("save", () => {
 });
 
 describe("readById", async () => {
-	// save data
-	const storage = new SharedStorage("", TEMP_DIR_NAME, {
-		skipValidation: true,
+	test("can read saved data", async () => {
+		// save data
+		const storage = new SharedStorage("", TEMP_DIR_NAME, {
+			skipValidation: true,
+		});
+		const uuid = Bun.randomUUIDv7();
+		const buffer = new ArrayBuffer(4);
+		await storage.save(uuid, "", new Blob([buffer]));
+
+		// read data
+		const { stream, size } = await storage.readById(uuid);
+		const u8s = await stream.bytes();
+
+		// assertion
+		expect(u8s.length).toBe(4);
+		for (const u8 of u8s) {
+			expect(u8).toBe(0);
+		}
+		expect(size).toBe(4);
 	});
-	const uuid = Bun.randomUUIDv7();
-	const buffer = new ArrayBuffer(4);
-	await storage.save(uuid, "", new Blob([buffer]));
-
-	// read data
-	const { stream, size } = await storage.readById(uuid);
-	const u8s = await stream.bytes();
-
-	// assertion
-	for (const u8 of u8s) {
-		expect(u8).toBe(0);
-	}
-	expect(size).toBe(4);
 });
 
 describe("deleteById", () => {
