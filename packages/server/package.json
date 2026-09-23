@@ -3,7 +3,8 @@
 	"exports": {
 		"./api": "./src/api.ts",
 		"./apis/*": "./src/apis/*.ts",
-		"./features/*": "./src/features/*.ts"
+		"./features/*": "./src/features/*.ts",
+		"./options": "./src/options.ts"
 	},
 	"type": "module",
 	"private": true,

@@ -2,9 +2,10 @@ import { PICMS_API } from "picms-server/api";
 import { SERVER_ROUTE } from "picms-shared/constants";
 import type { Awaitable } from "picms-shared/types";
 import index from "picms-web/dist/index.html";
+import { PicmsOptions } from "./options";
 
 type ApiFunc = (req: Bun.BunRequest) => Awaitable<Response>;
-const { PICMS_PORT_MAIN, PICMS_PORT_WEB } = Bun.env;
+const { PICMS_PORT_WEB } = Bun.env;
 
 function createServerOptions(
 	fn: {
@@ -32,19 +33,17 @@ function createServerOptions(
 }
 
 function main() {
-	if (!PICMS_PORT_MAIN) {
-		throw new Error("PICMS_PORT_MAIN is not specified");
-	}
-	const port = Number(PICMS_PORT_MAIN);
+	// TODO: support command line arguments
+	const picmsOptions = PicmsOptions.fromEnv(Bun.env);
 	const isProduction = process.env.NODE_ENV === "production";
-	const options = createServerOptions(
+	const serverOptions = createServerOptions(
 		{
 			apiFunc: (req) => PICMS_API.fetch(req),
 		},
-		{ port, isProduction },
+		{ port: picmsOptions.portMain, isProduction },
 	);
 
-	const server = Bun.serve(options);
+	const server = Bun.serve(serverOptions);
 	console.log(`🚀 Server running at ${server.url}`);
 }
 

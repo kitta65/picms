@@ -12,7 +12,8 @@
 	"dependencies": {
 		"picms-server": "workspace:*",
 		"picms-shared": "workspace:*",
-		"picms-web": "workspace:*"
+		"picms-web": "workspace:*",
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@types/bun": "catalog:",

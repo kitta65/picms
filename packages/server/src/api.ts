@@ -63,8 +63,8 @@ const STORAGE_API = new Hono().put(
 	}),
 
 	async (c) => {
-		const { PICMS_STORAGE } = Bun.env;
-		if (PICMS_STORAGE !== "local") {
+		const { PICMS_STORAGE_TYPE } = Bun.env;
+		if (PICMS_STORAGE_TYPE !== "local") {
 			throw new Error("local storage is not enabled");
 		}
 
